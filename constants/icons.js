@@ -6,7 +6,7 @@ import menu from "../assets/icons/menu.png";
 import search from "../assets/icons/search.png";
 import upload from "../assets/icons/upload.png";
 import rightArrow from "../assets/icons/right-arrow.png";
-import logout from "../assets/icons/logout.png";
+// import logout from "../assets/icons/logout.png";
 import eyeHide from "../assets/icons/eye-hide.png";
 import eye from "../assets/icons/eye.png";
 import play from "../assets/icons/play.png";
@@ -46,6 +46,8 @@ import close from "../assets/icons/close.png";
 import check from "../assets/icons/check-mark.png";
 import approval from "../assets/icons/approval.png";
 import calendar from "../assets/icons/calendar.png";
+import logout from "../assets/icons/logout.png";
+
 
 
 

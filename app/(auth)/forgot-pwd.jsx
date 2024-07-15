@@ -4,18 +4,15 @@ import { icons, images } from '../../constants'
 import { Link, router } from 'expo-router';
 import CustomInput from '../../components/CustomInput'
 import CustomButton from '../../components/CustomButton'
-import { useForm } from 'react-hook-form';
 import {BottomSheetModal, BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import CustomBottomSheet from '../../components/CustomBottomSheet';
 
 
 export default function ResetPassword () {
-  const {control, handleSubmit, formState: {errors}} = useForm();
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const [email, setEmail] = useState('');
-
 
     const bottomSheetModalRef = useRef(null)
     const snapPoints = [ "80%"]
@@ -85,7 +82,7 @@ export default function ResetPassword () {
         </ScrollView>
         </KeyboardAvoidingView>
         </BottomSheetModalProvider>
-         </GestureHandlerRootView>
+    </GestureHandlerRootView>
 
     );
   }

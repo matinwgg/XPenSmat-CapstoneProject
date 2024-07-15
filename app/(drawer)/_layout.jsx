@@ -3,14 +3,24 @@ import { ScrollView, Text, View, KeyboardAvoidingView, TouchableOpacity, Image }
 import { icons } from '../../constants'
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Drawer } from 'expo-router/drawer'
-
+// import { DrawerContent } from '@react-navigation/drawer';
+import CustomDrawerContent from '../../components/CustomDrawercontent';
 
 const DrawerLayout = () => {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
     <Drawer 
-      screenOptions={{ headerShown: false, swipeEdgeWidth: 0, swipeEnabled: false, drawerLabelStyle: { marginLeft: -20, fontFamily: 'Poppins-Regular', fontSize: 15}, drawerStyle: {marginTop: 50, }}}
-    >
+      drawerContent={(props) => <CustomDrawerContent {...props}/>}
+      screenOptions={{ 
+        headerShown: false, 
+        drawerHideStatusBarOnOpen: true,
+        //drawerActiveBackgroundColor: '#1F41BB',
+        //drawerActiveTintColor: '#1F41BB',
+        swipeEdgeWidth: 0, 
+        swipeEnabled: false, 
+        drawerLabelStyle: { marginLeft: -20, fontFamily: 'Poppins-Regular', fontSize: 15}, 
+        //drawerStyle: {marginTop: 50 }
+      }}>
       <Drawer.Screen 
         name="(tabs)"
         options={{
@@ -93,12 +103,7 @@ const DrawerLayout = () => {
         )
       }}
       />
-
-      
-
-
-            
-    </Drawer>
+ </Drawer>
   
     </GestureHandlerRootView>
 

@@ -4,6 +4,11 @@ import { Tabs, Redirect } from 'expo-router'
 import {icons} from '../../../constants'
 
 const TabIcon = ({ icon_ac, icon_inac, color, name, focused, size}) => {
+
+    const handlePress = () => {
+
+    }
+
     return (
         <View className="items-center justify-between gap-1">
             <Image 
@@ -27,7 +32,7 @@ const TabsLayout = () => {
     <>
     <Tabs screenOptions={{
         tabBarShowLabel: false,
-        tabBarActiveTintColor: '#20B54B',
+        tabBarActiveTintColor: '#0161C7',
         tabBarInactiveTintColor: '#BFC0C0',
         tabBarStyle: {
             backgroundColor: '#FFF',
@@ -80,6 +85,7 @@ const TabsLayout = () => {
               
             )
         }}
+        
         />
 
 
@@ -92,7 +98,7 @@ const TabsLayout = () => {
                 <TabIcon
                     icon_ac={icons.settings_inac}
                     icon_inac={icons.settings_inac}
-                    color={`${focused ? '#20B54B' : color}`}
+                    color={`${focused ? '#1F41BB' : color}`}
                     name= 'settings' 
                     focused={focused}
                     size="w-6 h-6"

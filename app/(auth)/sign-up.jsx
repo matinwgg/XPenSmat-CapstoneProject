@@ -1,23 +1,19 @@
-import { ScrollView, StyleSheet, Button, Text, View, Modal, KeyboardAvoidingView, TouchableOpacity, Image, Alert } from 'react-native'
+import { ScrollView, StyleSheet, Text, View, TouchableOpacity, Image, Alert } from 'react-native'
 import React, {useState} from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { icons } from '../../constants'
 import FormField from '../../components/FormField'
 import {Link, router} from 'expo-router'
 import CustomButton  from '../../components/CustomButton'
-
 import { createUser } from '../../lib/appwrite'
+import { useGlobalContext } from '../../context/GlobalProvider'
 
 const EMAIL_REGEX =  /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
 
 const SignUp = () => {
-  let isValid = false
-
-  let isPwdValid = false
-
+  const { setUser, setIsLoggedIn } = useGlobalContext();
   const [isSubmitting, setIsSubmitting] = useState(false)  
-
-  const [modalVisible, setModalVisible] = useState(false);
+  const [error, setError] = useState()
 
   const [form, setForm] = useState({
     email: '',
@@ -26,38 +22,37 @@ const SignUp = () => {
     confirmpwd: '',
 })
 
-const validate = () => {
-  if (!form.username || !form.email || !form.password || !form.confirmpwd) {
-    Alert.alert('Error', 'Please fill in all the fields')
-  }
-
-  if (EMAIL_REGEX.test(form.email)) {
-    isValid = true
-  }
-  if (form.password != form.confirmpwd) {
-    isPwdValid = true
-  }
-  if (isValid && isPwdValid) {
-    setModalVisible(true)
-    submit()
-  }
-}
-
 const submit = async () => {
-  if (!form.username || !form.email || !form.password || !form.confirmpwd) {
-    Alert.alert('Error', 'Please fill in all the fields')
-  }
-  setIsSubmitting(true)
-  try {
-    const result = await createUser(form.email, form.password, form.username)
-    // Set to global state
+      if (!form.username || !form.email || !form.password || !form.confirmpwd) {
+        return Alert.alert('Error', 'Please fill in all the fields')
+      }
 
+    setError(null)
+    setIsSubmitting(true)
+
+    try {
+    const result = await createUser(form.email, form.password, form.username)
+    setUser(result);
+    setIsLoggedIn(true);
+    Alert.alert("Sign-Up Successful", "Account created")
     router.replace('/sign-in')
 
   } catch(error) {
-    Alert.alert('Error', error.message)
+    console.log(error)
+    setIsSubmitting(false)
+    setError(error.message)
   }
-    finally { setIsSubmitting(false)}
+    finally { setIsSubmitting(false)
+
+}
+
+    
+useEffect(() => {
+  if(error) {
+    Alert.alert("Something seem broken...", error)
+  }
+}, [error])
+
 }
 
   return (
@@ -70,7 +65,7 @@ const submit = async () => {
               resizeMode='contain'
               className="w-[100px] h-[50px] mt-[20px] self-start -ml-5 mb-5"/>
 
-            <Text className="self-start text-[38px] font-pextrabold mb-10">Create an account</Text>
+            <Text className="self-start text-5xl text-[#1F41BB] font-mbold py-5">Sign Up</Text>
 
           <FormField 
               containerStyle="w-[330px]"
@@ -87,7 +82,7 @@ const submit = async () => {
               onChangeText={(e) => setForm({...form, email: e})}
               contentType='emailAddress'
               keyType='email-address'
-              //emailValidation={isValid}
+              // emailValidation={isValid}
             />
 
             <FormField
@@ -105,36 +100,9 @@ const submit = async () => {
               value={form.confirmpwd}
               onChangeText={(e) => setForm({ ...form, confirmpwd: e })}
               contentType='password'
-              //passwordValidation={isPwdValid}
+              // passwordValidation={isPwdValid}
               secureTextEntry
             />
-
-        <Modal
-            animationType="slide"
-            transparent={true}
-            visible={modalVisible}
-            onRequestClose={() => {
-              setModalVisible(!modalVisible);
-            }}
-          >
-            <View style={styles.centeredView}>
-              <View style={styles.modalView}>
-                <Text style={styles.modalText}>Sign-Up Successful!</Text>
-                <Button
-                  title="Done"
-                  onPress={() => {
-                    setModalVisible(false);
-                   // router.replace('/sign-in')
-                  }}
-                />
-                <Button
-                  title="Cancel"
-                  onPress={() => setModalVisible(false)}
-                />
-              </View>
-            </View>
-          </Modal>
-
 
           <CustomButton 
               title="Register"
@@ -148,7 +116,7 @@ const submit = async () => {
                 <Text className="font-pmedium ">Already have an account? </Text>
                 <TouchableOpacity
                   onPress={() => router.push('/sign-in')}>
-                    <Text className="font-pbold text-sky-700">Sign in</Text> 
+                    <Text className="font-pbold text-[#1F41BB]">Sign in</Text> 
                 </TouchableOpacity>
             </View>
 

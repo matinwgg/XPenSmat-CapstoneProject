@@ -17,7 +17,7 @@ export default function ResetPassword () {
 
 
     const submit = () => {
-      router.push('/confirm-new-pwd')
+      //router.push('/confirm-new-pwd')
     }
 
     return (

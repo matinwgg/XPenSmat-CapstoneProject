@@ -20,21 +20,21 @@ const DropdownComponent = ({category,setCategory}) => {
 
 
   return (
-    <View style={styles.container}>
+    <View>
 
       <Dropdown
-        style={[styles.dropdown, isFocus && { borderColor: '#9ca3af' }]}
+        style={[styles.dropdown, isFocus && { borderColor: '#fff' }]}
         placeholderStyle={styles.placeholderStyle}
         selectedTextStyle={styles.selectedTextStyle}
         inputSearchStyle={styles.inputSearchStyle}
         iconStyle={styles.iconStyle}
         data={data}
         maxHeight={200}
-        containerStyle={{backgroundColor:"#0d0f14"}}
-        itemTextStyle={{color:"#9ca3af"}}
+        containerStyle={{backgroundColor:"#FFF", borderRadius: 15}}
+        itemTextStyle={{color:"#000", fontFamily: 'Brighter-Regular'}}
         labelField="label"
         valueField="value"
-        placeholder={!isFocus ? 'Category' : '...'}
+        placeholder={!isFocus ? 'Enter Category' : ''}
         searchPlaceholder="Search..."
         value={category}
         onFocus={() => setIsFocus(true)}
@@ -52,35 +52,31 @@ const DropdownComponent = ({category,setCategory}) => {
 export default DropdownComponent;
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: 'black',
-    
-  },
   dropdown: {
-    height: 40,
-    borderBottomColor: '#9ca3af',
-    borderWidth: 2,
-    borderRadius: 8,
+    height: 55,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 20,
     paddingHorizontal: 8,
-    minWidth:"50%",
+    marginHorizontal: 8,
     marginRight:0,
     marginTop:10,
-    backgroundColor:"#0d0f14" 
+    backgroundColor:"#fff" 
   },
   icon: {
-    marginRight: 5,
-
+    marginRight: 8,
   },
 
   placeholderStyle: {
-    fontSize: 16,
-    backgroundColor:"#0d0f14",
-    color:"#9ca3af"
+    fontSize: 20,
+    fontWeight: 'bold',
+    paddingLeft: 11,
+    fontFamily: 'Brighter-Regular',
   },
   selectedTextStyle: {
-    fontSize: 16,
-    color:"#9ca3af",
-    backgroundColor:"#0d0f14"
+    fontSize: 20,
+    fontFamily: 'Brighter-Regular',
+    paddingLeft: 11,
   },
 
 

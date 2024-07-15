@@ -1,259 +1,350 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, ScrollView, StyleSheet, TouchableOpacity, Modal, Platform, TouchableHighlight, SafeAreaView, KeyboardAvoidingView, Pressable } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import DropdownList from '../../../../components/DropdownField'
-import CustomButton from '../../../../components/CustomButton'
-import CustomInput from '../../../../components/CustomInput'
+import React, {useEffect, useRef, useState} from 'react';
 import { Drawer } from 'expo-router/drawer'
-import { DrawerToggleButton } from '@react-navigation/drawer'
-import { AntDesign } from '@expo/vector-icons';
+//import DropdownList from '../../../../components/DropdownField'
+import DropdownComponent from '../../../../partials/DropdownComponent';
+import DateTimePicker from '@react-native-community/datetimepicker'
+import RBSheet from 'react-native-raw-bottom-sheet';
 
+import {
+  View,
+  ScrollView,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+  Text,
+  Button,
+  Animated,
+} from 'react-native';
 
+import TextField from '../../../../components/TextField'
+import MyButton from '../../../../components/CustomButton2'
+import CustomButton from '../../../../components/CustomButton';
 
-export default function DateTPicker() {
-    const [category, setCategory] = useState("")
-    const [item, setItem] = useState("")
-    const [amount, setAmount] = useState("")
-    const [dateOfPurchase, setDateOfPurchase] = useState("")
-    const [isSubmitting, setIsSubmitting] = useState(false)
+const AddExpense = () => {
+  const sheet = useRef();
 
+  const [expenseName, setExpenseName] = useState("")
+  const [amount, setAmount] = useState("")
+  const [category, setCategory] = useState("")
+  const [ dateOfPurchase, setDateOfPurchase] = useState("")
 
-    const [formReady, setFormReady] = useState(false);
+  const [ date, setDate ] = useState(new Date())
+  const [ showPicker, setShowPicker ] = useState(false)
 
-    const [ date, setDate ] = useState(new Date())
-    const [ showPicker, setShowPicker ] = useState(false)
+  const [formReady, setFormReady] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)  
 
-    const toggleDatePicker = () => {
-        setShowPicker(!showPicker)
+  const onSubmit = () => {
+    if (!expenseName || !amount || !category || !dateOfPurchase) {
+      return Alert.alert('Error', 'Please fill in all the fields')
     }
+  }
 
-    const onChange = ({ type }, selectedDate) => {
-        if  (type == "set") {
-            const currentDate = selectedDate
-            setDate(currentDate)
+  const togglePicker = () => {
+    setShowPicker(!showPicker)
+  }
 
-            if (Platform.OS === "android") {
-                toggleDatePicker()
-                setDateOfPurchase(formatDate(currentDate))
-            }
-        } else {
-            toggleDatePicker()
-        }
+  const onChange = ({type}, selectedDate) => {
+    if (type == 'set') {
+      setDate(selectedDate)
+    } else {
+      togglePicker()
     }
+  }
 
-    const confirmIOSDate = () => {
-      setDateOfPurchase(date.toDateString())
-      toggleDatePicker()
+  const onFocus = () => {
+    const labelPosition = useRef(new Animated.Value(selectedDate ? 1 : 0)).current;
+    labelPosition.interpolate({inputRange: [0, 1], outputRange: [18, -15]})
+  }
+
+  useEffect(() => {
+    setFormReady(expenseName && amount && dateOfPurchase && category);
+
+    return () => {
+      setFormReady(false)
     }
-
-    const formatDate = (rawDate) => {
-      let date = new Date(rawDate)
-
-      let year = date.getFullYear()
-      let month = date.getMonth()
-      let day = date.getDate()
-
-      month = month < 10 ? `0${month}` : month
-      day = day < 10 ? `0${day}` : day
+  }, [expenseName, amount, category, dateOfPurchase])
 
 
-      return `${day}-${month}-${year}`
-
-    }
-
-    const onSubmit = () => {}
-
-    useEffect(() => {
-        setFormReady(category && item && amount && dateOfPurchase)
-
-        return () => {
-            setFormReady(false)
-        }
-    }, [category, item, amount, dateOfPurchase])
-
-    return (
-      <>
+  return (
+    <>
     <Drawer.Screen 
-    className=""
-    options={{
-      headerShown: false,
-      headerLeft: () => <DrawerToggleButton />
+      options={{
+        headerShown: false,
+        gestureEnabled: false,      
     }}/>
+    <ScrollView>
+    <View className="mx-1 mt-20">
+    <Text className="text-center font-mbold text-4xl text-[#0161C7] mt-5">Add Transaction</Text>
+      <View className="mx-3 mt-10">
 
-        <SafeAreaView style={styles.container}>
-                <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.contentContainerStyle}>
+        <View className="flex-auto">
+          <TextField
+            value={expenseName}
+            placeholder={'Expense Name'}
+            placeholderTextColor="#7B7B8B"
+            contentType='name'
+            onChangeText={setExpenseName}
+            //className="border-collapse border-b-2 border-b-gray-500 w-full"
+            //containerStyle="text-5xl border-collapse border-b-2 border-b-gray-500 w-full"
+          />
 
-                <View className="">
-                  <Text className="font-pregular text-[20px] mb-2 self-start">Name of item</Text>
-                  <CustomInput />
-                </View>
+        </View>
 
-                <View className="mt-8">
-                  <Text className="font-pregular text-[20px] mb-2 self-start">Category</Text>
-                </View>
-                <View className="mt-3">
-                <DropdownList placeholder='select category'/>
-                </View>
+        <TextField 
+          value={amount}
+          placeholder={'Amount'}
+          placeholderTextColor="#7B7B8B"
+          onChangeText={setAmount}
+          // className="border-collapse border-b-2 border-b-gray-500"
+          keyType='decimal-pad'
+          containerStyle="mt-8"
 
-                <View className="mt-3">
-                  <Text className="font-pregular text-[20px] mb-2 self-start">Amount</Text>
-                  <CustomInput />
-                </View>
+        />
 
-                
-                <View className="mt-3">
-                  <Text className="font-pregular text-[20px] mb-2 self-start">Date</Text>
-                    {showPicker && (
-                        <Modal transparent={true} animationType='slide' visible={showPicker} supportedOrientations={['portrait']} onRequestClose={()=> setShowPicker(!showPicker)}>
-                          <View className="flex-1 mt-[120%]">
-                              <DateTimePicker 
-                                mode='date'
-                                display="spinner"
-                                testID="dateTimePicker"
-                                value={date}
-                                minimumDate={new Date('2000-1-1')}
-                                maximumDate={new Date('2070-1-1')}
-                                onChange={onChange}
-                                style={styles.datePicker}
-                            />
-                        
-                        <View className="flex-row justify-around bg-white">
-                            <TouchableHighlight underlayColor={'transparent'} onPress={toggleDatePicker} style={[styles.btnText, styles.btnCancel]}>
-                                  <Text style={{ fontSize: 16, fontWeight: 'bold'}}>Cancel</Text>
-                              </TouchableHighlight>
+      <RBSheet
+        height={270}
+        openDuration={150}
+        closeDuration={150}
+        ref={sheet}>
 
-                              <TouchableHighlight underlayColor={'transparent'} onPress={confirmIOSDate} style={[styles.btnText, styles.btnDone]}>
-                                  <Text style={{ fontSize: 16, fontWeight: 'bold'}}>Done</Text>
-                              </TouchableHighlight>
-                            </View>
-                      </View>
-                  </Modal>
-                )}
+        <View style={styles.sheetContent}>
 
-                {/* {showPicker && Platform.OS === 'ios' && (
-                      <View className="flex-row justify-around">
-                        <TouchableOpacity onPress={toggleDatePicker} style={[styles.button, styles.pickerBtn]}>
-                            <Text>Cancel</Text>
-                        </TouchableOpacity>
+          <View style={styles.dateHeaderContainer}>
+              <TouchableOpacity
+                      onPress={() => sheet.current.close()}
+                  style={styles.dateHeaderButton}>
+                  <Text style={styles.dateHeaderButtonCancel}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                  onPress={() => sheet.current.close() }
+                  style={[styles.dateHeaderButton]}>
+                  <Text style={styles.dateHeaderButtonDone}>Done</Text>
+              </TouchableOpacity>
+          </View>
+            <DateTimePicker 
+                mode={"date"}
+                display={"spinner"}
+                value={date}
+                onChange={onChange}
+        />
+        </View>
+      </RBSheet>
+       
 
-                        <TouchableOpacity onPress={confirmIOSDate}>
-                            <Text style={[styles.button]}>Confirm</Text>
-                        </TouchableOpacity>
+      {/* Date Picker IOS */}
+        <View className="flex-row w-full my-6">
+            <TextField
+              value={dateOfPurchase}
+              placeholder='Date'
+              //editable={false}
+              onChangeText={setDateOfPurchase}
+              containerStyle="bg-white w-[330px] h-[55px] self-center rounded-[20px]"
+             />
 
-                      </View>
-                )} */}
-                    
-                   {!showPicker && (
-                         <Pressable>
-                          <View className="flex-row items-center justify-center">
-                            <TextInput 
-                                //style={styles.input}
-                                className="border border-gray-600 min-h-[50px] font-[400] text-xl min-w-[325px] rounded-[20px] focus:shadow-[#52A8EC] pl-3"
-                                placeholder='set date'
-                                value={dateOfPurchase}
-                                onChangeText={setDateOfPurchase} 
-                                placeholderTextColor="#11182744"
-                                editable={false}
-                                onPressIn={toggleDatePicker}
-                            />
-                         <AntDesign name="calendar" size={24} color="black" className="-ml-10"/>
-                         </View>
-                     </Pressable>
-                   )}
-                    </View>
-                    
-                    {/* <TouchableOpacity disabled={!formReady} className={`self-center h-10 mt-10 ${formReady ? 'bg-[#075985]' : 'bg-[#11182711]'}`}  onPress={onSubmit}>
-                        <Text style={[styles.btnText, {color: formReady ? '#fff' : "#11182766"}]}>
-                            Submit
-                        </Text>
-                    </TouchableOpacity>  */}
+            <TouchableOpacity onPress={() => sheet.current.open()} className="items-center justify-center absolute">
+              <Text className="ml-[270px] mt-5">set date</Text>
+            </TouchableOpacity>
+      </View>
+        
+        <View> 
+          <DropdownComponent category="" setCategory={setCategory}/>
+        </View>
 
-                    <CustomButton 
-                      otherStyles = {`w-full rounded-[20px] self-center h-10 ${formReady ? 'bg-[#075985]' : 'bg-[#11182711]'}`}
-                      containerStyles="mt-[130px]"
-                      title="Submit"
-                    
-                    />
+        
+
+        <View>
+          <CustomButton 
+          title="Add Expense"
+          onPress={onSubmit}
+          isLoading={isSubmitting}
+          disabled={!formReady}
+          containerStyles="w-[90%] self-center items-center mt-[90px]"
+          />
+        </View>
+
+</View>
 
 
-                </ScrollView>
-        </SafeAreaView>
-        </>
-    )
-}
+    </View>
+    </ScrollView>
+    </>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1, 
-    backgroundColor: "#F9FAFB"
+    flex: 1,
+    alignItems: 'center',
   },
-  contentContainerStyle: {
-    padding: 20,
-    paddingTop: Platform.OS === "android" ? Constants.statusBarHeight + 50 : 50,
+  containerSheet: {
+    borderTopLeftRadius: 14,
+    borderTopRightRadius: 14,
   },
-  head: { 
-    fontWeight: "500",
+  textTitle: {
     fontSize: 20,
-    marginBottom: 15,
-    textAlign: "center",
-    color: "#111827CC"
+    marginTop: 120,
   },
-  moto: {
-    fontWeight: "400",
-    fontSize: 15,
-    marginBottom: 35,
-    textAlign: "center",
-    color: "#111827CC"
-  },
-  label: {
-    fontSize: 13,
-    fontWeight: "500",
-    marginBottom: 10,
-    color: "#111827CC"
-  },
-  input: {
-    backgroundColor: 'transparent',
-    height: 50, fontSize: 14,
-    fontStyle: 14,
-    fontWeight: "500",
-    color: "#111827CC",
-    borderRadius: 50,
-    borderWidth: 1.5,
-    borderColor: '#11182711',
-    paddingHorizontal: 20,
-    marginBottom: 20,
-
+  buttonContainer: {
+    alignItems: 'center',
+    marginTop: 50,
   },
   button: {
-    height: 50,
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: 50,
-    marginTop: 10,
-    marginBottom: 15,
-    backgroundColor: "#075985"
+    width: 150,
+    backgroundColor: '#4EB151',
+    paddingVertical: 10,
+    alignItems: 'center',
+    borderRadius: 3,
+    margin: 10,
+  },
+  buttonTitle: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  container: {
+    borderTopLeftRadius: 14,
+    borderTopRightRadius: 14,
+  },
+  sheetContent: {
+    paddingTop: -5,
+    //paddingBottom: 10,
+    paddingHorizontal: 5,
+    alignItems: 'stretch',
+  },
+
+  dateHeaderContainer: {
+    height: 40,
+    //paddingBottom: 20,
+    borderBottomWidth: 1,
+    borderColor: '#ccc',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  dateHeaderButton: {
+    height: '100%',
+    paddingHorizontal: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  dateHeaderButtonCancel: {
+    fontSize: 18,
+    color: '#666',
+    fontWeight: '400',
+  },
+  dateHeaderButtonDone: {
+    fontSize: 18,
+    color: '#006BFF',
+    fontWeight: '500',
+  },
+
+
+btn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderWidth: 1,
+    backgroundColor: '#2b64e3',
+    borderColor: '#2b64e3',
   },
   btnText: {
-    position: 'absolute',
-    fontSize: 14,
+    fontSize: 18,
+    lineHeight: 26,
+    fontWeight: '600',
+    color: '#fff',
+  },
+  btnSecondary: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderWidth: 1,
+    backgroundColor: '#fff',
+    borderColor: '#fff',
+  },
+  btnSecondaryText: {
+    fontSize: 18,
+    lineHeight: 26,
+    fontWeight: '600',
+    color: '#2b64e3',
+  },
+text: {
+    fontSize: 18,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+},
+screen: {
+    flex: 1,
+
+},
+btnText:{
+    postion: 'absolute',
     top: 0,
     height: 60,
     paddingHorizontal: 30,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center'
-  },
-  btnCancel: {
-    left: 0,
-    marginLeft: -10,
+},
+btnCancel: {
+    left: 0
 },
 btnDone: {
     right: 0,
 },
-  datePicker: {
-    height: 120,
-    marginTop: -10,
-    marginBottom: 10
-  }
-})
+  inputIconSend: {
+    color: '#006BFF',
+  },
+  input: {
+    flex: 1,
+    height: 36,
+    borderRadius: 36,
+    paddingHorizontal: 10,
+    backgroundColor: '#f1f1f1',
+    marginHorizontal: 10,
+  },
+  messageContainer: {
+    flex: 1,
+    padding: 25,
+  },
+  messageTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#222',
+  },
+  message: {
+    fontSize: 17,
+    lineHeight: 24,
+    marginVertical: 20,
+  },
+  messageButtonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+  messageButton: {
+    paddingHorizontal: 20,
+    paddingVertical: 8,
+    borderWidth: 2,
+    borderRadius: 2,
+    borderColor: '#3385ff',
+    marginLeft: 10,
+  },
+  messageButtonText: {
+    color: '#3385ff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  messageButtonRight: {
+    backgroundColor: '#3385ff',
+  },
+  messageButtonTextRight: {
+    color: '#fff',
+  },
+});
+
+export default AddExpense;

@@ -24,14 +24,7 @@ const AuthLayout = () => {
           name="reset-pwd"
           options={{ headerShown: false}}
           />
-          <Stack.Screen 
-          name="confirm-new-pwd"
-          options={{ headerShown: false}}
-          />
-            <Stack.Screen 
-          name="confirm-signup"
-          options={{ headerShown: false}}
-          />
+         
       </Stack>
     </>
   )
