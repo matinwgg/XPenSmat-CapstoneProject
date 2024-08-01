@@ -1,4 +1,4 @@
-{
+ {
   "expo": {
     "name": "Aora",
     "scheme": "aora",
@@ -14,18 +14,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "usesAppleSignIn": true,
-      "package": "com.wgg.aora",
-      "bundleIdentifier": "com.wgg.aora",
-      "infoPlist": {
-        "CFBundleURLTypes": [
-          {
-            "CFBundleURLSchemes": [
-              "com.googleusercontent.apps.126322592094-meu1b8m3vup4mhfdufehsdbcsf0t88eu"
-            ]
-          }
-        ]
-      }
+      "bundleIdentifier": "com.wgg.aora"
     },
     "android": {
       "adaptiveIcon": {
@@ -35,12 +24,20 @@
       "package": "com.wgg.aora"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png", 
+      "bundle" : "metro"
     },
     "plugins": [
       "expo-router",
-      "expo-apple-authentication",
-      "expo-localization"
-    ]
+       "expo-localization"
+    ],
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "2665e62c-651a-47a1-9c8b-ce29ec4769ce"
+      }
+    }
   }
 }

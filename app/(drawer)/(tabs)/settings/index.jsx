@@ -17,21 +17,20 @@ import { signOut } from "../../../../lib/appwrite";
 import { useGlobalContext } from "../../../../context/GlobalProvider";
 
 
-
 const Settings = () => {
   const [form, setForm] = useState({
     emailNotifications: true,
     pushNotifications: false,
 })
 
-const {  setUser, setIsLoggedIn } = useGlobalContext();
+const { user, setUser, setIsLoggedIn } = useGlobalContext()
 
 const logout = async () => {
   await signOut();
   setUser(null);
   setIsLoggedIn(false);
 
-  router.replace("/sign-in");
+  router.replace("(auth)/sign-in");
 };
 
   return (
@@ -60,7 +59,7 @@ const logout = async () => {
             </TouchableOpacity> */}
           </View>
 
-          <Text className="justify-center self-center" numberOfLines={1} style={styles.headerTitle}>
+          <Text className="text-[#1F41BB] text-4xl font-mbold pl-5" style={styles.headerTitle}>
             Settings
           </Text>
 
@@ -84,20 +83,19 @@ const logout = async () => {
             <View style={styles.sectionBody}>
               <TouchableOpacity
                 onPress={() => {
-                  // handle onPress
+                  router.push('/settings/myCountry')
                 }}
                 style={styles.profile}>
-                <Image
-                  alt=""
+                <Image alt=""
                   source={{
-                    uri: 'https://images.unsplash.com/photo-1633332755192-727a05c4013d?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=facearea&facepad=2.5&w=256&h=256&q=80',
+                    uri: user?.avatar,
                   }}
                   style={styles.profileAvatar} />
 
                 <View style={styles.profileBody}>
-                  <Text style={styles.profileName}>John Doe</Text>
+                  <Text style={styles.profileName}>{user?.username}</Text>
 
-                  <Text style={styles.profileHandle}>john@example.com</Text>
+                  <Text style={styles.profileHandle}>{user?.email}</Text>
                 </View>
 
                 <FeatherIcon
@@ -266,9 +264,7 @@ const logout = async () => {
                   { alignItems: 'center' },
                 ]}>
                 <TouchableOpacity
-                  onPress={() => {
-                    logout
-                  }}
+                  onPress={logout}
                   style={styles.row}>
                   <Text style={[styles.rowLabel, styles.rowLabelLogout]}>
                     Log Out
@@ -299,26 +295,16 @@ const styles = StyleSheet.create({
   },
   /** Header */
   header: {
+    marginTop: 20,
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
     width: '100%',
-    paddingHorizontal: 16,
-  },
-  headerAction: {
-    width: 40,
-    height: 40,
-    alignItems: 'flex-start',
-    justifyContent: 'center',
   },
   headerTitle: {
-    fontSize: 19,
     fontWeight: '600',
-    color: '#000',
     flexGrow: 1,
     flexShrink: 1,
     flexBasis: 0,
-    textAlign: 'center',
+    alignSelf: 'flex-start',
   },
   /** Content */
   content: {

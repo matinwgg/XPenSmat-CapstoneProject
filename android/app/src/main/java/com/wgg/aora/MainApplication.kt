@@ -1,4 +1,4 @@
-package com.matinwgg.aora
+package com.wgg.aora
 
 import android.app.Application
 import android.content.res.Configuration

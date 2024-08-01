@@ -14,27 +14,40 @@ const data = [
   
 ];
 
-const DropdownComponent = ({category,setCategory}) => {
+const mode = [
+  { label: 'Wallet', value: 'wallet'},
+  { label: 'Momo', value: 'Mobile payment'},
+  { label: 'ATMoney', value: 'Mobile payment'},
+  { label: 'Bank transfer', value: 'bank transfer'},
+  { label: 'cash', value: 'cash'},
+  { label: 'cheque', value: 'cheque'},
+  { label: 'paypal', value: 'paypal'},
+  { label: 'crytocurrency', value: 'crytocurrency'},
+  { label: 'Apple Pay', value: 'apple pay'},
+
+
+];
+
+const DropdownComponent = ({payment, placeholder, category,setCategory}) => {
 
   const [isFocus, setIsFocus] = useState(false);
 
 
   return (
     <View>
-
       <Dropdown
-        style={[styles.dropdown, isFocus && { borderColor: '#fff' }]}
+        style={[styles.dropdown, isFocus && { borderColor: '#fff' }, payment && { height: 55 }]}
         placeholderStyle={styles.placeholderStyle}
         selectedTextStyle={styles.selectedTextStyle}
         inputSearchStyle={styles.inputSearchStyle}
         iconStyle={styles.iconStyle}
-        data={data}
+        data={payment ? mode : data}
         maxHeight={200}
-        containerStyle={{backgroundColor:"#FFF", borderRadius: 15}}
+        containerStyle={[styles.container,{backgroundColor:"#FFF", borderRadius: 15}]}
         itemTextStyle={{color:"#000", fontFamily: 'Brighter-Regular'}}
         labelField="label"
         valueField="value"
-        placeholder={!isFocus ? 'Enter Category' : ''}
+        placeholder={!isFocus ? placeholder : ''}
         searchPlaceholder="Search..."
         value={category}
         onFocus={() => setIsFocus(true)}
@@ -43,7 +56,6 @@ const DropdownComponent = ({category,setCategory}) => {
           setCategory(item.value);
           setIsFocus(false);
         }}
-
       />
     </View>
   );
@@ -70,14 +82,16 @@ const styles = StyleSheet.create({
   placeholderStyle: {
     fontSize: 20,
     fontWeight: 'bold',
-    paddingLeft: 11,
+    paddingLeft: 3,
     fontFamily: 'Brighter-Regular',
   },
+  
   selectedTextStyle: {
     fontSize: 20,
     fontFamily: 'Brighter-Regular',
     paddingLeft: 11,
   },
 
+  
 
 });

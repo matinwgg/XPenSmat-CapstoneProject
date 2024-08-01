@@ -1,91 +1,57 @@
-import { useRef, useState } from 'react';
-import { Animated, StyleSheet, Text, TextInput, View } from 'react-native';
+import React, {useState} from 'react';
+import { Keyboard } from 'react-native';
+import { StyleSheet, Text, TextInput, View, Image } from 'react-native';
+import countriesData from "../partials/data.json"
 
-const TextField = ({value, name, onChangeText, containerStyle, otherStyles, placeholder, ...props }) => {
+const TextField = ({ value, handleTextChange, containerStyle, otherStyles, placeholder, ...props }) => {
+  const [inputValue, setInputValue] = useState('');
+  const [isValid, setIsValid] = useState(true);
 
-  const [isFocused, setIsFocused] = useState(false);
-  const [ text, setText] = useState('');
-  const [color, setColor] = useState('bg-gray-70')
-  const labelPosition = useRef(new Animated.Value(text ? 1 : 0)).current;
+  const { countries } = countriesData; 
 
-  const handleFocus = () => {
-    setIsFocused(true);
-    animatedLabel(1);
-    setColor("bg-inherit")
-  };
+  const matchedCodes = countries.filter(item => item.code === props.country)
 
-  const handleBlur = () => {
-    setIsFocused(false);
-    if (!text) {
-      animatedLabel(0);
-    } 
-  };
 
-  const handleTextChange = ( text ) => {
-    setText(text);
-    if (onChangeText) {
-      onChangeText(text);
-    }
-    if (text) {
-      animatedLabel(1);
-    } else {
-      animatedLabel(isFocused ? 1 : 0);
-    }
-  };
-
-  const animatedLabel = (toValue) => {
-    Animated.timing(labelPosition, {
-      toValue: toValue,
-      duration: 200,
-      useNativeDriver: false,
-    }).start();
-  };
-
-  const labelStyle = {
-    left: 10,
-    top: labelPosition.interpolate({
-      inputRange: [0, 1],
-      outputRange: [18, -15],
-    }),
-    fontSize: labelPosition.interpolate({
-      inputRange: [1, 2],
-      outputRange: [20, 19],
-    }),
-    color: labelPosition.interpolate({
-      inputRange: [0, 1],
-      outputRange: ['#000', '#000'],
-    }),
+  const validateInput = (value) => {
+    // Example validation: input should not be empty and should be at least 3 characters long
+    const valid = /^\d*$/.test(value);
+    setIsValid(valid);
+    setInputValue(value);
   };
 
   return (
-    <View className={`mx-2 border-b-white ${containerStyle}`}>
-      <View className=" focus:border-0 bg-white " style={[styles.innerContainer]}>
-        <Animated.Text className={`absolute font-mregular px-1 -mt-1 text-xl ${color} rounded-[25px]`} style={labelStyle}>{placeholder}</Animated.Text>
-        <View style={styles.inputContainer}>
+      <View 
+          className={`mx-2 border-gray-200 ${containerStyle} focus:border-[#1F41BB] focus:border-2 bg-white`} 
+          style={[styles.innerContainer, styles.inputContainer , { borderColor: props.error ? "red" : "" }]}>
             <TextInput
               {...props}
               style={styles.input}
-              className='font-mregular border-gray-200'
-              onFocus={handleFocus}
-              onBlur={handleBlur}
+              placeholder={placeholder}
+              className='font-mregular'
               editable={props.editable}
-              onPressIn={props.onPressMe}
               onChangeText={handleTextChange}
               value={value}
+              autoCorrect={false}
               textContentType={props.contentType}
               keyboardType={props.keyType}
               enablesReturnKeyAutomatically 
             />
-            {
-              props.errorText && (
+            {props.error && (
                 <View className="my-4">
-                  <Text className="bg-red-500 text-[12px]">{props.errorText[0]}</Text>
+                  <Text className="bg-red-500 text-[12px]">Invalid input. Only digits are allowed.</Text>
+                  {/* <Text className="bg-red-500 text-[12px]">{props.errorText[0]}</Text> */}
                 </View>
-              )
-}
+              )}
+              {/* {matchedCodes.length > 0 ? (matchedCodes.map(item => (
+          
+                  <View className="my-4">
+                    <Text>{item.flag}</Text>
+                </View>
+              ))
+            ) : (
+              <Text>No matching country found.</Text>
+            ) } */}
         </View>
-        </View>
-      </View>
   );
 };
 

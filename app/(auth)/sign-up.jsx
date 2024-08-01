@@ -7,6 +7,7 @@ import {Link, router} from 'expo-router'
 import CustomButton  from '../../components/CustomButton'
 import { createUser } from '../../lib/appwrite'
 import { useGlobalContext } from '../../context/GlobalProvider'
+import { toast } from "../../lib/toast";
 
 const EMAIL_REGEX =  /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
 
@@ -27,6 +28,19 @@ const submit = async () => {
         return Alert.alert('Error', 'Please fill in all the fields')
       }
 
+      if (form.username.length < 3) {
+        return Alert.alert('Error', 'Username must be at least 3 characters long');
+      }
+  
+      if (!EMAIL_REGEX.test(form.email)) {
+        return Alert.alert('Error', 'Please enter a valid email address');
+      }
+  
+      if (form.password !== form.confirmpwd) {
+        setError(true)
+        return Alert.alert('Error', 'Passwords do not match');
+      }
+
     setError(null)
     setIsSubmitting(true)
 
@@ -34,25 +48,25 @@ const submit = async () => {
     const result = await createUser(form.email, form.password, form.username)
     setUser(result);
     setIsLoggedIn(true);
-    Alert.alert("Sign-Up Successful", "Account created")
+    toast('Account created');
     router.replace('/sign-in')
 
   } catch(error) {
-    console.log(error)
+    const appwriteError = error
+    console.log("Appwrite service :: SignUp() :: " + Error(appwriteError.message));
+    Alert.alert('User already exist', Error(appwriteError.message), [
+      {
+        text: 'Cancel',
+        onPress: () => console.log('Cancel Pressed'),
+        style: 'cancel',
+      },
+      {text: 'OK', onPress: () => console.log('OK Pressed')},
+    ]);
     setIsSubmitting(false)
-    setError(error.message)
   }
-    finally { setIsSubmitting(false)
-
+    finally { 
+      setIsSubmitting(false)
 }
-
-    
-useEffect(() => {
-  if(error) {
-    Alert.alert("Something seem broken...", error)
-  }
-}, [error])
-
 }
 
   return (
@@ -60,12 +74,12 @@ useEffect(() => {
       <ScrollView showsVerticalScrollIndicator="false">
       <View>
             <View>
-            <Image 
+            {/* <Image 
               source={icons.hand_euro} 
               resizeMode='contain'
-              className="w-[100px] h-[50px] mt-[20px] self-start -ml-5 mb-5"/>
+              className="w-[100px] h-[50px] mt-[20px] self-start -ml-5 mb-5"/> */}
 
-            <Text className="self-start text-5xl text-[#1F41BB] font-mbold py-5">Sign Up</Text>
+            <Text className="self-start text-5xl text-[#1F41BB] font-mbold pt-20 pb-7">Sign Up</Text>
 
           <FormField 
               containerStyle="w-[330px]"
@@ -82,7 +96,6 @@ useEffect(() => {
               onChangeText={(e) => setForm({...form, email: e})}
               contentType='emailAddress'
               keyType='email-address'
-              // emailValidation={isValid}
             />
 
             <FormField
@@ -100,7 +113,6 @@ useEffect(() => {
               value={form.confirmpwd}
               onChangeText={(e) => setForm({ ...form, confirmpwd: e })}
               contentType='password'
-              // passwordValidation={isPwdValid}
               secureTextEntry
             />
 
@@ -115,7 +127,7 @@ useEffect(() => {
             <View className="flex-row self-center">
                 <Text className="font-pmedium ">Already have an account? </Text>
                 <TouchableOpacity
-                  onPress={() => router.push('/sign-in')}>
+                  onPress={() => router.replace('/sign-in')}>
                     <Text className="font-pbold text-[#1F41BB]">Sign in</Text> 
                 </TouchableOpacity>
             </View>

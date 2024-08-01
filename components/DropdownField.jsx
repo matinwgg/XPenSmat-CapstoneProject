@@ -10,14 +10,14 @@ const data = [
 
 ]
 
-const DropdownList = ({placeholder}) => {
+const DropdownList = ({placeholder, containerStyles}) => {
   const [value, setValue] = useState([]);
   const [isFocus, setIsFocus] = useState(false);
 
   return (
       <View className="mr-4">
         <Dropdown
-          className={`font-mregular h-[55px] w-[325px] self-center bg-white border border-gray-200 rounded-[20px] px-2 -mr-4 ${isFocus === true ? 'border-[#52A8EC]' : ''}`}
+          className={`font-mregular h-[55px] w-[325px] self-center bg-white border border-gray-200 rounded-[20px] px-2 -mr-4 ${isFocus === true ? 'border-[#52A8EC]' : ''} ${containerStyles}`}
           placeholderStyle={{fontSize: 18, fontFamily: 'Brighter-Regular'}}
           selectedTextStyle={{fontSize: 18, color: '#5B5B5B', fontFamily: 'Brighter-Regular'}}
           iconStyle={{width: 20, height: 20}}

@@ -1,4 +1,4 @@
-package com.matinwgg.aora
+package com.wgg.aora
 
 import android.os.Build
 import android.os.Bundle

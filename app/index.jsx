@@ -7,11 +7,7 @@ import { images } from '../constants'
 import { LinearGradient } from 'expo-linear-gradient';
 import { useGlobalContext } from '../context/GlobalProvider';
 const { height } = Dimensions.get("window");
-
-import Spacing from "../constants/spacing";
-import FontSize from "../constants/FontSize";
-import Colors from "../constants/colors";
-import Font from "../constants/FontSize";
+import CustomCalendar from '../components/CustomCalendar';
 
 
 export default function App() {

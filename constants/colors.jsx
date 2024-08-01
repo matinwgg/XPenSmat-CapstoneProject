@@ -4,9 +4,13 @@ const dark = "#626262";
 const blue = "#1F41BB";
 const bblue = "#0161C7";
 const gray = "#ECECEC";
-const lightBlue = "#f1f4ff";
+const onFocusBlue = "#1F41BB";
+const lightBlue = "#f1f4f5";
+//const lightBlue = "#5b7ce9";
+
 
 export default {
+  focusBlue: onFocusBlue,
   primary_blue: bblue,
   darkText: dark,
   text: black,

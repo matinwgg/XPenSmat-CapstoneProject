@@ -25,7 +25,6 @@ const CustomBottomSheet = () => {
     const [ isOpen, setIsOpen ] = useState(false)
     
   const handleCollapsePress = () => {
-    // router.replace('/confirm-new-pwd')
       router.replace('/reset-pwd')
   }
   

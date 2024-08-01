@@ -5,6 +5,7 @@ import { icons, images } from '../constants'
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { signOut } from "../lib/appwrite";
 import { useGlobalContext } from "../context/GlobalProvider";
+import { toast } from "../lib/toast";
 
 export default function CustomDrawerContent(props) {
     const route = useRouter();
@@ -15,8 +16,8 @@ export default function CustomDrawerContent(props) {
         await signOut();
         setUser(null);
         setIsLoggedIn(false);
-    
-        router.replace("/(auth)/sign-in");
+        toast('Logged out');
+        router.replace("(auth)/sign-in");
       };
     
 

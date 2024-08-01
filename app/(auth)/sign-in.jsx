@@ -1,28 +1,34 @@
 import { ScrollView, Alert, StyleSheet, Text, View, TouchableOpacity, Image, Platform } from 'react-native'
-import React, {useState} from 'react'
+import React, {useEffect, useState} from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { icons } from '../../constants'
 import FormField from '../../components/FormField'
 import {Link, router} from 'expo-router'
 import CustomButton  from '../../components/CustomButton'
 import { useGlobalContext } from '../../context/GlobalProvider'
-import * as AppleAuthentication from 'expo-apple-authentication';
-// import { supabase } from 'app/utils/supabase'
-import colors from "../../constants/colors";
+import { getCurrentUser, signIn, SignInWithFacebook, SignInWithGitHub } from '../../lib/appwrite'
+import { toast } from "../../lib/toast";
 
 
-import { getCurrentUser, signIn } from '../../lib/appwrite'
-
+const webClientId = '126322592094-q0ohnm26i6hq2cmul4so60k2igo1nen9.apps.googleusercontent.com'
+const iosClientId = '126322592094-meu1b8m3vup4mhfdufehsdbcsf0t88eu.apps.googleusercontent.com'
+const androidClientId = '126322592094-6ulbqa6oaecn489qfuj7cbjcg9c25bph.apps.googleusercontent.com'
 
 const SignIn = () => {
-  
   const { setUser, setIsLoggedIn } = useGlobalContext()
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+  const [authenticating, setAuthenticating] = useState(false);
   const [form, setForm] = useState({
     email: "",
     password: "",
   });
+
+  
+const config = {
+  webClientId,
+  iosClientId,
+  androidClientId,
+}
 
 
 const submit = async () => {
@@ -39,69 +45,24 @@ const submit = async () => {
     setUser(result)
     setIsLoggedIn(true)
 
-    Alert.alert("Success", "You've signed in successfully")
+    toast('Welcome back. You are logged in');
     router.push('/(drawer)/(tabs)/home')
 
   } catch(error) {
-    Alert.alert('Error', error.message)
+    const appwriteError = error
+    console.log("Appwrite service :: SignIn() :: " + Error(appwriteError));
   }
-    finally { setIsSubmitting(false)}
+    finally { 
+      setIsSubmitting(false)
+    }
 
 }
-
-const SignInWithApple = () => {
-  if (Platform.OS === 'ios')
-    return (
-      <AppleAuthentication.AppleAuthenticationButton
-        buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
-        buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
-        cornerRadius={5}
-        style={{ width: 200, height: 64 }}
-        onPress={async () => {
-          try {
-            const credential = await AppleAuthentication.signInAsync({
-              requestedScopes: [
-                AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
-                AppleAuthentication.AppleAuthenticationScope.EMAIL,
-              ],
-            })
-            // Sign in via Supabase Auth.
-            if (credential.identityToken) {
-              const {
-                error,
-                data: { user },
-              } = await supabase.auth.signInWithIdToken({
-                provider: 'apple',
-                token: credential.identityToken,
-              })
-              console.log(JSON.stringify({ error, user }, null, 2))
-              if (!error) {
-                // User is signed in.
-              }
-            } else {
-              throw new Error('No identityToken.')
-            }
-          } catch (e) {
-            if (e.code === 'ERR_REQUEST_CANCELED') {
-              // handle that the user canceled the sign-in flow
-            } else {
-              // handle other errors
-            }
-          }
-        }}
-      />
-    )
-  }
 
   return (
     <SafeAreaView className="flex-1 bg-white px-5">
       <ScrollView showsVerticalScrollIndicator="false">
       <View>
             <View>
-            {/* <Image 
-              source={icons.bank} 
-              resizeMode='contain'
-              className="w-[100px] h-[50px] mt-[30px] self-start -ml-5 mb-5"/>             */}
 
             <Text className="font-mbold text-5xl mt-[65px] text-[#1F41BB]">Login</Text>
 
@@ -120,7 +81,7 @@ const SignInWithApple = () => {
 
             <FormField
               title="Password"
-              containerStyle="w-[100%] mt-10"
+              containerStyle="w-[100%] mt-8"
               value={form.password}
               placeholder={'Password'}
               contentType='password'
@@ -142,22 +103,18 @@ const SignInWithApple = () => {
                 <View style={styles.divider}/>
                 <Text className="self-center bottom-[9px] font-mregular relative bg-white w-10 px-3">Or</Text>
             </View>
-             {/* <View style={styles.deviderCon}>
-            <View style={styles.devider} />
-            <Text style={styles.or}>OR</Text>
-          </View> */}
 
-        <TouchableOpacity onPress={() => {}} className='border border-gray-300 rounded-full py-3 mb-4 w-full flex-row items-center justify-center'>
+        <TouchableOpacity onPress={ async () => {}}  className='border border-gray-300 rounded-full py-3 mb-4 w-full flex-row items-center justify-center'>
             <Image source={icons.google} resizeMode='contain' className='w-6 h-6 mr-2' />
             <Text className='text-gray-600 font-pmedium'>Continue with Google</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity className='border border-gray-300 rounded-full py-3 mb-4 w-full flex-row items-center justify-center'>
+      <TouchableOpacity onPress={ async () => {await SignInWithFacebook()}} className='border border-gray-300 rounded-full py-3 mb-4 w-full flex-row items-center justify-center'>
         <Image source={icons.facebook} resizeMode='contain' className='w-7 h-7 mr-2 -ml-3' />
         <Text className='text-gray-600 font-pmedium'>Continue Facebook</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={SignInWithApple} className='border border-gray-300 rounded-full py-3 mb-4 w-full flex-row items-center justify-center'>
+      <TouchableOpacity onPress={async () => await SignInWithGitHub()} className='border border-gray-300 rounded-full py-3 mb-4 w-full flex-row items-center justify-center'>
         <Image source={icons.apple} resizeMode='contain' className='w-6 h-6 mr-2 -ml-1' />
         <Text className='text-gray-600 font-pmedium'>Continue with Apple</Text>
       </TouchableOpacity>

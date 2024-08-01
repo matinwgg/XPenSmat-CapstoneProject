@@ -1,240 +1,136 @@
-import React, {useRef, useState} from 'react';
+import { SafeAreaView, Text, View, Image, TouchableOpacity} from 'react-native'
+import React, {useEffect, useState} from 'react'
+import { Link, router } from 'expo-router'
+import { Picker } from '@react-native-picker/picker';
+import { icons } from '../../constants';
+import TextField from '../../components/TextField';
 
-import {
-  View,
-  ScrollView,
-  DateTimePicker,
-  TouchableOpacity,
-  Text,
-  TextInput,
-  StyleSheet,
-} from 'react-native';
+export default function ConvertBtwnCurrencies() {
+  const [fromCurrency, setFromCurrency] = useState('USD');
+  const [toCurrency, setToCurrency] = useState('GHS');
+  const [exchangeRate, setExchangeRate] = useState('0');
+  const [amount, setAmount] = useState(null);
+  const [currencies, setCurrencies] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-import {
-  MaterialIcons as MDIcon,
-  FontAwesome as FAIcon,
-} from '@expo/vector-icons';
+  const [error, setError] = useState(false)
 
-import RBSheet from 'react-native-raw-bottom-sheet';
-//import data from './list.json';
+  const convertCurrency = () => {
+    const result = (amount * exchangeRate).toFixed(2)
+      return result;
+  };
 
-const App = () => {
-  const refStandard = useRef();
-  const refScrollable = useRef();
-  const refDatePicker = useRef();
-  const refInput = useRef();
-  const refMessage = useRef();
+useEffect(() => {
+  const fetchCurrencies = async () => {
+   try {
+     const response = await fetch(
+       'https://v6.exchangerate-api.com/v6/0e6303693a5b845f4814341f/latest/USD' //api
+      );
 
-  const [ date, setDate ] = useState(new Date())
-
-  return (
-    <View style={styles.container}>
-      <Text style={styles.textTitle}>REACT NATIVE RAW BOTTOM SHEET</Text>
-      <View style={styles.buttonContainer}>
-        
-        <TouchableOpacity
-          onPress={() => refDatePicker.current.open()}
-          style={styles.button}>
-          <Text style={styles.buttonTitle}>DATE PICKER</Text>
-        </TouchableOpacity>
-        
-      </View>
-
-      {/* Date Picker IOS */}
-      <RBSheet
-        ref={refDatePicker}
-        onOpen={() => console.log('RBSheet is Opened')}
-        onClose={() => console.log('RBSheet is Closed')}>
-        <View style={styles.dateHeaderContainer}>
-          <TouchableOpacity
-            onPress={() => refDatePicker.current.close()}
-            style={styles.dateHeaderButton}>
-            <Text style={styles.dateHeaderButtonCancel}>Cancel</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => refDatePicker.current.close()}
-            style={[styles.dateHeaderButton]}>
-            <Text style={styles.dateHeaderButtonDone}>Done</Text>
-          </TouchableOpacity>
-        </View>
-        <DateTimePicker 
-          mode='date'
-          display="spinner"
-          value={date}
-          //onChange={onChange}
-          //className="h-[120px] -mt-2.5"
-
-          />     
-       </RBSheet>
-
-     
-
-     
-    </View>
-  );
+      const data = await response.json();
+    setCurrencies(Object.keys(data.conversion_rates));
+    setExchangeRate(data.conversion_rates[toCurrency]);
+  }	catch (error) {
+	  console.log(error);
+  }
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
-  },
-  textTitle: {
-    fontSize: 20,
-    marginTop: 120,
-  },
-  buttonContainer: {
-    alignItems: 'center',
-    marginTop: 50,
-  },
-  button: {
-    width: 150,
-    backgroundColor: '#4EB151',
-    paddingVertical: 10,
-    alignItems: 'center',
-    borderRadius: 3,
-    margin: 10,
-  },
-  buttonTitle: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  listContainer: {
-    flex: 1,
-    padding: 25,
-  },
-  listTitle: {
-    fontSize: 16,
-    marginBottom: 20,
-    color: '#666',
-  },
-  listButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 10,
-  },
-  listIcon: {
-    fontSize: 26,
-    color: '#666',
-    width: 60,
-  },
-  listLabel: {
-    fontSize: 16,
-  },
-  gridContainer: {
-    flex: 1,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    padding: 10,
-    marginBottom: 20,
-  },
-  gridButtonContainer: {
-    flexBasis: '25%',
-    marginTop: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  gridButton: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  gridIcon: {
-    fontSize: 30,
-    color: 'white',
-  },
-  gridLabel: {
-    fontSize: 14,
-    paddingTop: 10,
-    color: '#333',
-  },
-  dateHeaderContainer: {
-    height: 45,
-    borderBottomWidth: 1,
-    borderColor: '#ccc',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  dateHeaderButton: {
-    height: '100%',
-    paddingHorizontal: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  dateHeaderButtonCancel: {
-    fontSize: 18,
-    color: '#666',
-    fontWeight: '400',
-  },
-  dateHeaderButtonDone: {
-    fontSize: 18,
-    color: '#006BFF',
-    fontWeight: '500',
-  },
-  inputContainer: {
-    borderTopWidth: 1.5,
-    borderTopColor: '#ccc',
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 10,
-  },
-  inputIcon: {
-    fontSize: 24,
-    color: '#666',
-    marginHorizontal: 5,
-  },
-  inputIconSend: {
-    color: '#006BFF',
-  },
-  input: {
-    flex: 1,
-    height: 36,
-    borderRadius: 36,
-    paddingHorizontal: 10,
-    backgroundColor: '#f1f1f1',
-    marginHorizontal: 10,
-  },
-  messageContainer: {
-    flex: 1,
-    padding: 25,
-  },
-  messageTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#222',
-  },
-  message: {
-    fontSize: 17,
-    lineHeight: 24,
-    marginVertical: 20,
-  },
-  messageButtonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-  },
-  messageButton: {
-    paddingHorizontal: 20,
-    paddingVertical: 8,
-    borderWidth: 2,
-    borderRadius: 2,
-    borderColor: '#3385ff',
-    marginLeft: 10,
-  },
-  messageButtonText: {
-    color: '#3385ff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  messageButtonRight: {
-    backgroundColor: '#3385ff',
-  },
-  messageButtonTextRight: {
-    color: '#fff',
-  },
-});
+fetchCurrencies();
+}, [toCurrency]);
+  
 
-export default App;
+useEffect(() => {
+
+  const fetchExchangeRates = async () => {
+   try {
+
+     const response = await fetch(
+       'https://v6.exchangerate-api.com/v6/0e6303693a5b845f4814341f/latest/${fromCurrency}'
+      );
+
+      const data = await response.json();
+	    setExchangeRate(data.conversion_rates[toCurrency]);
+  }	catch (error) {
+	console.log(error);
+  }
+ };
+ fetchExchangeRates();
+ }, [fromCurrency, toCurrency]);
+ 
+
+   return (
+    <SafeAreaView className="flex-1 -mt-8" >
+      <View className='mt-[60px] ml-5'>
+          <TouchableOpacity onPress={() => router.push("/home")} >
+            <Image source={icons.left_back} resizeMode='contain' className="w-8 h-8"/>
+          </TouchableOpacity>
+        </View>
+    <View style={{ flex:1, justifyContent: "center", alignItems: 'center', marginTop: -160}}>
+      
+      {/* <Image 
+      source={icons.xchange} 
+      style={{
+        maxWidth:200,
+        maxHeight:200,
+        marginBottom: 20,
+        objectFit: 'fill'
+      }}
+      /> */}
+        <Text className="text-[#1F41BB] font-mbold text-4xl">Currency Converter</Text>
+        {/* <Text className="text-md mb-5 font-pregular">Check live rates</Text> */} 
+
+
+        <View className="flex-row mx-10 mt-3">
+          <View>
+            <Text className="font-pbold text-xl ml-3">Amount</Text>
+            <TextField 
+                  containerStyle="w-40 rounded-xl"
+                  value={amount}
+                  placeholder={"Enter Amount"}
+                  handleTextChange={setAmount}
+                  keybsType='numeric'
+                  currency={fromCurrency}
+              />
+          </View>     
+            <View>   
+              <Text className="font-pbold text-xl ml-2">Converted amount</Text>
+              <TextField 
+                containerStyle="w-40 rounded-xl"
+                value={convertCurrency()}
+                placeholder={""}
+                editable={false}
+                //handleTextChange={setAmount}
+                keybsType='numeric'
+                currency={toCurrency}
+
+            />
+           </View>  
+        </View>
+       
+        <View style={{ flexDirection:"row", justifyContent:"center", alignItems: 'center', marginBottom:150,}}>
+          <Picker style={{ flex: 1, height: 50, marginHorizontal: 10,  }}
+            selectedValue={fromCurrency}
+            onValueChange={(itemValue) => setFromCurrency(itemValue)}>
+              {currencies.map((currency, index) => (
+                <Picker.Item key={index} label={currency} value={currency} />
+              ))}
+
+          </Picker>
+
+          <Picker style={{ flex: 1, height: 50,marginHorizontal: 10,
+            }}
+            selectedValue={toCurrency}
+            onValueChange={(itemValue) => setToCurrency(itemValue)}>
+            {currencies.map((currency, index) => (
+              <Picker.Item key={index} label={currency} value={currency} />
+            ))}
+          </Picker>
+
+        </View>
+          <Text style={{ fontSize: 25, fontWeight: 'bold', marginTop:30, color:'#089141'}}>
+            {amount}  {fromCurrency}  =  {convertCurrency()}  {toCurrency}
+          </Text>
+     </View>
+     </SafeAreaView>
+  )
+}

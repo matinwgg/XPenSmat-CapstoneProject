@@ -1,9 +1,12 @@
-import { View, Text } from 'react-native'
-import React from 'react'
+import { View, Text, TouchableOpacity } from 'react-native'
+import React, { useState } from 'react'
 import Icon from 'react-native-vector-icons/Ionicons';
-// import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { Ionicons } from "@expo/vector-icons";
 
-const Expense = ({expenseData: {createdAt, itemAmount, category, creator: {username, avartar, dateOfPurchase, item, modeOfpayment}}}) => {
+
+const Expense = ({ amount, category, purchaseDate }) => {
+  const date = purchaseDate.split('T')[0]
+  
   //list people-outline receipt-outline  cart-outline
   let icon  = '' 
 
@@ -44,13 +47,18 @@ const Expense = ({expenseData: {createdAt, itemAmount, category, creator: {usern
             </View>
             <View className="flex-1 ml-2.5 pl-1">
                 <Text className="text-[16px] font-mbold pb-1">{category}</Text>
-                <Text className="text-[#777] font-mregular">{dateOfPurchase}</Text>
+                <Text className="text-[#777] font-mregular">{date}</Text>
             </View>
-            <Text className="text-[16px] font-mbold text-[#E74C3C]" numberOfLines={1}>{itemAmount}</Text>
+            <View className="flex-col gap-3">
+                <TouchableOpacity className="items-end">
+                <Ionicons name="trash" size={20} color='red' />
+              </TouchableOpacity>
+              <Text className="text-[16px] text-right font-mbold text-[#E74C3C]" numberOfLines={1}>GhS{amount}</Text>
+            </View>
         </View>
 
     </View>
   )
-}
+};
 
-export default Expense
+export default Expense;

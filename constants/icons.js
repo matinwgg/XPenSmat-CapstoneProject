@@ -4,14 +4,12 @@ import profile from "../assets/icons/profile.png";
 import leftArrow from "../assets/icons/left-arrow.png";
 import menu from "../assets/icons/menu.png";
 import search from "../assets/icons/search.png";
-import upload from "../assets/icons/upload.png";
 import rightArrow from "../assets/icons/right-arrow.png";
 // import logout from "../assets/icons/logout.png";
 import eyeHide from "../assets/icons/eye-hide.png";
 import eye from "../assets/icons/eye.png";
-import play from "../assets/icons/play.png";
 
-import add_ac from "../assets/icons/add.png";
+import add_ac from "../assets/icons/add_active.png";
 import add_inac from "../assets/icons/add_.png";
 import home from "../assets/icons/home.png";
 import home_ from "../assets/icons/home_.png";
@@ -38,7 +36,6 @@ import wallet from "../assets/icons/wallet.png";
 import profile_ from "../assets/icons/profile_.png";
 import budget from "../assets/icons/budget.png";
 import moneychange from "../assets/icons/currency-ex.png";
-import dhome from "../assets/icons/drawer_home.png";
 import dsettings from "../assets/icons/drawer-settings.png";
 import email from "../assets/icons/mail.png";
 import lgout from "../assets/icons/logout_1.png";
@@ -47,13 +44,12 @@ import check from "../assets/icons/check-mark.png";
 import approval from "../assets/icons/approval.png";
 import calendar from "../assets/icons/calendar.png";
 import logout from "../assets/icons/logout.png";
-
-
-
+import xchange from "../assets/icons/xchange.png";
 
 
 
 export default {
+  xchange,
   calendar,
   add_ac,
   add_inac,
@@ -64,7 +60,6 @@ export default {
   email,
   apple,
   dsettings,
-  dhome,
   moneychange,
   budget,
   profile_,
@@ -88,7 +83,6 @@ export default {
   picx,
   instagram,
   sales_balance,
-  play,
   bookmark,
   plus,
   bank,
@@ -96,7 +90,6 @@ export default {
   leftArrow,
   menu,
   search,
-  upload,
   rightArrow,
   logout,
   eyeHide,

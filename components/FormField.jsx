@@ -8,10 +8,10 @@ import Spacing from "../constants/spacing";
 
 const FormField = ({value, name, onChangeText, containerStyle, placeholder, ...props }) => {
 
-  const [focused, setFocused] = useState(true)
-
   const [isFocused, setIsFocused] = useState(false);
+  const [isBlurred, setIsBlurred] = useState(false);
   const [ text, setText] = useState('');
+  
   const [showPassword, setShowPassword] = useState(props.secureTextEntry);
   const labelPosition = useRef(new Animated.Value(text ? 1 : 0)).current;
 
@@ -21,10 +21,12 @@ const FormField = ({value, name, onChangeText, containerStyle, placeholder, ...p
   };
 
   const handleBlur = () => {
-    setIsFocused(false);
     if (!text) {
+      setIsFocused(false);
       animatedLabel(0);
-    } 
+    } else {
+      return setIsFocused(true)
+    }
   };
 
   const handleTextChange = ( text ) => {
@@ -65,15 +67,14 @@ const FormField = ({value, name, onChangeText, containerStyle, placeholder, ...p
 
   return (
     <View className={`mr-5 ${containerStyle}`}>
-      <View className="focus:border-2 focus:border-solid" style={[styles.innerContainer, focused && {
-          borderWidth: 2,
-          borderColor: Colors.primary,
+      <View className="border-gray-200 focus:border-[#1F41BB] focus:border-[2px]" style={[styles.innerContainer, isFocused && {
+          borderWidth: 1,
           shadowOffset: { width: 4, height: Spacing },
           shadowColor: Colors.primary,
-          shadowOpacity: 0.05,
+          shadowOpacity: 0.01,
           shadowRadius: Spacing,
         }]}>
-        <Animated.Text className="focus:bg-white absolute font-pmedium px-0.5 bg-slate-100 -pt-3 -py-10" style={labelStyle}>{placeholder}</Animated.Text>
+        <Animated.Text className={`absolute  ${isFocused ? "bg-white" : "bg-transparent" } font-mregular px-0.5 -pt-3 -py-10`} style={ labelStyle }>{placeholder}</Animated.Text>
         <View style={styles.inputContainer}>
             <TextInput
               {...props}
@@ -115,16 +116,13 @@ const FormField = ({value, name, onChangeText, containerStyle, placeholder, ...p
 const styles = StyleSheet.create({
   innerContainer: {
     backgroundColor: Colors.lightPrimary,
-    borderWidth: 2,
-    borderColor: 'gray',
+    borderWidth: 1,
     borderRadius: 20,
     height: 55,
     justifyContent: 'center',
   },
   label: {
     position: 'absolute',
-    color: 'gray',
-    
   },
   inputContainer: {
     flexDirection: 'row',

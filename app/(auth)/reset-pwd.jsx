@@ -3,12 +3,10 @@ import { Text, View, KeyboardAvoidingView, Image, ScrollView } from 'react-nativ
 import { icons, images } from '../../constants'
 import { Link, router } from 'expo-router';
 import CustomButton from '../../components/CustomButton'
-import { useForm } from 'react-hook-form';
 import FormField from '../../components/FormField';
 
 
 export default function ResetPassword () {
-    const {control, handleSubmit, formState: {errors}} = useForm();
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const [email, setEmail] = useState('');

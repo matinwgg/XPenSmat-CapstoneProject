@@ -1,9 +1,9 @@
 import React, {useEffect, useRef, useState} from 'react';
 import { Drawer } from 'expo-router/drawer'
-//import DropdownList from '../../../../components/DropdownField'
 import DropdownComponent from '../../../../partials/DropdownComponent';
 import DateTimePicker from '@react-native-community/datetimepicker'
 import RBSheet from 'react-native-raw-bottom-sheet';
+import { upLoadExpense } from '../../../../lib/appwrite'
 
 import {
   View,
@@ -12,21 +12,17 @@ import {
   StyleSheet,
   Alert,
   Text,
-  Button,
-  Animated,
 } from 'react-native';
 
 import TextField from '../../../../components/TextField'
-import MyButton from '../../../../components/CustomButton2'
 import CustomButton from '../../../../components/CustomButton';
+import { useGlobalContext } from "../../../../context/GlobalProvider";
 
 const AddExpense = () => {
   const sheet = useRef();
+  const { user } = useGlobalContext();
 
-  const [expenseName, setExpenseName] = useState("")
-  const [amount, setAmount] = useState("")
-  const [category, setCategory] = useState("")
-  const [ dateOfPurchase, setDateOfPurchase] = useState("")
+  const [datePlaceholder, setDatePlaceholder] = useState("Date")
 
   const [ date, setDate ] = useState(new Date())
   const [ showPicker, setShowPicker ] = useState(false)
@@ -34,36 +30,55 @@ const AddExpense = () => {
   const [formReady, setFormReady] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)  
 
-  const onSubmit = () => {
-    if (!expenseName || !amount || !category || !dateOfPurchase) {
-      return Alert.alert('Error', 'Please fill in all the fields')
+
+  const [form, setForm] = useState({
+    item: "",
+    category: "",
+    amount: 0.0,
+    dateOfPurchase: new Date(),
+    paymentMode: "",
+  });
+
+
+  const onSubmit = async () => {
+    try {
+      if (form.item === "" || !form.amount || form.category === "" || form.dateOfPurchase === "" || form.paymentMode === "") {
+        return Alert.alert("Error", "Please fill in all the fields")
+      }
+
+    await upLoadExpense(form.item, form.category, parseFloat(form.amount), form.dateOfPurchase, form.paymentMode, user.$id)
+
+    setIsSubmitting(true)
+    
+    Alert.alert("Success", "Your expense added successfully")
+
+    } catch (error) {
+      Alert.alert("Error", error.message)
+    } finally {
+       setForm({
+         item: "",
+         category: "",
+         amount: null,
+         dateOfPurchase: "",
+         paymentMode: "",
+       })
+      setIsSubmitting(false)
+    }
+
+  }
+
+  const onChange = ({type}, dateOfPurchase) => {
+    if(type=="set") {
+      setDate(dateOfPurchase)
     }
   }
 
-  const togglePicker = () => {
-    setShowPicker(!showPicker)
-  }
-
-  const onChange = ({type}, selectedDate) => {
-    if (type == 'set') {
-      setDate(selectedDate)
-    } else {
-      togglePicker()
-    }
-  }
-
-  const onFocus = () => {
-    const labelPosition = useRef(new Animated.Value(selectedDate ? 1 : 0)).current;
-    labelPosition.interpolate({inputRange: [0, 1], outputRange: [18, -15]})
-  }
-
-  useEffect(() => {
-    setFormReady(expenseName && amount && dateOfPurchase && category);
-
-    return () => {
-      setFormReady(false)
-    }
-  }, [expenseName, amount, category, dateOfPurchase])
+ useEffect(() => {
+   setFormReady(form.item && form.amount && form.dateOfPurchase && form.category && form.paymentMode);
+   return () => {
+     setFormReady(false)
+   }
+ }, [form.item, form.amount, form.category, form.dateOfPurchase, form.paymentMode])
 
 
   return (
@@ -73,82 +88,96 @@ const AddExpense = () => {
         headerShown: false,
         gestureEnabled: false,      
     }}/>
+
     <ScrollView>
     <View className="mx-1 mt-20">
     <Text className="text-center font-mbold text-4xl text-[#0161C7] mt-5">Add Transaction</Text>
       <View className="mx-3 mt-10">
 
-        <View className="flex-auto">
-          <TextField
-            value={expenseName}
-            placeholder={'Expense Name'}
-            placeholderTextColor="#7B7B8B"
-            contentType='name'
-            onChangeText={setExpenseName}
-            //className="border-collapse border-b-2 border-b-gray-500 w-full"
-            //containerStyle="text-5xl border-collapse border-b-2 border-b-gray-500 w-full"
+         <TextField
+            value={form.item}
+            placeholder='Expense Name'
+            placeholderTextColor="#000"
+            handleTextChange={(e) => setForm({...form, item: e})}
+            //contentType='name'
           />
-
+        <View className="flex-row mt-8 mr-5">
+          <TextField 
+            value={form.amount}
+            placeholder='Amount'
+            placeholderTextColor="#000"
+            handleTextChange={(e) => setForm({...form, amount: e})}
+            keyType='decimal-pad'
+            containerStyle=" w-[50%]"
+          />
+          <View className="w-[50%] -mt-2.5">
+            <DropdownComponent 
+              payment
+              placeholder='Payment mode'
+              category={form.paymentMode} 
+              setCategory={(e) => setForm({...form, paymentMode: e})}
+              />
+            </View>
         </View>
 
-        <TextField 
-          value={amount}
-          placeholder={'Amount'}
-          placeholderTextColor="#7B7B8B"
-          onChangeText={setAmount}
-          // className="border-collapse border-b-2 border-b-gray-500"
-          keyType='decimal-pad'
-          containerStyle="mt-8"
+        <View>
+            <RBSheet
+            height={270}
+            openDuration={150}
+            closeDuration={140}
+            ref={sheet}>
 
-        />
+            <View style={styles.sheetContent}>
 
-      <RBSheet
-        height={270}
-        openDuration={150}
-        closeDuration={150}
-        ref={sheet}>
-
-        <View style={styles.sheetContent}>
-
-          <View style={styles.dateHeaderContainer}>
-              <TouchableOpacity
-                      onPress={() => sheet.current.close()}
-                  style={styles.dateHeaderButton}>
-                  <Text style={styles.dateHeaderButtonCancel}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                  onPress={() => sheet.current.close() }
-                  style={[styles.dateHeaderButton]}>
-                  <Text style={styles.dateHeaderButtonDone}>Done</Text>
-              </TouchableOpacity>
-          </View>
-            <DateTimePicker 
-                mode={"date"}
-                display={"spinner"}
-                value={date}
-                onChange={onChange}
-        />
+              <View style={styles.dateHeaderContainer}>
+                  <TouchableOpacity
+                          onPress={() => sheet.current.close()}
+                      style={styles.dateHeaderButton}>
+                      <Text style={styles.dateHeaderButtonCancel}>Cancel</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                      onPress={() => {
+                        setForm({
+                          ...form, dateOfPurchase: date.toDateString()
+                        })
+                        //setDatePlaceholder("")
+                        sheet.current.close()
+                      }}
+                      style={[styles.dateHeaderButton]}>
+                      <Text style={styles.dateHeaderButtonDone}>Done</Text>
+                  </TouchableOpacity>
+              </View>
+                <DateTimePicker 
+                    mode={"date"}
+                    display={"spinner"}
+                    value={date}
+                    onChange={onChange}
+            />
+            </View>
+          </RBSheet>
         </View>
-      </RBSheet>
-       
 
       {/* Date Picker IOS */}
         <View className="flex-row w-full my-6">
             <TextField
-              value={dateOfPurchase}
-              placeholder='Date'
-              //editable={false}
-              onChangeText={setDateOfPurchase}
-              containerStyle="bg-white w-[330px] h-[55px] self-center rounded-[20px]"
+              value={form.dateOfPurchase}
+              placeholderTextColor="#000"
+              placeholder={datePlaceholder}
+              editable={false}
+              handleTextChange={(e) => setForm({...form, dateOfPurchase: e})}
+              containerStyle=" bg-white w-[330px] h-[55px] self-center rounded-[20px]"
              />
 
             <TouchableOpacity onPress={() => sheet.current.open()} className="items-center justify-center absolute">
-              <Text className="ml-[270px] mt-5">set date</Text>
+              <Text className=" font-mregular text-base ml-[270px] text-[#1F41BB] mt-5">set date</Text>
             </TouchableOpacity>
       </View>
         
         <View> 
-          <DropdownComponent category="" setCategory={setCategory}/>
+          <DropdownComponent 
+            category={form.category} 
+            placeholder='Enter Category'
+            setCategory={(e) => setForm({...form, category: e})}/>
         </View>
 
         
@@ -156,7 +185,7 @@ const AddExpense = () => {
         <View>
           <CustomButton 
           title="Add Expense"
-          onPress={onSubmit}
+          handlePress={onSubmit}
           isLoading={isSubmitting}
           disabled={!formReady}
           containerStyles="w-[90%] self-center items-center mt-[90px]"

@@ -20,23 +20,6 @@ const CustomButton = ({title, isLoading, handlePress, containerStyles, type = "P
             )}        
         
         </TouchableOpacity>
-
-        // <TouchableOpacity
-        //     onPress={handlePress}
-        //     className={`border-2 rounded-[25px] w-[100%] h-[48px]  justify-center items-center ${containerStyles} ${isLoading ? 'opacity-50' : '' } ${type === 'PRIMARY' ? '' : 'bg-white'} ${otherStyles}`}
-        //     >
-
-        //     {isLoading == true ? (
-        //         <ActivityIndicator size="small" color='#25d366' />
-        //     ) : (
-        //         <View className="items-center rounded-[25px] w-[100%] h-[48px]">
-        //             <Text className={`text-black font-psemibold text-lg p-3 ${textStyles}`}>
-        //                 {title}
-        //             </Text>
-        //         </View>
-        //     )}
-            
-        // </TouchableOpacity>
    
     );
 };

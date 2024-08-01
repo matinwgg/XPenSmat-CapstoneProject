@@ -1,6 +1,6 @@
 import { StyleSheet, Image, Text, View, TouchableOpacity, SafeAreaView, ScrollView, RefreshControl } from 'react-native'
 import { FlatList } from 'react-native-gesture-handler'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'expo-router'
 import Expense from '../../components/ExpenseItem'
 import CustomButton from '../../components/CustomButton'
@@ -11,10 +11,15 @@ import { MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
 import AllExpense from '../../components/ExpenseAll'
 import { getAllPosts } from "../../lib/appwrite"
 import useAppwrite from '../../lib/useAppwrite'
+import { useGlobalContext } from '../../context/GlobalProvider';
+
 
 const DisplayExpense = () => {
+  const { user, setUser, setIsLoggedIn } = useGlobalContext()
 
-  const { data: posts, refetch } = useAppwrite(getAllPosts);
+  const { data: posts, refetch } = useAppwrite({
+    fn: () => getAllPosts(user?.$id)
+  });
 
   const [refreshing, setRefreshing] = useState(false)
 
@@ -45,14 +50,15 @@ const DisplayExpense = () => {
             </Link>
           </View>
 
-          <View className=" flex-row justify-between my-5">
+          {/* <View className=" flex-row justify-between my-5">
             <MButton title="Today"/>
             <MButton title="This week"/>
             <MButton title="This month"/>
             <MButton title="All"/>
+          </View> */}
+          <View className="items-center">
+            <Text className="font-pbold text-3xl text-[#1F41BB] h-10">History</Text>
           </View>
-
-          
 
             <FlatList 
               data={posts}
