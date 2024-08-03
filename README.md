@@ -92,5 +92,5 @@ This project is licensed under the MIT License. See the LICENSE file for details
 
 ## Contact
 - Email: odoomabdulmatin@gmail.com
-- GitHub: matinwgg
+- GitHub: https://github.com/matinwgg/ExpenseApp-CapstoneProject.git 
 - LinkedIn: matin-odoom-2a032a239
