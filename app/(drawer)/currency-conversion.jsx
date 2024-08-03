@@ -1,9 +1,9 @@
-import { SafeAreaView, Text, View, Image, TouchableOpacity} from 'react-native'
+import { SafeAreaView, Text, View, TouchableOpacity } from 'react-native'
 import React, {useEffect, useState} from 'react'
 import { Link, router } from 'expo-router'
 import { Picker } from '@react-native-picker/picker';
-import { icons } from '../../constants';
 import TextField from '../../components/TextField';
+import FeatherIcon from 'react-native-vector-icons/Feather';
 
 export default function ConvertBtwnCurrencies() {
   const [fromCurrency, setFromCurrency] = useState('USD');
@@ -60,10 +60,17 @@ useEffect(() => {
 
    return (
     <SafeAreaView className="flex-1 -mt-8" >
-      <View className='mt-[60px] ml-5'>
-          <TouchableOpacity onPress={() => router.push("/home")} >
-            <Image source={icons.left_back} resizeMode='contain' className="w-8 h-8"/>
-          </TouchableOpacity>
+      <View className='mt-[60px] ml-5 w-[20%]'>
+      <TouchableOpacity
+              onPress={() => {
+                router.navigate('/home')
+              }}>
+              <FeatherIcon
+                color="#000"
+                name="arrow-left"
+                size={24} />
+
+            </TouchableOpacity>
         </View>
     <View style={{ flex:1, justifyContent: "center", alignItems: 'center', marginTop: -160}}>
       

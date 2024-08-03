@@ -73,10 +73,10 @@ const DrawerLayout = () => {
       />
 
       <Drawer.Screen 
-      name="budget"
+      name="(wset-reminders)"
       options={{
-        drawerLabel: "My budget",
-        headerTitle: "Budget",
+        drawerLabel: "Set reminders",
+        headerTitle: "Add to reminder",
         drawerIcon: ({ size, color }) => (
           <Image 
           source={icons.budget} 

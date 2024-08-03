@@ -7,8 +7,6 @@ import { images } from '../constants'
 import { LinearGradient } from 'expo-linear-gradient';
 import { useGlobalContext } from '../context/GlobalProvider';
 const { height } = Dimensions.get("window");
-import CustomCalendar from '../components/CustomCalendar';
-
 
 export default function App() {
   const {isLoading, isLoggedIn } = useGlobalContext();

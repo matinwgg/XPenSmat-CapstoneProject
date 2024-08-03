@@ -9,7 +9,11 @@ import { createUser } from '../../lib/appwrite'
 import { useGlobalContext } from '../../context/GlobalProvider'
 import { toast } from "../../lib/toast";
 
-const EMAIL_REGEX =  /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+
+const validateEmail = (email) => {
+  const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+  return emailRegex.test(email);
+};
 
 const SignUp = () => {
   const { setUser, setIsLoggedIn } = useGlobalContext();
@@ -30,6 +34,11 @@ const submit = async () => {
 
       if (form.username.length < 3) {
         return Alert.alert('Error', 'Username must be at least 3 characters long');
+      }
+
+      if (!validateEmail(form.email)) {
+        Alert.alert('Invalid Email', 'Please enter a valid email address.');
+        return;
       }
   
       if (!EMAIL_REGEX.test(form.email)) {

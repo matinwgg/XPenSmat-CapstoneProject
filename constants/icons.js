@@ -45,10 +45,17 @@ import approval from "../assets/icons/approval.png";
 import calendar from "../assets/icons/calendar.png";
 import logout from "../assets/icons/logout.png";
 import xchange from "../assets/icons/xchange.png";
-
+import back_blue from "../assets/icons/back-blue.png";
+import rit_arrow from "../assets/icons/right_arrow.png";
+import plus_c from "../assets/icons/plus_c.png"
+import left_arrow from "../assets/icons/left_arrow.png";
 
 
 export default {
+  left_arrow,
+  plus_c,
+  rit_arrow,
+  back_blue,
   xchange,
   calendar,
   add_ac,

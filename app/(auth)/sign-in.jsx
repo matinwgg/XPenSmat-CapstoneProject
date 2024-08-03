@@ -1,5 +1,5 @@
 import { ScrollView, Alert, StyleSheet, Text, View, TouchableOpacity, Image, Platform } from 'react-native'
-import React, {useEffect, useState} from 'react'
+import React, {useState} from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { icons } from '../../constants'
 import FormField from '../../components/FormField'
@@ -8,7 +8,7 @@ import CustomButton  from '../../components/CustomButton'
 import { useGlobalContext } from '../../context/GlobalProvider'
 import { getCurrentUser, signIn, SignInWithFacebook, SignInWithGitHub } from '../../lib/appwrite'
 import { toast } from "../../lib/toast";
-
+import { AppwriteException } from 'appwrite'
 
 const webClientId = '126322592094-q0ohnm26i6hq2cmul4so60k2igo1nen9.apps.googleusercontent.com'
 const iosClientId = '126322592094-meu1b8m3vup4mhfdufehsdbcsf0t88eu.apps.googleusercontent.com'
@@ -17,12 +17,11 @@ const androidClientId = '126322592094-6ulbqa6oaecn489qfuj7cbjcg9c25bph.apps.goog
 const SignIn = () => {
   const { setUser, setIsLoggedIn } = useGlobalContext()
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [authenticating, setAuthenticating] = useState(false);
+
   const [form, setForm] = useState({
     email: "",
     password: "",
   });
-
   
 const config = {
   webClientId,
@@ -32,26 +31,32 @@ const config = {
 
 
 const submit = async () => {
-  if ( !form.email || !form.password) {
-    return Alert.alert("Error", "Please fill in all the fields")
-  }
-  setIsSubmitting(true)
-
+  
+    if ( !form.email || !form.password) {
+      return Alert.alert("Error", "Please fill in all the fields")
+    }
+    setIsSubmitting(true)
+    
+    try {
     await signIn(form.email, form.password)
 
-    try {
     const result = await getCurrentUser();
 
     setUser(result)
+  
     setIsLoggedIn(true)
 
     toast('Welcome back. You are logged in');
-    router.push('/(drawer)/(tabs)/home')
+
+    router.push("/home")
 
   } catch(error) {
-    const appwriteError = error
-    console.log("Appwrite service :: SignIn() :: " + Error(appwriteError));
-  }
+    if (error instanceof AppwriteException) {
+      if (error.type === 'user_not_found') {
+        Alert.alert("Error", "User not found. Please check your credentials.")
+      }
+    } 
+}
     finally { 
       setIsSubmitting(false)
     }

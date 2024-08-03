@@ -81,7 +81,7 @@ export default function ResetPassword () {
             <CustomButton 
               title="Create" 
               otherStyles="rounded-[25px]"              
-              handlePress={handleSubmit(submit)}
+             // handlePress={handleSubmit(submit)}
             
             />
           </View>

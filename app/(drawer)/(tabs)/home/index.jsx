@@ -7,17 +7,20 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import { useGlobalContext } from '../../../../context/GlobalProvider';
 import { FlatList } from 'react-native-gesture-handler'
-import CustomButton from '../../../../components/CustomButton'
 import Expense from '../../../../components/ExpenseItem'
 import EmptyState from '../../../../components/EmptyState'
 import { getRecentPosts } from '../../../../lib/appwrite'
 import useAppwrite from '../../../../lib/useAppwrite'
 import CustomCalendar from '../../../../components/CustomCalendar'
-import { getAllPosts } from '../../../../lib/appwrite'
 import { router } from 'expo-router'
+import NetInfo from '@react-native-community/netinfo';
 
 const Home = () => {
   const navigation = useNavigation();
+  const [connectionType, setConnectionType] = useState(null);
+  const [isConnected, setIsConnected] = useState(null);
+  const [strength, setStrength] = useState('');
+
   const { user, setUser, setIsLoggedIn } = useGlobalContext()
 
   const { data: recentPosts, refetch } = useAppwrite({
@@ -31,7 +34,8 @@ const Home = () => {
   const [currencies, setCurrencies] = useState([]);
   
   const [exchangeRate, setExchangeRate] = useState('0');
-  const [amount, setAmount] = useState('');
+  let total = 0;
+  const [totalAmount, setTotalAmount] = useState(0);
 
   const convertCurrency = () => {
     const result = (1 * exchangeRate).toFixed(2);
@@ -50,6 +54,13 @@ const Home = () => {
     navigation.toggleDrawer();
   };
 
+  useEffect(() => {
+    let total = 0;
+    recentPosts.forEach(item => {
+      total += item.ItemAmount;
+    });
+    setTotalAmount(total);
+  }, [recentPosts]);
 
   useEffect(() => {
     const fetchCurrencies = async () => {
@@ -68,6 +79,46 @@ const Home = () => {
   
   fetchCurrencies();
   }, [toCurrency]);
+
+  // Check internet connection
+  useEffect(() => {
+    const unsubscribe = NetInfo.addEventListener(state => {
+      setConnectionType(state.type);
+      setIsConnected(state.isConnected);
+
+      if (state.type === 'wifi') {
+        if (state.details.strength >= 75) {
+          setStrength('Strong');
+        } else if (state.details.strength >= 50) {
+          setStrength('Moderate');
+        } else if (state.details.strength >= 25) {
+          setStrength('Weak');
+        } else {
+          setStrength('Poor');
+        }
+      } else if (state.type === 'cellular') {
+        const effectiveType = state.details.cellularGeneration;
+        if (effectiveType === '4g') {
+          setStrength('Strong');
+        } else if (effectiveType === '3g') {
+          setStrength('Moderate');
+        } else if (effectiveType === '2g') {
+          setStrength('Weak');
+        } else {
+          setStrength('Poor');
+        }
+      } else {
+        setStrength('No connection');
+      }
+    });
+
+    return () => {
+      unsubscribe();
+      refetch()
+    };
+  }, []);
+
+  console.log(`{Connection Status: ${isConnected ? 'Connected' : 'Disconnected'}}`)
 
   return (
     
@@ -107,7 +158,7 @@ const Home = () => {
               </View>
               <View className="flex-row gap-4">
                 <Text style={[styles.summaryText, styles.activeSummaryText]}>Total{'\n'}Expense </Text>
-                <Text style={[styles.summaryAmount, styles.activeSummaryAmount]} className="pt-3">298.16</Text>
+                <Text style={[styles.summaryAmount, styles.activeSummaryAmount]} className="pt-3 w-[60%] pr-3" numberOfLines={1}>{totalAmount}</Text>
               </View>
             </View>
 
@@ -141,6 +192,7 @@ const Home = () => {
                     amount={item.ItemAmount} 
                     category={item.category} 
                     purchaseDate={item.dateofpurchase}
+                    index={item.$id}
                     />
                 </View>
               );

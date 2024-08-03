@@ -37,12 +37,12 @@ export default function CustomDrawerContent(props) {
                     <DrawerItem label={''} onPress={() => route.replace('(drawer)/(auth)/sign-in')} />
                 </View>
             </DrawerContentScrollView>
-            <View className="" style={{ borderRadius: 10, borderTopColor: "#F5F5F5", borderTopWidth: 1, padding: 20, paddingBottom: 20 + bottom}}>
+            {/* <View className="" style={{ borderRadius: 10, borderTopColor: "#F5F5F5", borderTopWidth: 1, padding: 20, paddingBottom: 20 + bottom}}>
                 <TouchableOpacity onPress={logout} className="flex-row items-center -ml-10 -my-10 ">
                     <Image className="self-start" size={24} source={icons.logout} resizeMode='contain'/>
                     <Text className=" text-[16px] font-pregular -ml-5">Log Out</Text>
                 </TouchableOpacity>
-            </View>
+            </View> */}
         </View>
        
     )

@@ -6,6 +6,7 @@ import CustomInput from '../../components/CustomInput'
 import CustomButton from '../../components/CustomButton'
 import RBSheet from 'react-native-raw-bottom-sheet';
 import OtpScreen from './otp';
+import { SessionTokenEmail, SessionTokenSMS } from '../../lib/appwrite';
 
 const ForgotPwd = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -13,24 +14,34 @@ const ForgotPwd = () => {
     const sheet = useRef();
 
     const [inputValue, setInputValue] = useState('');
+    const [sendValue, setSendValue] = useState('');
     const [isValidEmail, setIsValidEmail] = useState(false);
     const [isValidPhone, setIsValidPhone] = useState(false);
     const [ isVerify, setVerfiy ] = useState('false')
+    
 
-    const validateInput = () => {
+    const submit = () => {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       const phoneRegex = /^[0-9]{10,15}$/;
 
-      setIsValidEmail(emailRegex.test(inputValue));
-      setIsValidPhone(phoneRegex.test(inputValue));
-
-      if (isVerify) {
-        
+      if (setIsValidEmail(emailRegex.test(inputValue))) {
+        SessionTokenEmail(inputValue)
+      } else if (setIsValidPhone(phoneRegex.test(inputValue))) {
+        SessionTokenSMS(inputValue)
       }
-  };
+      sheet.current.open()
+      maskInputValue(inputValue)
+  }
 
-  const verify = () => {
-
+  const maskInputValue = (inputValue) => {
+    if (inputValue.length == 10) {
+     const newValue = 'xxx xxx x' + inputValue.slice(7);
+     setSendValue(newValue)
+    } else {
+      const atIndex = inputValue.indexOf('@');
+      const newValue = inputValue.replace(/^[^@]+/, match => 'x'.repeat(atIndex));
+      setSendValue(newValue)
+    }
   }
 
   return (
@@ -74,7 +85,7 @@ const ForgotPwd = () => {
               title="Submit" 
               otherStyles="min-h-[50px]"              
               //handlePress={isValidEmail && isValidPhone (setVerfiy(true))}
-              handlePress={() => sheet.current.open()}
+              handlePress={() => submit()}
             />
             </View>
             </View>
@@ -108,7 +119,7 @@ const ForgotPwd = () => {
                   </TouchableOpacity>
               </View>
 
-              <OtpScreen />
+              <OtpScreen value={sendValue}/>
 
           </RBSheet>
           </View>

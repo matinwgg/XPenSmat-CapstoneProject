@@ -1,12 +1,12 @@
-import { View, Text, TouchableOpacity } from 'react-native'
+import { View, Text, TouchableOpacity, Alert } from 'react-native'
 import React, { useState } from 'react'
 import Icon from 'react-native-vector-icons/Ionicons';
 import { Ionicons } from "@expo/vector-icons";
+import { deleteExpense } from '../lib/appwrite';
 
-
-const Expense = ({ amount, category, purchaseDate }) => {
+const Expense = ({ amount, category, purchaseDate, index }) => {
   const date = purchaseDate.split('T')[0]
-  
+
   //list people-outline receipt-outline  cart-outline
   let icon  = '' 
 
@@ -39,6 +39,14 @@ const Expense = ({ amount, category, purchaseDate }) => {
     default: icon ='list'
               break;         
         }
+    const deleteThisExpense = async () => {
+      try {
+        await deleteExpense(index);
+        Alert.alert("Success", "Item deleted!")
+      } catch (error) {
+        
+      }
+    };
   return (
     <View >
         <View className="flex-row items-center bg-white p-[15px] rounded-[10px] mb-2.5 h-[70px]">
@@ -50,7 +58,7 @@ const Expense = ({ amount, category, purchaseDate }) => {
                 <Text className="text-[#777] font-mregular">{date}</Text>
             </View>
             <View className="flex-col gap-3">
-                <TouchableOpacity className="items-end">
+                <TouchableOpacity onPress={deleteThisExpense} className="items-end">
                 <Ionicons name="trash" size={20} color='red' />
               </TouchableOpacity>
               <Text className="text-[16px] text-right font-mbold text-[#E74C3C]" numberOfLines={1}>GhS{amount}</Text>

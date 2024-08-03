@@ -1,8 +1,7 @@
-import { StyleSheet, Image, Text, View, TouchableOpacity, SafeAreaView, ScrollView, RefreshControl } from 'react-native'
+import { StyleSheet, Image, Text, View, SafeAreaView, RefreshControl, TouchableOpacity } from 'react-native'
 import { FlatList } from 'react-native-gesture-handler'
-import React, { useEffect, useState } from 'react'
-import { Link } from 'expo-router'
-import Expense from '../../components/ExpenseItem'
+import React, { useState } from 'react'
+import { Link, router } from 'expo-router'
 import CustomButton from '../../components/CustomButton'
 import { icons } from '../../constants'
 import EmptyState from '../../components/EmptyState'
@@ -12,7 +11,8 @@ import AllExpense from '../../components/ExpenseAll'
 import { getAllPosts } from "../../lib/appwrite"
 import useAppwrite from '../../lib/useAppwrite'
 import { useGlobalContext } from '../../context/GlobalProvider';
-
+import SearchInput from '../../components/SearchInput'
+import FeatherIcon from 'react-native-vector-icons/Feather';
 
 const DisplayExpense = () => {
   const { user, setUser, setIsLoggedIn } = useGlobalContext()
@@ -25,8 +25,7 @@ const DisplayExpense = () => {
 
   const onRefresh = async () => {
     setRefreshing(true)
-    // Recall new expenses
-    await refetch();
+    await refetch();     // Recall new expenses
     setRefreshing(false)
   }
 
@@ -44,10 +43,17 @@ const DisplayExpense = () => {
   return (
     <>
     <SafeAreaView className="mx-5">
-          <View>
-            <Link href="/home" className=''>
-            <Image source={icons.left_back} resizeMode='contain' className="w-8 h-8 "/>
-            </Link>
+          <View className='w-[10%]'>
+          <TouchableOpacity
+              onPress={() => {
+                router.navigate('\home')
+              }}>
+              <FeatherIcon
+                color="#000"
+                name="arrow-left"
+                size={24} />
+
+            </TouchableOpacity>
           </View>
 
           {/* <View className=" flex-row justify-between my-5">
@@ -59,6 +65,9 @@ const DisplayExpense = () => {
           <View className="items-center">
             <Text className="font-pbold text-3xl text-[#1F41BB] h-10">History</Text>
           </View>
+            <View>
+              
+            <SearchInput />
 
             <FlatList 
               data={posts}
@@ -77,7 +86,7 @@ const DisplayExpense = () => {
               }
 
             /> 
-
+        </View>
 
       </SafeAreaView>
       </>

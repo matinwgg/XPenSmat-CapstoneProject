@@ -83,7 +83,7 @@ const logout = async () => {
             <View style={styles.sectionBody}>
               <TouchableOpacity
                 onPress={() => {
-                  router.push('/settings/myCountry')
+                  router.push('/settings/profile')
                 }}
                 style={styles.profile}>
                 <Image alt=""
