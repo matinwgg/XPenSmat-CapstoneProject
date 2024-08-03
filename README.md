@@ -24,12 +24,12 @@ The Expense Tracker is a simple and intuitive application to help you manage you
 - Export data to CSV
 
 ## Screenshots
-![Sign In](/assets/screenshots/sign-in.png)
-![Sign Up](/assets/screenshots/sign-up.png)
-![Add Expense](/assets/screenshots/addExpense.png)
-![Home](/assets/screenshots/home.png)
-![User setting](/assets/screenshots/settings.png)
-![Currency conversion](/assets/screenshots/currency-converter.png)
+![Sign In](https://github.com/matinwgg/ExpenseApp-CapstoneProject/tree/f8484da65bc184766e99a44731ad8a3b1f40b62c/assets/screenshots/assets/screenshots/sign-in.png)
+![Sign Up](https://github.com/matinwgg/ExpenseApp-CapstoneProject/tree/f8484da65bc184766e99a44731ad8a3b1f40b62c/assets/screenshots/assets/screenshots/sign-up.png)
+![Add Expense](https://github.com/matinwgg/ExpenseApp-CapstoneProject/tree/f8484da65bc184766e99a44731ad8a3b1f40b62c/assets/screenshots/assets/screenshots/addExpense.png)
+![Home](https://github.com/matinwgg/ExpenseApp-CapstoneProject/tree/f8484da65bc184766e99a44731ad8a3b1f40b62c/assets/screenshots/assets/screenshots/home.png)
+![User setting](https://github.com/matinwgg/ExpenseApp-CapstoneProject/tree/f8484da65bc184766e99a44731ad8a3b1f40b62c/assets/screenshots/assets/screenshots/settings.png)
+![Currency conversion](https://github.com/matinwgg/ExpenseApp-CapstoneProject/tree/f8484da65bc184766e99a44731ad8a3b1f40b62c/assets/screenshots/currency-converter.png)
 
 
 ## Installation
