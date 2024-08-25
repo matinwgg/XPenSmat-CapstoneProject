@@ -1,27 +1,28 @@
-import { StyleSheet, Image, Text, View, SafeAreaView, RefreshControl, TouchableOpacity } from 'react-native'
+import { StyleSheet,Button, Image, Text, TextStyle, View, SafeAreaView, RefreshControl, TouchableOpacity } from 'react-native'
 import { FlatList } from 'react-native-gesture-handler'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link, router } from 'expo-router'
-import CustomButton from '../../components/CustomButton'
-import { icons } from '../../constants'
-import EmptyState from '../../components/EmptyState'
-import Icon from 'react-native-vector-icons/Ionicons';
-import { MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
-import AllExpense from '../../components/ExpenseAll'
-import { getAllPosts } from "../../lib/appwrite"
-import useAppwrite from '../../lib/useAppwrite'
-import { useGlobalContext } from '../../context/GlobalProvider';
-import SearchInput from '../../components/SearchInput'
 import FeatherIcon from 'react-native-vector-icons/Feather';
 
+import { getAllPosts } from "../../lib/appwrite"
+import useAppwrite from '../../lib/useAppwrite'
+import CustomButton from '../../components/CustomButton'
+import EmptyState from '../../components/EmptyState'
+import AllExpense from '../../components/ExpenseAll'
+import { useGlobalContext } from '../../context/GlobalProvider';
+import SearchInput from '../../components/SearchInput'
+
+
 const DisplayExpense = () => {
-  const { user, setUser, setIsLoggedIn } = useGlobalContext()
+  const { user } = useGlobalContext()
 
   const { data: posts, refetch } = useAppwrite({
     fn: () => getAllPosts(user?.$id)
   });
 
   const [refreshing, setRefreshing] = useState(false)
+  const [categories, setCategories] = useState([]);
+  const [transactions, setTransactions] = useState([]);
 
   const onRefresh = async () => {
     setRefreshing(true)
@@ -87,7 +88,7 @@ const DisplayExpense = () => {
 
             /> 
         </View>
-
+       
       </SafeAreaView>
       </>
       

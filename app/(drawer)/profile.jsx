@@ -11,7 +11,6 @@ import {
 import DateTimePicker from '@react-native-community/datetimepicker';
 import RBSheet from 'react-native-raw-bottom-sheet';
 
-
 const Profile = () => {
   const sheet = React.useRef();
 

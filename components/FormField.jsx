@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Animated, StyleSheet, Text, TextInput, TouchableOpacity, View, Image, Dimensions } from 'react-native';
 import { icons } from '../constants'
 import Colors from '../constants/colors'
@@ -64,6 +64,7 @@ const FormField = ({value, name, onChangeText, containerStyle, placeholder, ...p
       outputRange: ['gray', '#888'],
     }),
   };
+
 
   return (
     <View className={`mr-5 ${containerStyle}`}>

@@ -5,15 +5,10 @@ import { icons } from '../../constants'
 import FormField from '../../components/FormField'
 import {Link, router} from 'expo-router'
 import CustomButton  from '../../components/CustomButton'
-import { createUser } from '../../lib/appwrite'
+import { createUser, verifyEmail } from '../../lib/appwrite'
 import { useGlobalContext } from '../../context/GlobalProvider'
-import { toast } from "../../lib/toast";
+import toast from "../../lib/toast";
 
-
-const validateEmail = (email) => {
-  const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
-  return emailRegex.test(email);
-};
 
 const SignUp = () => {
   const { setUser, setIsLoggedIn } = useGlobalContext();
@@ -27,22 +22,18 @@ const SignUp = () => {
     confirmpwd: '',
 })
 
+const validateEmail = (email) => {
+  const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+  return emailRegex.test(email);
+};
+
 const submit = async () => {
       if (!form.username || !form.email || !form.password || !form.confirmpwd) {
         return Alert.alert('Error', 'Please fill in all the fields')
       }
 
-      if (form.username.length < 3) {
-        return Alert.alert('Error', 'Username must be at least 3 characters long');
-      }
-
       if (!validateEmail(form.email)) {
-        Alert.alert('Invalid Email', 'Please enter a valid email address.');
-        return;
-      }
-  
-      if (!EMAIL_REGEX.test(form.email)) {
-        return Alert.alert('Error', 'Please enter a valid email address');
+        return Alert.alert('Invalid Email', 'Please enter a valid email address.');
       }
   
       if (form.password !== form.confirmpwd) {
@@ -52,26 +43,17 @@ const submit = async () => {
 
     setError(null)
     setIsSubmitting(true)
-
     try {
-    const result = await createUser(form.email, form.password, form.username)
-    setUser(result);
-    setIsLoggedIn(true);
-    toast('Account created');
-    router.replace('/sign-in')
-
+      const result = await createUser(form.email, form.password, form.username)
+      setUser(result);
+      setIsLoggedIn(true);
+      //await verifyEmail(form.email)
+      Alert.alert("Success!", "Account created in successfully");
+      router.replace('/sign-in')
   } catch(error) {
     const appwriteError = error
     console.log("Appwrite service :: SignUp() :: " + Error(appwriteError.message));
-    Alert.alert('User already exist', Error(appwriteError.message), [
-      {
-        text: 'Cancel',
-        onPress: () => console.log('Cancel Pressed'),
-        style: 'cancel',
-      },
-      {text: 'OK', onPress: () => console.log('OK Pressed')},
-    ]);
-    setIsSubmitting(false)
+    Alert.alert('User already exist', Error(appwriteError.message));
   }
     finally { 
       setIsSubmitting(false)

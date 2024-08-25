@@ -21,7 +21,7 @@ const Home = () => {
   const [isConnected, setIsConnected] = useState(null);
   const [strength, setStrength] = useState('');
 
-  const { user, setUser, setIsLoggedIn } = useGlobalContext()
+  const { user } = useGlobalContext()
 
   const { data: recentPosts, refetch } = useAppwrite({
     fn: () => getRecentPosts(user?.$id)
@@ -55,11 +55,16 @@ const Home = () => {
   };
 
   useEffect(() => {
-    let total = 0;
-    recentPosts.forEach(item => {
+    try {
+      let total = 0;
+      recentPosts.forEach(item => {
       total += item.ItemAmount;
     });
     setTotalAmount(total);
+    } catch (error) {
+      console.log("No items!");
+    }
+    
   }, [recentPosts]);
 
   useEffect(() => {
@@ -112,16 +117,16 @@ const Home = () => {
       }
     });
 
-    return () => {
+    return async () => {
       unsubscribe();
-      refetch()
+      await refetch()
     };
   }, []);
 
-  console.log(`{Connection Status: ${isConnected ? 'Connected' : 'Disconnected'}}`)
+
+  //console.log(`{Connection Status: ${isConnected ? 'Connected' : 'Disconnected'}}`)
 
   return (
-    
     <>
     {/* <StatusBar hidden="true" /> */}
     <Drawer.Screen 
@@ -137,7 +142,12 @@ const Home = () => {
               </TouchableOpacity> 
             </View >
             <View className="flex-1 items-center pt-2">
-              <Text className="text-xl font-mbold">Yo! <Text className="font-mregular">{user?.username?.toUpperCase()}</Text> </Text>
+              <Text className="text-xl font-mbold">Yo!{" "}
+                <Text className="font-mregular">
+                  {user?.firstName == null && user?.lastName == null 
+                    ? user?.username?.toUpperCase() 
+                    : `${form.firstName.toUpperCase()} ${form.lastName.toUpperCase()}`}
+                </Text> </Text>
             </View>
 
             <View>

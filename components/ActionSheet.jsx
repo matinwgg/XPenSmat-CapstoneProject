@@ -9,7 +9,7 @@ import {
 import RBSheet from 'react-native-raw-bottom-sheet';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 
-export default function Example() {
+export default function ActionSheet() {
   const sheet = React.useRef();
 
   React.useEffect(() => {

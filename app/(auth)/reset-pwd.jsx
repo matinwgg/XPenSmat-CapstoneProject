@@ -1,28 +1,44 @@
 import React, {useState} from 'react';
-import { Text, View, KeyboardAvoidingView, Image, ScrollView } from 'react-native';
+import { Text, View, KeyboardAvoidingView, Image, ScrollView, Alert } from 'react-native';
 import { icons, images } from '../../constants'
 import { Link, router } from 'expo-router';
 import CustomButton from '../../components/CustomButton'
 import FormField from '../../components/FormField';
-
+import { recoverPwd } from '../../lib/appwrite';
+import { useGlobalContext } from '../../context/GlobalProvider'
 
 export default function ResetPassword () {
+  const { user } = useGlobalContext()
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [passwordError, setPasswordError] = useState('');
+    
+    const [form, setForm] = useState({
+      newPwd: "",
+      retypePwd: ""
+    });
 
+    const urlParams = new URLSearchParams(window.location.search);
+    const secret = urlParams.get('secret');
 
     const submit = () => {
-      //router.push('/confirm-new-pwd')
+      if (form.newPwd === form.retypePwd) {
+        recoverPwd.updatePassword(user?.$id, secret)
+        
+        Alert.alert("Congratulations", "You can now login with your newly created password!")
+        router.push('/sign-in')
+      } else {
+        Alert.alert("Error", "Passwords do not match")
+      }
     }
 
     return (
       <KeyboardAvoidingView className="bg-gray flex-1 min-h-[100vh]">
         <ScrollView showsVerticalScrollIndicator="false"  keyboardShouldPersistTaps='handled'>
         <View className="p-5">
-            <Link href="/sign-in" className='mt-[50px]'>
+            <Link href="/forgot" className='mt-[50px]'>
             <Image source={icons.left_back} resizeMode='contain' className="w-8 h-8 mt-10"/>
             </Link>
         </View>
@@ -45,17 +61,19 @@ export default function ResetPassword () {
                 
             <View className="ml-1">
                 <FormField
+                  value={form.newPassword}
                   containerStyle="w-[340px]"
                   placeholder={'Password'}
-                  onChangeText={setPassword}
+                  onChangeText={(e) => setForm({ ...form, newPwd: e })}
                   error={passwordError}
                   secureTextEntry
               />
 
               <FormField
+                value={form.retypePwd}
                   containerStyle="w-[340px] mt-5"
                   placeholder={'Confirm Password'}
-                  onChangeText={setPassword}
+                  onChangeText={(e) => setForm({ ...form, retypePwd: e })}
                   error={passwordError}
                   secureTextEntry
               />
@@ -81,8 +99,7 @@ export default function ResetPassword () {
             <CustomButton 
               title="Create" 
               otherStyles="rounded-[25px]"              
-             // handlePress={handleSubmit(submit)}
-            
+             handlePress={submit}
             />
           </View>
         </View>

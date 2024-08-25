@@ -4,7 +4,7 @@ import { icons } from '../../constants'
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Drawer } from 'expo-router/drawer'
 // import { DrawerContent } from '@react-navigation/drawer';
-import CustomDrawerContent from '../../components/CustomDrawercontent';
+import CustomDrawerContent from '../../components/CustomDrawerContent';
 
 const DrawerLayout = () => {
   return (
@@ -18,7 +18,7 @@ const DrawerLayout = () => {
         //drawerActiveTintColor: '#1F41BB',
         swipeEdgeWidth: 0, 
         swipeEnabled: false, 
-        drawerLabelStyle: { marginLeft: -20, fontFamily: 'Poppins-Regular', fontSize: 15}, 
+        drawerLabelStyle: { marginLeft: -20, fontFamily: 'Poppins-Regular', fontSize: 18}, 
         //drawerStyle: {marginTop: 50 }
       }}>
       <Drawer.Screen 
@@ -28,7 +28,7 @@ const DrawerLayout = () => {
           title: "Home",
           drawerIcon: () => (
             <Image 
-            source={icons.dhome}
+            source={icons.home}
             resizeMode='contain'
             className="w-[26px] h-[26px]"
             />
@@ -37,6 +37,22 @@ const DrawerLayout = () => {
           
         }}
       />
+
+    <Drawer.Screen 
+      name="currency-converter"
+      options={{
+        drawerLabel: "Convert currency",
+        headerTitle: "",
+        drawerIcon: () => (
+          <Image 
+            source={icons.moneychange} 
+            resizeMode='contain'
+            className="w-7 h-7"
+          />
+        )
+      }}
+      />
+
       <Drawer.Screen 
       name="my-expense"
       options={{
@@ -52,6 +68,7 @@ const DrawerLayout = () => {
         )
       }}
       />
+      
       <Drawer.Screen 
       name="profile"
       options={{
@@ -61,7 +78,7 @@ const DrawerLayout = () => {
           width: 240,
         },
         headerTitle: "Profile",
-        drawerIcon: ({ size, color }) => (
+        drawerIcon: () => (
           <Image 
           source={icons.profile_} 
           resizeMode='contain'
@@ -72,37 +89,6 @@ const DrawerLayout = () => {
       }}
       />
 
-      <Drawer.Screen 
-      name="(wset-reminders)"
-      options={{
-        drawerLabel: "Set reminders",
-        headerTitle: "Add to reminder",
-        drawerIcon: ({ size, color }) => (
-          <Image 
-          source={icons.budget} 
-          resizeMode='contain'
-          className="w-7 h-7"
-
-          />
-        )
-      }}
-      />
-
-      <Drawer.Screen 
-      name="currency-conversion"
-      options={{
-        drawerLabel: "Convert currency",
-        headerTitle: "",
-        drawerIcon: ({ size, color }) => (
-          <Image 
-            source={icons.moneychange} 
-            resizeMode='contain'
-            className="w-7 h-7"
-
-            />
-        )
-      }}
-      />
  </Drawer>
   
     </GestureHandlerRootView>

@@ -1,47 +1,63 @@
 import React, {useState, useRef } from 'react';
-import { Text, View, KeyboardAvoidingView, TouchableOpacity, StyleSheet, Image, ScrollView, Platform } from 'react-native';
+import { Text, View, KeyboardAvoidingView, TouchableOpacity, StyleSheet, Image, ScrollView, Platform, Alert } from 'react-native';
 import { icons, images } from '../../constants'
 import { Link, router } from 'expo-router';
 import CustomInput from '../../components/CustomInput'
 import CustomButton from '../../components/CustomButton'
 import RBSheet from 'react-native-raw-bottom-sheet';
 import OtpScreen from './otp';
-import { SessionTokenEmail, SessionTokenSMS } from '../../lib/appwrite';
+import { recoverPwd } from '../../lib/appwrite';
 
 const ForgotPwd = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
     const sheet = useRef();
-
+    const [token, setToken] = useState('');
     const [inputValue, setInputValue] = useState('');
-    const [sendValue, setSendValue] = useState('');
+    const [maskedEmailId, setMaskedEmailId] = useState('');
     const [isValidEmail, setIsValidEmail] = useState(false);
-    const [isValidPhone, setIsValidPhone] = useState(false);
-    const [ isVerify, setVerfiy ] = useState('false')
     
+    const openSheet = () => {
+      sheet.current?.open();
+    };
+  
+    const closeSheet = () => {
+      sheet.current?.close();
+    };
 
-    const submit = () => {
+    const submit = async () => {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      const phoneRegex = /^[0-9]{10,15}$/;
 
-      if (setIsValidEmail(emailRegex.test(inputValue))) {
-        SessionTokenEmail(inputValue)
-      } else if (setIsValidPhone(phoneRegex.test(inputValue))) {
-        SessionTokenSMS(inputValue)
+      setIsSubmitting(true)
+      
+        // First, test the email against the regex
+        const isValidEmail = emailRegex.test(inputValue.trim());
+
+        // Update the state with the validation result
+        setIsValidEmail(isValidEmail);
+
+      try {
+        if (isValidEmail) {
+        
+          const token = await recoverPwd.createOtp(inputValue.trim())
+          setToken(token)
+          openSheet();
+          maskInputValue(inputValue)
+          
+          return Alert.alert("OTP sent to email")
+        }
+      } catch (error) {
+        return Alert.alert("Invalid Email", "Check your email id")
+      } finally { 
+        setIsSubmitting(false)
       }
-      sheet.current.open()
-      maskInputValue(inputValue)
+     
   }
 
   const maskInputValue = (inputValue) => {
-    if (inputValue.length == 10) {
-     const newValue = 'xxx xxx x' + inputValue.slice(7);
-     setSendValue(newValue)
-    } else {
       const atIndex = inputValue.indexOf('@');
       const newValue = inputValue.replace(/^[^@]+/, match => 'x'.repeat(atIndex));
-      setSendValue(newValue)
-    }
+      setMaskedEmailId(newValue)
   }
 
   return (
@@ -74,18 +90,19 @@ const ForgotPwd = () => {
                 <View className="">
                   <CustomInput 
                     value={inputValue}
-                    placeholder="Enter Email address or Phone number"
-                    handleChangeText={e => setInputValue(e)}
+                    placeholder="Enter Email address"
+                    handleChangeText={(e) => setInputValue(e)}
                   />
                 </View>
               
 
             <View className="mt-7 mb-10 w-[330px] self-center">
+
             <CustomButton 
               title="Submit" 
               otherStyles="min-h-[50px]"              
-              //handlePress={isValidEmail && isValidPhone (setVerfiy(true))}
-              handlePress={() => submit()}
+              handlePress={submit}
+              isLoading={isSubmitting}
             />
             </View>
             </View>
@@ -93,6 +110,7 @@ const ForgotPwd = () => {
         </View>
         </ScrollView>
         </KeyboardAvoidingView>
+
         <View style={styles.container}>
             <RBSheet
             height={650}
@@ -112,14 +130,20 @@ const ForgotPwd = () => {
 
               <View style={styles.sheetHeader}>
                   <TouchableOpacity
-                      onPress={() => sheet.current.close()}
+                      onPress={closeSheet}
                       style={[styles.sheetButton]}>
                       <Image source={icons.close} resize='contain' style={styles.sheetButtonDone} className="h-5 w-5 self-ends" />
                       {/* <Text style={styles.sheetButtonDone}>Done</Text> */}
                   </TouchableOpacity>
               </View>
 
-              <OtpScreen value={sendValue}/>
+              <OtpScreen value={maskedEmailId} pattern={token} closeSheet={closeSheet}/>
+
+              <View>
+                <TouchableOpacity onPress={() => recoverPwd.createOtp(inputValue)}>
+                  <Text>Resend code</Text>
+                </TouchableOpacity>
+              </View>
 
           </RBSheet>
           </View>

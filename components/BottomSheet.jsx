@@ -1,112 +1,9 @@
-import DateTimePicker from '@react-native-community/datetimepicker';
-import RBSheet from 'react-native-raw-bottom-sheet';
-// import BottomSheetContent from '../../components/BottomSheet'
-// import FeatherIcon from 'react-native-vector-icons/Feather';
-import { Link } from 'expo-router'
-// import { icons } from '../../constants/icons'
-import Icon from 'react-native-vector-icons/Ionicons';
-
-import {  SafeAreaView, Image, TextInput, View, Text, Button, FlatList, TouchableOpacity, Pressable, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native'
-import React, { useState, Component } from 'react';
+import { View, Text, FlatList, TouchableOpacity, Pressable, Platform, StyleSheet } from 'react-native'
+import React, { useState } from 'react';
 import MyButton from '../components/CustomButton2';
-//import { icons } from '../constants/icons'
 import TextField from '../components/TextField';
 
-
-// class MySheet extends Component {
-//   render() {
-//   const sheet = React.useRef();
-
-//   const [ date, setDate ] = useState(new Date())
-//     const [ showPicker, setShowPicker ] = useState(false)
-//     const [dateOfPurchase, setDateOfPurchase] = useState("")
-
-//     const toggleDatePicker = () => {
-//         setShowPicker(!showPicker)
-//     }
-
-//     const onChange = ({ type }, selectedDate) => {
-//         if  (type == "set") {
-//             const currentDate = selectedDate
-//             setDate(currentDate)
-
-//             if (Platform.OS === "android") {
-//                 toggleDatePicker()
-//                 setDateOfPurchase(currentDate.toDateString())
-//             }
-//         } else {
-//             toggleDatePicker()
-//         }
-//     }
-
-//   React.useEffect(() => {
-//     sheet.current.open();
-//   }, []);
-
-//   return (
-//     <SafeAreaView style={{ flex: 1 }}>
-//       <View>
-//         <SheetContent />
-//       </View>
-//     <RBSheet
-//       customStyles={{ container: styles.container }}
-//       height={400}
-//       openDuration={250}
-//       ref={ref => {
-//         this.RBSheet = ref;
-//       }}>
-//       <View style={styles.sheetContent}>
-
-//       {/* <View>
-//             <Link href="/home" className=''>
-//               <FeatherIcon
-//               color="#2b64e3"
-//               name="shield"
-//               style={{
-//                 alignSelf: 'center',
-//               }}
-//               size={48} />
-
-//             </Link>
-//           </View> */}
-
-//             <DateTimePicker 
-//               mode='date'
-//               display="spinner"
-//               value={date}
-//               onChange={onChange}
-//               className="h-[120px] -mt-2.5"
-
-//             />
-
-//         <TouchableOpacity
-//           onPress={() => {
-//             // handle onPress
-//           }}>
-//           <View style={styles.btn}>
-//             <Text style={styles.btnText}>Confirm</Text>
-//           </View>
-//         </TouchableOpacity>
-
-//         <View style={styles.spacer} />
-
-//         <TouchableOpacity
-//           onPress={() => sheet.current.close()}>
-//           <View style={styles.btnSecondary}>
-//             <Text style={styles.btnSecondaryText}>Cancel</Text>
-//           </View>
-//         </TouchableOpacity>
-//       </View>
-//     </RBSheet>
-//     </SafeAreaView>
-// );
-// }
-// }
-
-
-
-
-const SheetContent = () => {
+export const BottomSheet = () => {
   const [form, setForm] = useState({
     name: "",
     amount: "",
@@ -264,8 +161,6 @@ const SheetContent = () => {
 
   )
 };
-
-export default SheetContent
 
 
 const styles = StyleSheet.create({

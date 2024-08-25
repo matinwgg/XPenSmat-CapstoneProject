@@ -22,11 +22,9 @@ import stats_chart_inac from "../assets/icons/stats-chart_inac.png";
 import bank_building from "../assets/icons/bank-building.png"
 import hand_euro from "../assets/icons/receive-euro.png"
 import currency_convert from "../assets/icons/currency-convert.png"
-import instagram from "../assets/icons/instagram.png"
 import sales_balance from "../assets/icons/sales-balance.png"
 import google from "../assets/icons/google.png"
-import apple from "../assets/icons/apple.png";
-import facebook from "../assets/icons/facebook.png"
+import github from "../assets/icons/github.png";
 import pic from "../assets/icons/profile-pic.png"
 import picx from "../assets/icons/profile-picture.png"
 import bank from "../assets/icons/bank.png";
@@ -54,6 +52,7 @@ import left_arrow from "../assets/icons/left_arrow.png";
 export default {
   left_arrow,
   plus_c,
+  github,
   rit_arrow,
   back_blue,
   xchange,
@@ -65,7 +64,6 @@ export default {
   close,
   lgout,
   email,
-  apple,
   dsettings,
   moneychange,
   budget,
@@ -82,13 +80,11 @@ export default {
   stats_chart_inac,
   bank_building,
   currency_convert,
-  facebook,
   google,
   left_back,
   forward,
   pic,
   picx,
-  instagram,
   sales_balance,
   bookmark,
   plus,

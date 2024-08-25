@@ -9,7 +9,6 @@ import Colors from "../constants/colors";
 const CustomButton = ({title, isLoading, handlePress, containerStyles, type = "PRIMARY", otherStyles, textStyles }) => {
 
     return (
-
         <TouchableOpacity onPress={handlePress} className={`w-[100%] h-[48px] ${containerStyles} ${isLoading ? 'opacity-50' : '' } ${type === 'PRIMARY' ? '' : 'bg-white'} ${otherStyles}`} style={styles.container}>
             {isLoading == true ? (
                 <ActivityIndicator size="small" color='#FFF' />

@@ -1,6 +1,3 @@
-import { Drawer } from 'expo-router/drawer'
-import { DrawerToggleButton } from '@react-navigation/drawer'
-import React, { useState } from 'react';
 import {
   StyleSheet,
   SafeAreaView,
@@ -9,14 +6,20 @@ import {
   Text,
   TouchableOpacity,
   Switch,
+  Modal,
   Image,
+  Pressable,
+  ActivityIndicator
 } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import { router } from "expo-router";
 import { signOut } from "../../../../lib/appwrite";
 import { useGlobalContext } from "../../../../context/GlobalProvider";
 
-
+import { Drawer } from 'expo-router/drawer'
+import { DrawerToggleButton } from '@react-navigation/drawer'
+import React, { useState } from 'react';
 const Settings = () => {
   const [form, setForm] = useState({
     emailNotifications: true,
@@ -24,13 +27,21 @@ const Settings = () => {
 })
 
 const { user, setUser, setIsLoggedIn } = useGlobalContext()
+const [isSubmitting, setIsSubmitting] = useState(false);
+const [modalVisible, setModalVisible] = useState(false);
 
 const logout = async () => {
-  await signOut();
-  setUser(null);
-  setIsLoggedIn(false);
-
-  router.replace("(auth)/sign-in");
+  setIsSubmitting(true)
+  try {
+    await signOut();
+    setUser(null);
+    setIsLoggedIn(false);
+    router.replace("(auth)/sign-in");
+  } catch (error) {
+    console.log("Appwrite service :: logOut() :: " + Error(error));
+  } finally {
+    setIsSubmitting(false)
+  }
 };
 
   return (
@@ -42,38 +53,41 @@ const logout = async () => {
       headerLeft: () => <DrawerToggleButton />
     }}/>
   
-
-
     <SafeAreaView style={{ flex: 1, backgroundColor: '#f8f8f8' }}>
       <View style={styles.container}>
         <View style={styles.header}>
-          <View style={styles.headerAction}>
-            {/* <TouchableOpacity
-              onPress={() => {
-                // handle onPress
-              }}>
-              <FeatherIcon
-                color="#000"
-                name="arrow-left"
-                size={24} />
-            </TouchableOpacity> */}
-          </View>
+
+         <View>
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={modalVisible}
+            onRequestClose={() => {
+              Alert.alert('Modal has been closed.');
+              setModalVisible(!modalVisible);
+            }}>
+            <View style={styles.centeredView}>
+              <View style={styles.modalView}>
+                <Text style={styles.modalText}>Hello World!</Text>
+                <Pressable
+                  style={[styles.button, styles.buttonClose]}
+                  onPress={() => setModalVisible(!modalVisible)}>
+                  <Text style={styles.textStyle}>Hide Modal</Text>
+                </Pressable>
+              </View>
+            </View>
+          </Modal>
+      
+      {/* <Pressable
+        style={[styles.button, styles.buttonOpen]}
+        onPress={() => setModalVisible(true)}>
+        <Text style={styles.textStyle}>Show Modal</Text>
+      </Pressable> */}
+      </View>
 
           <Text className="text-[#1F41BB] text-4xl font-mbold pl-5" style={styles.headerTitle}>
             Settings
           </Text>
-
-          {/* <View style={[styles.headerAction, { alignItems: 'flex-end' }]}>
-            <TouchableOpacity
-              onPress={() => {
-                // handle onPress
-              }}>
-              <FeatherIcon
-                color="#000"
-                name="more-vertical"
-                size={24} />
-            </TouchableOpacity>
-          </View> */}
         </View>
 
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
@@ -132,7 +146,7 @@ const logout = async () => {
               <View style={styles.rowWrapper}>
                 <TouchableOpacity
                   onPress={() => {
-                    // handle onPress
+                    setModalVisible(true)
                   }}
                   style={styles.row}>
                   <Text style={styles.rowLabel}>Location</Text>
@@ -266,9 +280,16 @@ const logout = async () => {
                 <TouchableOpacity
                   onPress={logout}
                   style={styles.row}>
-                  <Text style={[styles.rowLabel, styles.rowLabelLogout]}>
-                    Log Out
-                  </Text>
+                  { isSubmitting === true ? (
+                    <View className="flex-1 self-center items-center">
+                      <ActivityIndicator size="small" color='red'/>
+                    </View>
+                  ) : (
+                <Text style={[styles.rowLabel, styles.rowLabelLogout]}>
+                Log Out
+              </Text>
+              )}  
+                  
                 </TouchableOpacity>
               </View>
             </View>
@@ -414,6 +435,47 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: '600',
     color: '#dc2626',
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 22,
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 35,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  button: {
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2,
+  },
+  buttonOpen: {
+    backgroundColor: '#F194FF',
+  },
+  buttonClose: {
+    backgroundColor: '#2196F3',
+  },
+  textStyle: {
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: 'center',
   },
 });
 

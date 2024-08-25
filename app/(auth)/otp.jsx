@@ -1,21 +1,42 @@
 import { router } from 'expo-router';
-import React, { useState, useEffect,useRef } from 'react';
-import { View, Text, TextInput, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { View, Text, ScrollView, StyleSheet, Alert } from 'react-native';
 import { OtpInput } from "react-native-otp-entry";
+import { recoverPwd } from '../../lib/appwrite';
+import { useGlobalContext } from '../../context/GlobalProvider'
 
 
-const OtpScreen = ({value}) => {
-const [otpCode, setOtpCode] = useState('')
-const sheet = useRef();
+const OtpScreen = ({ maskedEmailId, closeSheet, pattern }) => {
+  const { user } = useGlobalContext()
+  const sheet = useRef();
 
+  const [otpCode, setOtpCode] = useState('')
+  const [isPinReady, setIsPinReady] = useState(false);
 
-const [isPinReady, setIsPinReady] = useState(false);
-
-
-  const handleSubmit = (otpCode) => {
+  const validateOtp = () => {
     setOtpCode(otpCode)
-    sheet.current.close()
+    if (pattern.test(otpCode)) {
+      return true
+    } else {
+      Alert.alert("Invalid Code", "Check and re-enter the correct pin sent to your email!")
+      return false
+      }
+  }
+  const handleSubmit = (otpCode) => {
     setIsPinReady(true)
+
+      if (validateOtp) {
+        try {
+          //Otp.verifyOtp(user?.$id, otpCode)
+          console.log(user?.$id)
+          console.log(otpCode)
+          alert("OTP verified")
+          router.navigate('/reset-pwd')
+
+      } catch (error) {
+        console.log("Appwrite service :: OTPPin() :: " + Error(error.message));
+      }
+      }
   };
 
   return (
@@ -24,14 +45,14 @@ const [isPinReady, setIsPinReady] = useState(false);
         <Text className='text-gray-600 font-mregular pt-7'>
           We have sent a verification code to 
         </Text>
-        <Text className="font-mbold text-[16px] mb-7">{value}</Text>
+        <Text className="font-mbold text-[16px] mb-7">{maskedEmailId}</Text>
         <View className="border-b border-b-[#CCC]"/>
         <Text className="font-mregular text-[15px] my-7">Enter code</Text>
 
 
       <View className='flex-row pl-2'>
         <OtpInput
-          numberOfDigits={5}
+          numberOfDigits={6}
           focusColor="#1F41BB"
           focusStickBlinkingDuration={500}
           autoFocusOnLoad
@@ -51,8 +72,8 @@ const [isPinReady, setIsPinReady] = useState(false);
       </View>
 
       {isPinReady && (
-        router.push('/reset-pwd')
-      )}
+          closeSheet()
+        )}
       
     </View>
     </ScrollView>

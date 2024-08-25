@@ -39,10 +39,23 @@ const Expense = ({ amount, category, purchaseDate, index }) => {
     default: icon ='list'
               break;         
         }
-    const deleteThisExpense = async () => {
+    const deleteThisExpense =  () => {
       try {
-        await deleteExpense(index);
-        Alert.alert("Success", "Item deleted!")
+        Alert.alert('Deleting...', 'Are you sure you want to delete this item?', [
+          {
+            text: 'Cancel',
+            onPress: () => console.log('Cancel Pressed'),
+            style: 'cancel',
+          },
+          {
+            text: 'OK', 
+            onPress: async () => { 
+              await deleteExpense(index)
+              Alert.alert("Success", "Item deleted!")
+
+            }
+          }
+        ])
       } catch (error) {
         
       }

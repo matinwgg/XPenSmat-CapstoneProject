@@ -1,14 +1,25 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { View } from 'react-native'
 import React, { useState } from 'react'
 import CalendarStrip from 'react-native-calendar-strip';
-//import { icons } from '../assets/icons'
 import moment from 'moment';
 
 const CustomCalendar = () => {
+
+  const getCurrentMonthStartAndEnd = () => {
+    const startOfMonth = moment()//.startOf('month').startOf('week');
+    const endOfMonth = moment()//.endOf('month').endOf('week');
+    return {
+      start: startOfMonth,
+      end: endOfMonth,
+    };
+  };
+
+  const { start, end } = getCurrentMonthStartAndEnd();
+
     const datesWhitelist = [
         {
-        start: moment(),
-        end: moment() //.add(365, 'days') // total 4 days enabled
+        start,
+        end //.add(365, 'days') // total 4 days enabled
         }
     ];
 
@@ -40,7 +51,7 @@ const CustomCalendar = () => {
             fontSize: 18,
             fontFamily: "Brighter-Bold",
             backgroundColor: '#2E66E7',
-            marginTop: 10,
+            marginTop: 3,
             height: 50,
             width: 35,
             textAlign: 'center',
@@ -75,5 +86,3 @@ const CustomCalendar = () => {
 }
 
 export default CustomCalendar
-
-const styles = StyleSheet.create({})

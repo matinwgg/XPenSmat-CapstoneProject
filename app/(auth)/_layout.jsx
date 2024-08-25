@@ -24,6 +24,10 @@ const AuthLayout = () => {
           name="reset-pwd"
           options={{ headerShown: false}}
           />
+            <Stack.Screen 
+          name="verify-email"
+          options={{ headerShown: false}}
+          />
          
       </Stack>
     </>

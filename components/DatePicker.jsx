@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal, Button, Platform, TouchableHighlight, SafeAreaView, KeyboardAvoidingView, Pressable, Platform } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, KeyboardAvoidingView, Pressable, Platform } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { ScrollView } from 'react-native';
 import { TextInput } from 'react-native';
 
 
-export default function DateTimePicker() {
+export default function DatePicker() {
     const [category, setCategory] = useState("")
     const [item, setItem] = useState("")
     const [amount, setAmount] = useState("")

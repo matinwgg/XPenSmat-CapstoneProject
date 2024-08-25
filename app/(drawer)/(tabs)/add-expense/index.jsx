@@ -40,17 +40,16 @@ const AddExpense = () => {
   });
 
 
-  const onSubmit = async () => {
-    try {
-      if (form.item === "" || !form.amount || form.category === "" || form.dateOfPurchase === "" || form.paymentMode === "") {
-        return Alert.alert("Error", "Please fill in all the fields")
-      }
-
-    await upLoadExpense(form.item, form.category, parseFloat(form.amount), form.dateOfPurchase, form.paymentMode, user.$id)
-
+  const submit = async () => {
+    if (form.item === "" || !form.amount || form.category === "" || form.dateOfPurchase === "" || form.paymentMode === "") {
+      return Alert.alert("Error", "Please fill in all the fields")
+    }
     setIsSubmitting(true)
-    
-    Alert.alert("Success", "Your expense added successfully")
+
+    try {
+      await upLoadExpense(form.item, form.category, parseFloat(form.amount), form.dateOfPurchase, form.paymentMode, user?.$id)
+
+      Alert.alert("Success", "Your expense added successfully")
 
     } catch (error) {
       Alert.alert("Error", error.message)
@@ -64,9 +63,7 @@ const AddExpense = () => {
        })
       setIsSubmitting(false)
     }
-
   }
-
   const onChange = ({type}, dateOfPurchase) => {
     if(type=="set") {
       setDate(dateOfPurchase)
@@ -180,15 +177,12 @@ const AddExpense = () => {
             setCategory={(e) => setForm({...form, category: e})}/>
         </View>
 
-        
-
         <View>
           <CustomButton 
-          title="Add Expense"
-          handlePress={onSubmit}
-          isLoading={isSubmitting}
-          disabled={!formReady}
-          containerStyles="w-[90%] self-center items-center mt-[90px]"
+            title="Add Expense"
+            handlePress={submit}
+            containerStyles="w-[90%] self-center items-center mt-[90px]"
+            isLoading={isSubmitting}
           />
         </View>
 
