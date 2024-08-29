@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import { Keyboard } from 'react-native';
-import { StyleSheet, Text, TextInput, View, Image } from 'react-native';
-import countriesData from "../partials/data.json"
+import { StyleSheet, Text, TextInput, View, Image, TouchableWithoutFeedback } from 'react-native';
+import countriesData from "../partials/flag.json"
 
 const TextField = ({ value, handleTextChange, containerStyle, otherStyles, placeholder, ...props }) => {
   const [inputValue, setInputValue] = useState('');
@@ -10,7 +10,6 @@ const TextField = ({ value, handleTextChange, containerStyle, otherStyles, place
   const { countries } = countriesData; 
 
   const matchedCodes = countries.filter(item => item.code === props.country)
-
 
   const validateInput = (value) => {
     // Example validation: input should not be empty and should be at least 3 characters long
@@ -21,20 +20,20 @@ const TextField = ({ value, handleTextChange, containerStyle, otherStyles, place
 
   return (
       <View 
-          className={`mx-2 border-gray-200 ${containerStyle} focus:border-[#1F41BB] focus:border-2 bg-white`} 
-          style={[styles.innerContainer, styles.inputContainer , { borderColor: props.error ? "red" : "" }]}>
+          className={`mx-2 border-gray-200 ${containerStyle} focus:border-[#1F41BB] focus:border-2 bg-white ${otherStyles}`} 
+          style={[styles.innerContainer, styles.inputContainer , { borderColor: props.error ? "red" : "" }, props.locationStyles]}>
             <TextInput
-              {...props}
               style={styles.input}
               placeholder={placeholder}
-              className='font-mregular'
+              className='font-pregular'
               editable={props.editable}
+              onBlur={() => Keyboard.dismiss()}
               onChangeText={handleTextChange}
               value={value}
               autoCorrect={false}
               textContentType={props.contentType}
               keyboardType={props.keyType}
-              enablesReturnKeyAutomatically 
+              {...props}
             />
             {props.error && (
                 <View className="my-4">
@@ -58,9 +57,9 @@ const TextField = ({ value, handleTextChange, containerStyle, otherStyles, place
 const styles = StyleSheet.create({
   innerContainer: {
     borderWidth: 1,
-    borderRadius: 20,
+    borderRadius: 15,
     borderColor: '#dcdcdc',
-    height: 55,
+    height: 54,
     justifyContent: 'center',
     
   },

@@ -1,4 +1,4 @@
-export const categoryColors: { [key: string]: string } = {
+export const categoryColors = {
   Groceries: "#FFD700", // Gold
   Rent: "#FF6347", // Tomato
   Salary: "#32CD32", // LimeGreen
@@ -18,10 +18,16 @@ export const categoryColors: { [key: string]: string } = {
   "Freelance Writing": "#778899", // LightSlateGray
   "End of Year Bonus": "#5F9EA0", // CadetBlue
   "Thanksgiving Freelance": "#BDB76B", // DarkKhaki
+  "Education": "#DB7093",
+  "Food": "#FFA07A",
+  "Medical": "#8A2BE2",
+  "Social Event": "#FF69B4",
+  "Shopping": "#FF69B4",
+  "Miscellaneous": "#6B8E23",
   Default: "#D3D3D3", // LightGray
 };
 
-export const categoryEmojies: { [key: string]: string } = {
+export const categoryEmojies = {
   Groceries: "🛒",
   Rent: "🏠",
   Salary: "💰",
@@ -41,5 +47,11 @@ export const categoryEmojies: { [key: string]: string } = {
   "Freelance Writing": "✍️",
   "End of Year Bonus": "🍾",
   "Thanksgiving Freelance": "🍂",
+  "Education": "📖",
+  "Food": "🍔",
+  "Medical": "🏥",
+  "Social Event": "🤼",
+  "Shopping": "🛒",
+  "Miscellaneous": "💱",
   Default: "🫰🏼",
 };

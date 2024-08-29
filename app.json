@@ -1,4 +1,4 @@
- {
+{
   "expo": {
     "name": "Aora",
     "scheme": "aora",
@@ -14,22 +14,26 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.wgg.aora"
+      "bundleIdentifier": "com.wgg.aora",
+      "runtimeVersion": {
+        "policy": "appVersion"
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.wgg.aora"
+      "package": "com.wgg.aora",
+      "runtimeVersion": "1.0.0"
     },
     "web": {
-      "favicon": "./assets/favicon.png", 
-      "bundle" : "metro"
+      "favicon": "./assets/favicon.png",
+      "bundle": "metro"
     },
     "plugins": [
       "expo-router",
-       "expo-localization"
+      "expo-localization"
     ],
     "extra": {
       "router": {
@@ -38,6 +42,9 @@
       "eas": {
         "projectId": "2665e62c-651a-47a1-9c8b-ce29ec4769ce"
       }
+    },
+    "updates": {
+      "url": "https://u.expo.dev/2665e62c-651a-47a1-9c8b-ce29ec4769ce"
     }
   }
 }

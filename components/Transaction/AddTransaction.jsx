@@ -3,8 +3,7 @@ import { Button, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import Card from "./ui/Card";
 import SegmentedControl from "@react-native-segmented-control/segmented-control";
-import { useSQLiteContext } from "expo-sqlite/next";
-import { Category, Transaction } from "../types";
+//import { Category, Transaction } from "../types";
 
 export default function AddTransaction({ insertTransaction }) {
   const [isAddingTransaction, setIsAddingTransaction] = useState(false);
@@ -15,7 +14,6 @@ export default function AddTransaction({ insertTransaction }) {
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("Expense");
   const [categoryId, setCategoryId] = useState(1);
-  const db = useSQLiteContext();
 
   useEffect(() => {
     getExpenseType(currentTab);

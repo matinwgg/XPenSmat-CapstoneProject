@@ -13,7 +13,7 @@ const OtpScreen = ({ maskedEmailId, closeSheet, pattern }) => {
   const [otpCode, setOtpCode] = useState('')
   const [isPinReady, setIsPinReady] = useState(false);
 
-  const validateOtp = () => {
+  const verifyOtp = () => {
     setOtpCode(otpCode)
     if (pattern.test(otpCode)) {
       return true
@@ -25,7 +25,7 @@ const OtpScreen = ({ maskedEmailId, closeSheet, pattern }) => {
   const handleSubmit = (otpCode) => {
     setIsPinReady(true)
 
-      if (validateOtp) {
+      if (verifyOtp) {
         try {
           //Otp.verifyOtp(user?.$id, otpCode)
           console.log(user?.$id)

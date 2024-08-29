@@ -72,7 +72,7 @@ const TabsLayout = () => {
                     icon_ac={icons.add_ac}
                     icon_inac={icons.add_inac}
                     color={color}
-                    name='add expense'
+                    name='add'
                     focused={focused}
                     size="w-7 h-7"
                 />

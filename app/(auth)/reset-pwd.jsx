@@ -5,12 +5,16 @@ import { Link, router } from 'expo-router';
 import CustomButton from '../../components/CustomButton'
 import FormField from '../../components/FormField';
 import { recoverPwd } from '../../lib/appwrite';
-import { useGlobalContext } from '../../context/GlobalProvider'
+//import { useGlobalContext } from '../../context/GlobalProvider'
+import { updateNewPassword, userId, secret } from '../../lib/local-server/controllers/auth_controllers';
+import { useRoute, useNavigation } from '@react-navigation/native';
 
 export default function ResetPassword () {
-  const { user } = useGlobalContext()
+  //const { user } = useGlobalContext()
     const [isSubmitting, setIsSubmitting] = useState(false);
-
+    const route = useRoute();
+    const navigation = useNavigation();
+  
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [passwordError, setPasswordError] = useState('');
@@ -18,20 +22,25 @@ export default function ResetPassword () {
     const [form, setForm] = useState({
       newPwd: "",
       retypePwd: ""
-    });
+    })
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const secret = urlParams.get('secret');
+    const { userId, secret } = route.params;
 
-    const submit = () => {
-      if (form.newPwd === form.retypePwd) {
-        recoverPwd.updatePassword(user?.$id, secret)
-        
-        Alert.alert("Congratulations", "You can now login with your newly created password!")
-        router.push('/sign-in')
-      } else {
-        Alert.alert("Error", "Passwords do not match")
+    const submit = async () => {
+      try {
+        if (form.newPwd !== form.retypePwd) {
+          return Alert.alert("Error", "Passwords do not match")
+          //router.push('/sign-in')
+        } 
+        if (form.newPwd.length < 8) {
+          Alert.alert("Error", "Password must be at least 8 characters.");
+          return;
+        }
+      await recoverPwd.updatePassword(userId, secret, form.newPwd, form.retypePwd)
+      } catch (error) {
+        Alert.alert("Error", "An unexpected error occurred.");
       }
+      
     }
 
     return (

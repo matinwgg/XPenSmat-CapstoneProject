@@ -2,6 +2,7 @@ import { View } from 'react-native'
 import React, { useState } from 'react'
 import CalendarStrip from 'react-native-calendar-strip';
 import moment from 'moment';
+import { Text } from 'react-native';
 
 const CustomCalendar = () => {
 
@@ -32,6 +33,14 @@ const CustomCalendar = () => {
 
   return (
     <View>
+      <View className="absolute top-2.5 left-2 bg-[#cde] py-0.5 px-2 rounded-lg">
+        <Text 
+            style={ { 
+                color: '#006aee', 
+                fontFamily: "Poppins-SemiBold",
+                }}>Today
+          </Text>
+      </View>
         <CalendarStrip
           calendarAnimation={{ type: 'sequence', duration: 30 }}
           daySelectionAnimation={{
@@ -43,7 +52,7 @@ const CustomCalendar = () => {
             paddingTop: 20,
             paddingBottom: 40
           }}
-          calendarHeaderStyle={{ color: '#000000', fontFamily: "Brighter-Bold", fontSize: 18, paddingLeft: 10, paddingBottom: 8 }}
+          calendarHeaderStyle={{ color: '#000', fontFamily: "Brighter-Bold", fontSize: 18, paddingLeft: 10, paddingBottom: 8 }}
           dateNumberStyle={{ color: '#000000', paddingTop: 5 }}
           dateNameStyle={{ color: '#545454' }}
           highlightDateNumberStyle={{

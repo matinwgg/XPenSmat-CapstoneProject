@@ -18,7 +18,7 @@ const DrawerLayout = () => {
         //drawerActiveTintColor: '#1F41BB',
         swipeEdgeWidth: 0, 
         swipeEnabled: false, 
-        drawerLabelStyle: { marginLeft: -20, fontFamily: 'Poppins-Regular', fontSize: 18}, 
+        drawerLabelStyle: { marginLeft: -20, fontFamily: 'Poppins-Regular', fontSize: 18, fontWeight: 'bold'}, 
         //drawerStyle: {marginTop: 50 }
       }}>
       <Drawer.Screen 
@@ -56,7 +56,7 @@ const DrawerLayout = () => {
       <Drawer.Screen 
       name="my-expense"
       options={{
-        drawerLabel: "My Expenses",
+        drawerLabel: "Stats & Transactions",
         headerTitle: "Expenses",
         drawerIcon: () => (
             <Image 

@@ -4,8 +4,16 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { Ionicons } from "@expo/vector-icons";
 import { deleteExpense } from '../lib/appwrite';
 
-const Expense = ({ amount, category, purchaseDate, index }) => {
-  const date = purchaseDate.split('T')[0]
+const Expense = ({ amount, category, item, purchaseDate, index }) => {
+  const date = new Date(purchaseDate.split('T')[0])
+  
+  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+   const dayOfWeek = days[date.getDay()];
+   const month = months[date.getMonth()];
+   const day = date.getDate();
+   const year = date.getFullYear();
 
   //list people-outline receipt-outline  cart-outline
   let icon  = '' 
@@ -67,8 +75,8 @@ const Expense = ({ amount, category, purchaseDate, index }) => {
               <Icon name={icon} size={24} color="#000" />
             </View>
             <View className="flex-1 ml-2.5 pl-1">
-                <Text className="text-[16px] font-mbold pb-1">{category}</Text>
-                <Text className="text-[#777] font-mregular">{date}</Text>
+                <Text className="text-[16px] font-mbold pb-1">{item}</Text>
+                <Text className="text-gray-500 font-mregular">{dayOfWeek} {month} {day < 10 ? '0' + day : day} {year}</Text>
             </View>
             <View className="flex-col gap-3">
                 <TouchableOpacity onPress={deleteThisExpense} className="items-end">

@@ -1,0 +1,85 @@
+{
+    "incomeSources": [
+      {
+        "label": "Full-Time Job",
+        "value": "full_time_job"
+      },
+      {
+        "label": "Part-Time Job",
+        "value": "part_time_job"
+      },
+      {
+        "label": "Freelance Work",
+        "value": "freelance_work"
+      },
+      {
+        "label": "Consulting",
+        "value": "consulting"
+      },
+      {
+        "label": "Online Sales",
+        "value": "online_sales"
+      },
+      {
+        "label": "Rental Income",
+        "value": "rental_income"
+      },
+      {
+        "label": "Investments",
+        "value": "investments"
+      },
+      {
+        "label": "Dividends",
+        "value": "dividends"
+      },
+      {
+        "label": "Interest Income",
+        "value": "interest_income"
+      },
+      {
+        "label": "Royalties",
+        "value": "royalties"
+      },
+      {
+        "label": "Bonuses",
+        "value": "bonuses"
+      },
+      {
+        "label": "Gifts",
+        "value": "gifts"
+      },
+      {
+        "label": "Pensions",
+        "value": "pensions"
+      },
+      {
+        "label": "Unemployment Benefits",
+        "value": "unemployment_benefits"
+      },
+      {
+        "label": "Social Security",
+        "value": "social_security"
+      },
+      {
+        "label": "Government Grants",
+        "value": "government_grants"
+      },
+      {
+        "label": "Crowdfunding",
+        "value": "crowdfunding"
+      },
+      {
+        "label": "Affiliate Marketing",
+        "value": "affiliate_marketing"
+      },
+      {
+        "label": "Sponsored Content",
+        "value": "sponsored_content"
+      },
+      {
+        "label": "Cashback Rewards",
+        "value": "cashback_rewards"
+      }
+    ]
+  }
+  

@@ -9,11 +9,12 @@ import { useGlobalContext } from '../../../../context/GlobalProvider';
 import { FlatList } from 'react-native-gesture-handler'
 import Expense from '../../../../components/ExpenseItem'
 import EmptyState from '../../../../components/EmptyState'
-import { getRecentPosts } from '../../../../lib/appwrite'
+import { getRecentPosts, recoverPwd } from '../../../../lib/appwrite'
 import useAppwrite from '../../../../lib/useAppwrite'
 import CustomCalendar from '../../../../components/CustomCalendar'
 import { router } from 'expo-router'
 import NetInfo from '@react-native-community/netinfo';
+import FeatherIcon from 'react-native-vector-icons/Feather';
 
 const Home = () => {
   const navigation = useNavigation();
@@ -34,7 +35,6 @@ const Home = () => {
   const [currencies, setCurrencies] = useState([]);
   
   const [exchangeRate, setExchangeRate] = useState('0');
-  let total = 0;
   const [totalAmount, setTotalAmount] = useState(0);
 
   const convertCurrency = () => {
@@ -42,7 +42,16 @@ const Home = () => {
     return result;
   };
 
+  console.log(user?.email)
+  console.log(typeof(recoverPwd.isUserVerified()))
+
+  const [showStatus, setShowStatus] = useState(false);
+
+  const handlePress = () => {
+    setShowStatus(!showStatus); // Toggle the visibility of the status
+  };
  
+
   const onRefresh = async () => {
     setRefreshing(true)
     // Recall new expenses
@@ -123,6 +132,17 @@ const Home = () => {
     };
   }, []);
 
+  
+
+    const baseWidth = 165; // Initial width when totalAmount length is 3
+    const length = totalAmount.toFixed(2).toString().length; // Get the length of the totalAmount string
+
+  // Calculate the dynamic width
+  let dynamicWidth = baseWidth;
+
+  if (length > 3) {
+    dynamicWidth += (length - 3) * 10; // Increase the width by 10 units for each character beyond 3
+  }
 
   //console.log(`{Connection Status: ${isConnected ? 'Connected' : 'Disconnected'}}`)
 
@@ -135,7 +155,7 @@ const Home = () => {
         gestureEnabled: false,      
       }}/>
         <View className=" bg-white">
-            <View className="flex-row px-5 mt-[60px] mb-5">
+            <View className="flex-row px-5 mt-[50px] mb-5">
             <View>
                 <TouchableOpacity onPress={toggleDrawer}>
                 <Image className="w-[40px] h-[40px] rounded-[20px]" source={images.profile_picture}/> 
@@ -143,22 +163,45 @@ const Home = () => {
             </View >
             <View className="flex-1 items-center pt-2">
               <Text className="text-xl font-mbold">Yo!{" "}
-                <Text className="font-mregular">
+                <Text className="font-mregular"> 
                   {user?.firstName == null && user?.lastName == null 
                     ? user?.username?.toUpperCase() 
                     : `${form.firstName.toUpperCase()} ${form.lastName.toUpperCase()}`}
                 </Text> </Text>
             </View>
 
-            <View>
-              <TouchableOpacity>
-                <Ionicons name="notifications-outline" size={32} color="#000" />
-              </TouchableOpacity>
+            <View className=" pt-1 -pb-5">
+            <TouchableOpacity
+              onPress={handlePress}
+            >   
+              <View style={[showStatus && {marginTop: -10}]}>
+                {recoverPwd.isUserVerified ? (
+                  <>
+                    <FeatherIcon color={"#2ecc71"} name={"user-check"} size={28} />  
+                    {showStatus && (
+                       <Text style={{ fontSize: 10, marginLeft: -20, color: '#2ecc71', borderWidth: 1, borderRadius: 5, paddingHorizontal: 3.5, paddingVertical: 3, borderColor: '#2ecc71' }}>
+                       Not Verified
+                     </Text> 
+                    )}            
+                              
+                    </>
+                  ) : (
+                  <>
+                    <FeatherIcon color={"#f00"} name={"user-x"} size={24} />              
+                    {showStatus && (
+                       <Text style={{ fontSize: 10, marginLeft: -20, color: 'red', borderWidth: 1, borderRadius: 5, paddingHorizontal: 3.5, paddingVertical: 3, borderColor: 'red' }}>
+                       Not Verified
+                     </Text> 
+                    )}            
+                      </>
+                )}
+              </View>
+            </TouchableOpacity>
             </View>
             </View>
         </View>
         <SafeAreaView className="flex-1">
-        <View className="flex-1 px-[20px] bg-gray -mt-6 rounded-t-xl">
+        <View className="flex-1 px-[15px] bg-gray -mt-6 rounded-t-xl">
           <View className="flex-row font-mbold justify-between w-[200px]">
 
             <View style={[styles.summaryBox, styles.activeSummaryBox]} className="-ml-[3px]">
@@ -167,8 +210,8 @@ const Home = () => {
                 <Text className="font-mbold text-3xl text-white">GHS</Text>
               </View>
               <View className="flex-row gap-4">
-                <Text style={[styles.summaryText, styles.activeSummaryText]}>Total{'\n'}Expense </Text>
-                <Text style={[styles.summaryAmount, styles.activeSummaryAmount]} className="pt-3 w-[60%] pr-3" numberOfLines={1}>{totalAmount}</Text>
+                <Text style={[styles.summaryText, styles.activeSummaryText, {  }]}>Total{'\n'}Expense </Text>
+                <Text style={[styles.summaryAmount, styles.activeSummaryAmount]} className="pt-3 w-[60%] pr-3" numberOfLines={1}>{totalAmount.toFixed(2)}</Text>
               </View>
             </View>
 
@@ -183,23 +226,26 @@ const Home = () => {
             <CustomCalendar />
           </View>
 
-          <View className="flex-row justify-between items-center mt-5 mb-1">
+          <View className="flex-row justify-between items-center mt-4 mb-3">
                 <Text className="text-[22px] font-pextrabold">Recent Expenses</Text>
                 <TouchableOpacity onPress={() => router.push('/(drawer)/my-expense')}>
-                  <Text className="font-pbold text-[#3c3e3b]">View All</Text>
+                  <View className=" p-1 px-2 rounded-lg">
+                  <Text className="font-pbold text-tertiary-100 underline">View All</Text>
+                  </View>
                 </TouchableOpacity>
             </View>
 
-        <View className="">
+        <View className="flex-1 -mb-10">
           <FlatList 
             data={recentPosts}
             showsVerticalScrollIndicator='false'
             keyExtractor={(item) => item.$id}
             renderItem={({ item }) => {
               return (
-                <View>
+                <View className="w-full">
                   <Expense 
                     amount={item.ItemAmount} 
+                    item={item.item} 
                     category={item.category} 
                     purchaseDate={item.dateofpurchase}
                     index={item.$id}
@@ -247,7 +293,7 @@ summaryBox: {
   marginHorizontal: 5,
 },
 activeSummaryBox: {
-  backgroundColor: '#0161c7',
+  backgroundColor: '#0161C7',
   width: 165,
 },
 summaryText: {
@@ -267,7 +313,9 @@ summaryAmount: {
 },
 activeSummaryAmount: {
   color: '#FFF',
-  fontSize: 24
+  fontSize: 24,
+  flexGrow: 1,
+  minWidth: 60,
 }
 })
 

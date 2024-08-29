@@ -1,4 +1,4 @@
-import { ScrollView, Alert, StyleSheet, Text, View, TouchableOpacity, Image, Platform } from 'react-native'
+import { ScrollView, Alert, StyleSheet, Text, View, TouchableOpacity, Image, Platform, Button } from 'react-native'
 import React, {useEffect, useState, useRef} from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { icons } from '../../constants'
@@ -12,12 +12,119 @@ import Swiper from "react-native-swiper";
 import RBSheet from 'react-native-raw-bottom-sheet';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import { onboarding } from "../../constants/onboarding";
+//import { makeRedirectUri, useAuthRequest } from "expo-auth-session";
+import * as WebBrowser from "expo-web-browser"
+import * as Google from "expo-auth-session/providers/google"
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+WebBrowser.maybeCompleteAuthSession();
+
+const webClientID = "918488727675-20ae1phj5tc7p1gspm37b1584vhugtsb.apps.googleusercontent.com"
+const iosClientID = "918488727675-k0ufq691j9gbcosa93h6eqkthms5llr1.apps.googleusercontent.com"
+const androidClientID = "918488727675-6sln5r6tt57lmjlsa3qvakjhohhup7d7.apps.googleusercontent.com"
+
 
 const SignIn = () => {
   const { setUser, setIsLoggedIn } = useGlobalContext()
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Sign in with Google
+  const [userInfo, setUserInfo] = useState(null);
+
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    androidClientId: androidClientID,
+    iosClientId: iosClientID,
+    webClientId: webClientID,
+  });
+
+  const handleToken = () => {
+    if(response?.type === 'sucess') {
+      const {authentication} = response;
+      const token = authentication?.accessToken
+      console.log("Access Token: ", token)
+    }
+  }
+
+  useEffect(() => {
+    handleGoogleSignInEffect();
+  }, [response]);
+
+  const handleGoogleSignInEffect = async () => {
+    const user = await getLocalUser();
+    //console.log("user", user);
+    if (!user) {
+      if (response?.type === "success") {
+        // setToken(response.authentication.accessToken);
+        getUserInfo(response.authentication.accessToken);
+      }
+    } else {
+      setUserInfo(user);
+      //console.log("loaded locally");
+    }
+  }
+
+  const getLocalUser = async () => {
+    const data = await AsyncStorage.getItem("@user");
+    return data ? JSON.parse(data) : null;
+  };
+
+  const getUserInfo = async (token) => {
+    if (!token) return;
+    try {
+      const response = await fetch(
+        "https://www.googleapis.com/userinfo/v2/me",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      const user = await response.json();
+      await AsyncStorage.setItem("@user", JSON.stringify(user));
+      setUserInfo(user);
+    } catch (error) {
+      Alert.alert('Error', 'Failed to fetch user info.');
+    }
+  };
+
+  async function handleResponse() {
+    if (response?.type === "success") {
+      const { code } = response.params;
+      const { token_type, scope, access_token } = await createTokenWithCode(
+        code
+      );
+      console.log("getGithubTokenAsync: ", {
+        token_type,
+        scope,
+        access_token,
+      });
+
+      if (!access_token) return;
+      const credential = GithubAuthProvider.credential(access_token);
+      const data = await signInWithCredential(auth, credential);
+
+      fetch("https://api.github.com/user/following/betomoedano", {
+        method: "PUT",
+        headers: {
+          Authorization: `token ${access_token}`,
+        },
+      })
+        .then((response) => {
+          if (response.status === 204) {
+            console.log("Successfully followed!");
+          } else {
+            console.log("Failed to follow.");
+          }
+        })
+        .catch((error) => {
+          console.error("Error following user:", error);
+        });
+
+      console.log("credential: ", credential);
+      console.log("data: ", JSON.stringify(data, null, 2));
+    }
+  }
 
   const swiperRef = useRef(null);
   const sheetRef = useRef();
@@ -35,6 +142,17 @@ const SignIn = () => {
     //router.replace('/sign-up')
     }
 
+    const checkLogin = async () => {
+      try {
+        const session = await account.getSession('current');
+        if (session.current) {
+          router.push('/home')
+        }
+      } catch (e) {
+        Alert.alert('Error', 'Failed to check session.');
+      }
+    };
+
 const submit = async () => {
     if ( !form.email || !form.password) {
       return Alert.alert("Error", "Please fill in all the fields")
@@ -46,26 +164,38 @@ const submit = async () => {
 
     setIsSubmitting(true)
     try {
-      const session = await signIn(form.email, form.password);
+      //const session = await signIn(form.email, form.password);
+      await signIn(form.email, form.password);
 
        // If signIn returns null, the sign-in failed
-      if (!session) {
-        return Alert.alert(
-            "Invalid user credentials",
-            "Please check and re-enter your correct username and password"
-        );
-      }
-      const result = await getCurrentUser();  // Get the current user's details
-      // If no user is found, handle the case
-      if (!result) {
-        return Alert.alert( "Invalid user credentials", "Please check and re-enter your correct username and password")
-      }
+      // if (!session) {
+      //   return Alert.alert(
+      //       "Invalid user credentials",
+      //       "Please check and re-enter your correct username and password"
+      //   );
+      // }
+       const result = await getCurrentUser();  // Get the current user's details
+      // // If no user is found, handle the case
+      // if (!result) {
+      //   return Alert.alert( "Invalid user credentials", "Please check and re-enter your correct username and password")
+      // }
       // User is successfully logged in
       setUser(result)
       setIsLoggedIn(true)
 
-      Alert.alert("Success", "User signed in successfully");
-      router.push("/home");
+      Alert.alert("Success", "User signed in successfully", [
+        {text: 'OK', onPress: () => {{
+          <FeatherIcon
+          color="#2b64e3"
+          name="check-circle"
+          style={{
+              alignSelf: 'left',
+              marginLeft: 30
+          }}
+          size={30} />   }}},
+      ]);
+
+    router.push("/home");
   } catch(error) {
     if (error instanceof AppwriteException) {
       if (error.type === 'user_not_found') {
@@ -127,17 +257,39 @@ const submit = async () => {
                 <Text className="self-center bottom-[9px] font-mregular relative bg-white w-10 px-3">Or</Text>
             </View>
 
-        <TouchableOpacity onPress={ async () => {}}  className='border border-gray-300 rounded-full py-3 mb-5 w-full flex-row items-center justify-center'>
-            <Image source={icons.google} resizeMode='contain' className='w-6 h-6 mr-2' />
-            <Text className='text-gray-600 font-pmedium'>Continue with Google</Text>
+        <View style={{flex:1, backgroundColor: "fff", alignItems: 'center', justifyContent: 'center'}}>
+        {!userInfo ? (
+            <TouchableOpacity disabled={!request} onPress={() => {promptAsync()}}  className='border border-gray-300 rounded-full py-3 mb-5 w-full flex-row items-center justify-center'>
+                <Image source={icons.google} resizeMode='contain' className='w-6 h-6 mr-2' />
+                <Text className='text-gray-600 font-pmedium'>Continue with Google</Text>
+          </TouchableOpacity>
+          ): (
+        <View style={styles.card}>
+          {userInfo?.picture && (
+            <Image source={{ uri: userInfo?.picture }} style={styles.image} />
+          )}
+          <Text style={styles.text}>Email: {userInfo.email}</Text>
+          <Text style={styles.text}>
+            Verified: {userInfo.verified_email ? "yes" : "no"}
+          </Text>
+          <Text style={styles.text}>Name: {userInfo.name}</Text>
+          <Text style={styles.text}>{JSON.stringify(userInfo, null, 2)}</Text>
+          </View>
+        )}
+          {/* <Button
+            title="Remove local store"
+            onPress={async () => await AsyncStorage.removeItem("@user")}
+          /> */}
+      </View>
+        <TouchableOpacity onPress={() => {
+          SignInWithGitHub();
+          checkLogin();
+          }} className='border border-gray-300 rounded-full py-2.5 mb-4 w-full flex-row items-center justify-center'>
+          <Image source={icons.github} resizeMode='contain' className='w-7 h-7 mr-2 -ml-1' />
+          <Text className='text-gray-600 font-pmedium'>Continue with GitHub</Text>
       </TouchableOpacity>
-
-      <TouchableOpacity onPress={async () => await SignInWithGitHub()} className='border border-gray-300 rounded-full py-2.5 mb-4 w-full flex-row items-center justify-center'>
-        <Image source={icons.github} resizeMode='contain' className='w-7 h-7 mr-2 -ml-1' />
-        <Text className='text-gray-600 font-pmedium'>Continue with GitHub</Text>
-      </TouchableOpacity>
-
-
+      
+      
             <View className="flex-row self-center mt-8">
                 <Text className="font-pmedium ">Don't have an account? </Text>
                 <TouchableOpacity
@@ -243,5 +395,19 @@ const styles = StyleSheet.create({
     borderBottomColor: '#aaa',
     borderBottomWidth: StyleSheet.hairlineWidth,
     marginTop: 20,
+  },
+  text: {
+    fontSize: 20,
+    fontWeight: "bold",
+  },
+  card: {
+    borderWidth: 1,
+    borderRadius: 15,
+    padding: 15,
+  },
+  image: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
   },
 })

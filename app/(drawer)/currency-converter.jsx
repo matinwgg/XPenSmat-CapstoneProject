@@ -5,7 +5,7 @@ import { Picker } from '@react-native-picker/picker';
 import TextField from '../../components/TextField';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import { images } from '../../constants';
-
+import OnToggleDrawer from '../../partials/toggle-drawer';
 
 const ConvertBtwnCurrencies = () => {
   const [fromCurrency, setFromCurrency] = useState('USD');
@@ -63,11 +63,9 @@ useEffect(() => {
    return (
     <>
     <SafeAreaView className="flex-1">
-     
-
     <View style={{ flex:1, justifyContent: "center", alignItems: 'center', marginTop: -160}}>
-    <View className='self-start ml-5 mt-5'>
-        <TouchableOpacity 
+    <View className='self-start ml-5 -mt-5 mb-4'>
+        {/* <TouchableOpacity 
           onPress={() => { 
           router.navigate('\home') 
           }}>          
@@ -75,7 +73,8 @@ useEffect(() => {
             color="#000" 
             name="arrow-left" 
             size={24} />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
+        <OnToggleDrawer />
       </View>
       <Image 
       source={images.change} 
@@ -94,12 +93,12 @@ useEffect(() => {
           <View>
             <Text className="font-pbold text-xl ml-3">Amount</Text>
             <TextField 
-                  containerStyle="w-40 rounded-xl"
-                  value={amount}
-                  placeholder={"Enter Amount"}
-                  handleTextChange={setAmount}
-                  keybsType='numeric'
-                  currency={fromCurrency}
+              containerStyle="w-40 rounded-xl"
+              value={amount}
+              placeholder={"Enter Amount"}
+              handleTextChange={setAmount}
+              keyType='numeric'
+              currency={fromCurrency}
               />
               
           </View>     

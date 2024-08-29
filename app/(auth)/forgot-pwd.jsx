@@ -28,6 +28,10 @@ const ForgotPwd = () => {
     const submit = async () => {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+      if(inputValue === "") {
+        return Alert.alert("Email required!")
+      }
+
       setIsSubmitting(true)
       
         // First, test the email against the regex
@@ -38,13 +42,26 @@ const ForgotPwd = () => {
 
       try {
         if (isValidEmail) {
+          // const appwriteUser = await recoverPwd.verifyEmail(inputValue.trim())
+          // if (!appwriteUser) {
+          //   return Alert.alert("Email not verified", "Please verify your email first")
+          // }
         
-          const token = await recoverPwd.createOtp(inputValue.trim())
-          setToken(token)
-          openSheet();
-          maskInputValue(inputValue)
+          // const token = await recoverPwd.createOtp(inputValue.trim())
+          // setToken(token)
+          // openSheet();
+          await recoverPwd.recovery(inputValue.trim()).then((value) => {
+            if (value) {
+              Alert.alert("Recover mail Sent");
+              router.replace("/reset-pwd")
+            } else {
+              Alert.alert("Email not sent")
+            }
+          })
+        
+          //maskInputValue(inputValue)
           
-          return Alert.alert("OTP sent to email")
+          //return Alert.alert("OTP sent to email")
         }
       } catch (error) {
         return Alert.alert("Invalid Email", "Check your email id")

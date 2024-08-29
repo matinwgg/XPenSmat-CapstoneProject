@@ -2,19 +2,39 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 
-
-const data = [
+const categories = [
+  { label: 'Groceries', value: 'Groceries' },
+  { label: 'Rent', value: 'Rent' },
+  { label: 'Salary', value: 'Salary' },
+  { label: 'Freelancing', value: 'Freelancing' },
+  { label: 'Utilities', value: 'Utilities' },
+  { label: 'Electronics', value: 'Electronics' },
+  { label: 'Dining Out', value: 'Dining Out' },
+  { label: 'Breakfast Supplies', value: 'Breakfast Supplies' },
+  { label: 'Household Items', value: 'Household Items' },
+  { label: 'Christmas Gifts', value: 'Christmas Gifts' },
+  { label: 'New Year Party Supplies', value: 'New Year Party Supplies' },
+  { label: 'Thanksgiving Groceries', value: 'Thanksgiving Groceries' },
+  { label: 'Bonus', value: 'Bonus' },
+  { label: 'Consulting Work', value: 'Consulting Work' },
+  { label: 'Part-Time Job', value: 'Part-Time Job' },
+  { label: 'Online Sales', value: 'Online Sales' },
+  { label: 'Freelance Writing', value: 'Freelance Writing' },
+  { label: 'End of Year Bonus', value: 'End of Year Bonus' },
+  { label: 'Thanksgiving Freelance', value: 'Thanksgiving Freelance' },
   { label: 'Education', value: 'Education' },
   { label: 'Food', value: 'Food' },
   { label: 'Medical', value: 'Medical' },
-  { label: 'Rent', value: 'Rent' },
   { label: 'Social Event', value: 'Social Event' },
   { label: 'Shopping', value: 'Shopping' },
-  { label: 'Miscelleneous', value: 'Miscelleneous' },
-  
 ];
 
-const mode = [
+const transactionTypeData = [
+  { label: 'Expense', value: 'Expense' },
+  { label: 'Income', value: 'Income' },
+];
+
+const paymentData = [
   { label: 'Wallet', value: 'wallet'},
   { label: 'Momo', value: 'Mobile payment'},
   { label: 'ATMoney', value: 'Mobile payment'},
@@ -24,32 +44,36 @@ const mode = [
   { label: 'paypal', value: 'paypal'},
   { label: 'crytocurrency', value: 'crytocurrency'},
   { label: 'Apple Pay', value: 'apple pay'},
-
-
 ];
 
-const DropdownComponent = ({payment, placeholder, category,setCategory}) => {
-
+const DropdownComponent = ({paymentMode, transactionType, placeholder, Category,setCategory}) => {
+  
   const [isFocus, setIsFocus] = useState(false);
-
-
+  const dynamicPlaceholder = transactionType === "Income" ? "Enter Source of Income" : placeholder;
+  const [ data, setData ] = useState("paymentData")
+  const selectedData = paymentMode
+    ? paymentData
+    : Category
+    ? categories
+    : transactionTypeData;
+    
   return (
     <View>
       <Dropdown
-        style={[styles.dropdown, isFocus && { borderColor: '#fff' }, payment && { height: 55 }]}
+        style={[styles.dropdown, isFocus && { borderColor: '#fff' }, paymentMode && { height: 55 }]}
         placeholderStyle={styles.placeholderStyle}
         selectedTextStyle={styles.selectedTextStyle}
         inputSearchStyle={styles.inputSearchStyle}
         iconStyle={styles.iconStyle}
-        data={payment ? mode : data}
+        data={selectedData}
         maxHeight={200}
         containerStyle={[styles.container,{backgroundColor:"#FFF", borderRadius: 15}]}
-        itemTextStyle={{color:"#000", fontFamily: 'Brighter-Regular'}}
+        itemTextStyle={{color:"#000", fontFamily: 'Poppins-Regular'}}
         labelField="label"
         valueField="value"
-        placeholder={!isFocus ? placeholder : ''}
+        placeholder={!isFocus ? dynamicPlaceholder : ''}
         searchPlaceholder="Search..."
-        value={category}
+        value={Category}
         onFocus={() => setIsFocus(true)}
         onBlur={() => setIsFocus(false)}
         onChange={item => {
@@ -83,12 +107,13 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     paddingLeft: 3,
-    fontFamily: 'Brighter-Regular',
+    fontFamily: 'Poppins-Regular',
+    color: "#9DA0A7"
   },
   
   selectedTextStyle: {
     fontSize: 20,
-    fontFamily: 'Brighter-Regular',
+    fontFamily: 'Poppins-Regular',
     paddingLeft: 11,
   },
 
