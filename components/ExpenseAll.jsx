@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import FeatherIcon from 'react-native-vector-icons/Feather';
 import { categoryColors, categoryEmojies } from "../constants/summary";
+import { useGlobalContext } from '../context/GlobalProvider';
 
-const ExpenseItem = ({expenseData: {createdAt, id, ItemAmount, category, dateofpurchase, item, modeOfPayment}}) => {
-  const categoryColor = categoryColors[category || "Default"];
-  const emoji = categoryEmojies[category || "Default"];
+const ExpenseItem = ({expenseData: {createdAt, id, ItemAmount, category, dateofpurchase, item, modeOfPayment, type}}) => {
+  const { globalCurrency } = useGlobalContext()
 
   const date = new Date(dateofpurchase.split('T')[0])
   
@@ -16,6 +17,12 @@ const ExpenseItem = ({expenseData: {createdAt, id, ItemAmount, category, dateofp
    const month = months[date.getMonth()];
    const day = date.getDate();
    const year = date.getFullYear();
+
+
+  // Determine icon color and symbol based on type
+  const iconColor = type === 'Expense' ? 'red' : '#11A23D';
+  const iconSymbol = type === 'Expense' ? 'minus' : 'plus';
+
 
   return (
     <View className="flex-1 flex-grow border-gray-400 rounded-xl bg-white pl-1">
@@ -30,7 +37,15 @@ const ExpenseItem = ({expenseData: {createdAt, id, ItemAmount, category, dateofp
             <View className="flex-col w-full">
               <View className="flex-row">
                   <Text className="text-[18px] flex-1 font-mbold pl-3 pt-1">{item}</Text>
-                <Text className="font-nbold text-lg text-right pr-[55px]">${ItemAmount.toFixed(2)}</Text>
+                  <View style={[styles.iconCircle, { backgroundColor: iconColor }]}>
+                    <FeatherIcon
+                      color="#fff"
+                      name={`${iconSymbol}`}
+                      
+                      size={10} 
+                      />
+                  </View>
+                <Text className="font-nbold text-lg text-right pr-[55px]">{globalCurrency.symbol}{ItemAmount.toFixed(2)}</Text>
               </View>
                 
                 <View className="-mt-3 pl-3 flex-1 w-[83%]">
@@ -59,6 +74,14 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingHorizontal: 10,
     paddingBottom: 5,
+  },
+  iconCircle: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 5,
   },
 });
 

@@ -85,26 +85,6 @@ const DrawerLayout = () => {
         )
       }}
       />
-      
-      <Drawer.Screen 
-      name="profile"
-      options={{
-        drawerLabel: "Profile",
-        drawerStyle: {
-          backgroundColor: 'yellow',
-          width: 240,
-        },
-        headerTitle: "Profile",
-        drawerIcon: () => (
-          <Image 
-          source={icons.profile_} 
-          resizeMode='contain'
-          className="w-[27px] h-[27px]"
-
-          />
-        )
-      }}
-      />
 
  </Drawer>
   

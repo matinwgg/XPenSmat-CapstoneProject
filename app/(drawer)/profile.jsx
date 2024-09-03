@@ -1,66 +1,26 @@
-import React, { useState} from 'react';
+import React, { useEffect, useState} from 'react';
 import {
   StyleSheet,
-  SafeAreaView,
   View,
-  Text,
-  TouchableOpacity,
-  Image,
-  Platform
 } from 'react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import RBSheet from 'react-native-raw-bottom-sheet';
+import { router } from 'expo-router';
+import { useNavigation } from '@react-navigation/native';
+
 
 const Profile = () => {
-  const sheet = React.useRef();
+  //const navigation = useNavigation();
 
-  const [ date, setDate ] = useState(new Date())
-    const [ showPicker, setShowPicker ] = useState(false)
-    const [dateOfPurchase, setDateOfPurchase] = useState("")
+  useEffect(() => {
+    //navigation.navigate('(tabs)/settings/profile');
+    router.navigate("(tabs)/settings/profile")
 
-  React.useEffect(() => {
-    sheet.current.open();
-  }, []);
+  }, [])
 
   return (
-    <SafeAreaView className="mt-40" style={{ flex: 1 }}>
-    <RBSheet
-      customStyles={{ container: styles.container }}
-      height={500}
-      openDuration={250}
-      ref={sheet}>
-      <View style={styles.sheetContent}>
+    <View>
 
-            <DateTimePicker 
-              mode='date'
-              display="spinner"
-              value={date}
-              //onChange={onChange}
-              className="h-[120px] -mt-2.5"
-
-            />
-
-        <TouchableOpacity
-          onPress={() => {
-            // handle onPress
-          }}>
-          <View style={styles.btn}>
-            <Text style={styles.btnText}>Confirm</Text>
-          </View>
-        </TouchableOpacity>
-
-        <View style={styles.spacer} />
-
-        <TouchableOpacity
-          onPress={() => sheet.current.close()}>
-          <View style={styles.btnSecondary}>
-            <Text style={styles.btnSecondaryText}>Cancel</Text>
-          </View>
-        </TouchableOpacity>
-      </View>
-    </RBSheet>
-  </SafeAreaView>
-);
+    </View>
+  )
 }
 
 const styles = StyleSheet.create({

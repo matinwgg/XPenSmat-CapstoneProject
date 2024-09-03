@@ -9,7 +9,6 @@ import CountryFlag from "react-native-country-flag";
 import { CURRENCIES } from '../../partials/utils';
 import getSymbolFromCurrency from 'currency-symbol-map'
 
-
 const ConvertBtwnCurrencies = () => {
   const [fromCurrency, setFromCurrency] = useState('USD');
   const [toCurrency, setToCurrency] = useState('GHS');
@@ -65,12 +64,12 @@ useEffect(() => {
  };
  fetchExchangeRates();
  }, [fromCurrency, toCurrency]);
- 
+
 
    return (
     <>
     <SafeAreaView className="flex-1">
-    <View style={{ flex:1, justifyContent: "center", alignItems: 'center', marginTop: -160}}>
+    <View style={{ flex:1, justifyContent: "center", alignItems: 'center', marginTop: -130}}>
     <View className='self-start ml-5 -mt-5 mb-4'>
         <OnToggleDrawer />
       </View>
@@ -102,9 +101,8 @@ useEffect(() => {
                 keyType='numeric'
                 currency={fromCurrency}
                 />
-              <Text className='left-[20px] -top-9 text-3xl font-pbold text-[#6b7474]'>{getSymbolFromCurrency(fromCurrency)}</Text>
 
-              <View className="absolute top-1 left-[140px]">
+              <View className="absolute top-11 left-[140px]">
                 <CountryFlag isoCode={getFlagByCode(fromCurrency).toLowerCase().toString()} size={14} />
               </View>
           </View>     

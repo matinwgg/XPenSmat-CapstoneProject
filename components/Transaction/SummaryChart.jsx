@@ -19,7 +19,7 @@ export  default SummaryChart = () => {
   const [chartKey, setChartKey] = useState(0);
   const [transactionType, setTransactionType] = useState("Income");
 
-  const { user } = useGlobalContext();
+  const { user, globalCurrency } = useGlobalContext();
 
   const { data: posts, refetch } = useAppwrite({ fn: () => StatsData(user?.$id) });
 
@@ -145,7 +145,7 @@ export  default SummaryChart = () => {
         </Text>
 
         <Text style={{ fontWeight: "700", fontSize: 32, marginBottom: 16 }}>
-          ${barData.reduce((total, item) => total + item.value, 0).toFixed(2)}
+          {globalCurrency.symbol}{barData.reduce((total, item) => total + item.value, 0).toFixed(2)}
         </Text>
       </View>
      

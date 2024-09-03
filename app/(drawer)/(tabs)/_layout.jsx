@@ -84,7 +84,7 @@ const TabsLayout = () => {
         />
 
 
-<Tabs.Screen 
+    <Tabs.Screen 
         name="settings"
         options={{
             title: 'Settings',

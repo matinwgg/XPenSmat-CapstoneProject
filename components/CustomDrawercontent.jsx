@@ -10,10 +10,6 @@ import { useRef } from 'react';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import data from '../constants/list.json';
 
-import {
-    FontAwesome as FAIcon,
-  } from '@expo/vector-icons';
-
 export default function CustomDrawerContent(props) {
     const route = useRouter();
     const { user, setUser, setIsLoggedIn } = useGlobalContext();
@@ -35,51 +31,43 @@ export default function CustomDrawerContent(props) {
             scrollEnabled={false}
             contentContainerStyle={{backgroundColor: ' #ACE1AF', paddingTop: 70}}
             >
-                {/* <RBSheet
-                    ref={sheetRef}
-                    draggable
-                    customModalProps={{
-                    animationType: 'slide',
-                    statusBarTranslucent: true,
-                    }}
-                    customStyles={{
-                    container: {
-                        borderTopLeftRadius: 10,
-                        borderTopRightRadius: 10,
-                    },
-                    draggableIcon: {
-                        width: 80,
-                    },
-                    }}>
-                    <ScrollView>
-                    <View style={{flex: 1, flexDirection: 'row', flexWrap: 'wrap', padding: 10, marginBottom: 20,}}>
-                        {data.grids.map(grid => (
-                        <TouchableOpacity
-                            key={grid.icon}
-                            onPress={() => refScrollable.current.close()}
-                            style={styles.gridButtonContainer}>
-                            <View
-                            style={[styles.gridButton, {backgroundColor: grid.color}]}>
-                            <FAIcon name={grid.icon} style={styles.gridIcon} />
-                            </View>
-                            <Text style={styles.gridLabel}>{grid.label}</Text>
-                        </TouchableOpacity>
-                        ))}
-                    </View>
-                    </ScrollView>
-                </RBSheet> */}
 
                 <View className="pb-5 ml-3.5">
-                    <Image className="w-[80px] h-[80px] rounded-[50px] self-start " source={images.profile_picture} /> 
-                    <Text className="self-start font-pbold text-[18px] pt-2.5"> {user?.firstName.charAt(0).toUpperCase() + user?.firstName.slice(1).toLowerCase()} {user?.lastName.charAt(0).toUpperCase() + user?.lastName.slice(1).toLowerCase()}</Text>
+                    <Image 
+                        className="w-[80px] h-[80px] rounded-[50px] self-start " 
+                        source={images.profile_picture} /> 
+                    <Text 
+                        className="self-start font-pbold text-[18px] pt-2.5"> {user?.firstName.charAt(0).toUpperCase() + user?.firstName.slice(1).toLowerCase()} {user?.lastName.charAt(0).toUpperCase() + user?.lastName.slice(1).toLowerCase()}</Text>
                 </View>
-                <View className="bg-white pt-2.5">
+                <View 
+                    className="bg-white pt-2.5">
                     <DrawerItemList {...props}/>
                     <DrawerItem label={''} onPress={() => route.replace('(drawer)/(auth)/sign-in')} />
                 </View>
+                <TouchableOpacity 
+                    onPress={() => router.navigate('(drawer)/(tabs)/settings/profile')} 
+                    className="flex-row ml-4 -mt-8">
+                    <Image 
+                        source={icons.profile_} 
+                        resizeMode='contain'
+                        className="w-[27px] h-[27px]"
+                        />                   
+                    <Text className="text-[20px] font-pregular ml-4 text-gray-500">Profile</Text>
+                </TouchableOpacity>
+                
+
             </DrawerContentScrollView>
-            <View className="" style={{ borderRadius: 20, borderTopColor: "#F5F5F5", borderTopWidth: 1.5, padding: 20, paddingBottom: 20 + bottom}}>
-                <TouchableOpacity onPress={logout} className="flex-row items-center -ml-6 mb-4">
+
+            <View className="" 
+                style={{ 
+                    borderRadius: 20, 
+                    borderTopColor: "#F5F5F5", 
+                    borderTopWidth: 1.5, 
+                    padding: 20, 
+                    paddingBottom: 20 + bottom
+                    }}>
+                       
+                {/* <TouchableOpacity onPress={logout} className="flex-row items-center -ml-6 mb-4">
                     <FeatherIcon
                         color="#2b64e3"
                         name="share-2"
@@ -90,7 +78,7 @@ export default function CustomDrawerContent(props) {
                         }}
                         size={28} />                    
                     <Text className=" text-[20px] font-pregular ml-3">Share with a friend</Text>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
                 <TouchableOpacity onPress={() => {}} className="flex-row items-center -ml-6  ">
                     <FeatherIcon
                         color="#2b64e3"

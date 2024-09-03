@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   View, 
   Text, 
@@ -42,20 +42,13 @@ const EditProfileScreen = () => {
     countryFlag: "🇬🇭"
   });
 
-  const [phone, setPhone] = useState('');
-  const [profileImage, setProfileImage] = useState(null);
-  const [modalVisible, setModalVisible] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false)
   //console.log(form.countryFlag)
 
   const submit = async () => {
     const documentId = await getDocumentId();
-
-    if ( form.firstName === "" || form.lastName === "" || form.phoneNumber === "" || form.countryCode === "") {
-      //console.log(form.firstName, form.lastName, form.countryCode, form.phoneNumber)
-      return Alert.alert("Error", "All entries must be filled")
-    }
     if (form.phoneNumber.length !== 9) {
+      //console.log(form.phoneNumber.length)
       if (form.phoneNumber.length === 10 && form.phoneNumber.startsWith('0')) {
         setForm({
           ...form,
@@ -63,9 +56,14 @@ const EditProfileScreen = () => {
       });
         //console.log(form.phoneNumber)
     } else {
-      return Alert.alert("Invalid Phone number", "Phone number input should be exactly 10 digit long")
+      setForm({
+        ...form,
+        phoneNumber: form.phoneNumber,
+    })
+      //return Alert.alert("Invalid Phone number", "Phone number input should be exactly 10 digit long")
     }
     }
+
     setIsSubmitting(true)
 
     try {
@@ -83,7 +81,10 @@ const EditProfileScreen = () => {
             ...form,
             phone: `${form.countryCode}${form.phoneNumber}`,
         });
-        //console.log(form.phone) 
+
+        //console.log(form.phoneNumber) 
+
+       console.log(form.phone)
 
         await alterDetails.setPhone(documentId, form.phone)
       }
@@ -95,6 +96,10 @@ const EditProfileScreen = () => {
       setIsSubmitting(false)
     }
   }
+
+  useEffect(() => {
+    //console.log(form.phone)
+  }, [])
 
   return (
     <>
@@ -152,14 +157,17 @@ const EditProfileScreen = () => {
         <View className=" bg-white rounded-lg shadow-sm shadow-neutral-300 px-5 py-3">
         <View >
           {/* First name */}
-            <View className="flex">
+            <View className="flex mb-2">
               <InputField
-                placeholder={user?.firstName || "First name"}
+                label={"First name"}
+                isFocus={true}
+                placeholder={user?.firstName}
                 containerStyle="w-full mt-2.5"
                 inputStyle="p-3.5"
                 value={form.firstName}
                 onChangeText={(e) => setForm({ ...form, firstName: e })}
                 editable={editPress}
+                editValue={editPress}
               />
                 <FeatherIcon
                   color={editPress ? "#000" : "#9da0a7"}
@@ -169,14 +177,18 @@ const EditProfileScreen = () => {
                   />
             </View>
             {/* Last name */}
-            <View className="flex">
+            <View className="flex mb-1">
               <InputField
-                value={form.lastName}
-                placeholder={user?.lastName || "Last name"}
+                label={"Last name"}
+                isFocus
+                placeholder={user?.lastName}
                 onChangeText={(e) => setForm({ ...form, lastName: e })}
                 containerStyle="w-full"
+                value={form.lastName}
                 inputStyle="p-3.5"
                 editable={editPress}
+                editValue={editPress}
+
               />
                 <FeatherIcon
                   color={editPress ? "#000" : "#9da0a7"}
@@ -192,17 +204,10 @@ const EditProfileScreen = () => {
               <InputField
                 icon={icons.profile}
                 value={user?.username}
-                //placeholder={"User name"}
                 containerStyle="w-full"
                 inputStyle="text-[#9da0a7]"
                 editable={editable}
               />
-                {/* <FeatherIcon
-                  color={editPress ? "#000" : "#9da0a7"}
-                  name="edit-3"
-                  style={{position:'absolute', right: 12, bottom: 17}}
-                  size={20} 
-                  /> */}
             </View>
 
           {/* Email */}
@@ -225,6 +230,7 @@ const EditProfileScreen = () => {
               value={`${form.countryFlag} ${form.countryCode}`}
               onChangeText={(e) => setForm({ ...form, countryCode: e})}
               editable={false} 
+              editValue={editPress}
             />
 
             <TouchableOpacity 
@@ -243,15 +249,16 @@ const EditProfileScreen = () => {
 
             {/* Phone Number Input */}
             <InputField
-              label="Phone"
-              placeholder={user?.phone.substring(5) || "Phone"}
+              label={"Phone"}
+              isFocus={true}
+              placeholder={user?.phone.substring(4)}
               containerStyle="w-[200px] ml-3 -mt-2"
               inputStyle="p-3.5"
               value={form.phoneNumber}
               onChangeText={(e) => setForm({ ...form, phoneNumber: e })}
               editable={editPress}
               keyType='number-pad'
-
+              editValue={editPress}
             />
             <FeatherIcon
               color={editPress ? "#000" : "#9da0a7"}

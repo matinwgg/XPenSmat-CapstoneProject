@@ -94,7 +94,13 @@ const AddExpense = () => {
 
       await upLoadExpense(form.item, form.description, form.category, parseFloat(form.amount), form.type, form.dateOfPurchase, form.paymentMode, user?.$id)
 
-      Alert.alert("Success", "You've successfully added to your expense")
+      if (transactionType === "Expense") {
+        return Alert.alert("Success", "You've successfully added to your expenses")
+
+      } else {
+        return Alert.alert("Success", "You've successfully added to your incomes")
+
+      }
 
     
     } catch (error) {
@@ -320,7 +326,7 @@ const AddExpense = () => {
 
         <View style={[ transactionType === 'Expense' && { marginTop: -20 }]}>
           <CustomButton 
-            title="Add Expense"
+            title={transactionType === "Expense" ? "Add Expense" : "Add Income"}
             handlePress={submit}
             disabled={!formReady || isSubmitting}
             containerStyles="w-[90%] self-center items-center mt-[90px]"

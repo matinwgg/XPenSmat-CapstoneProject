@@ -10,11 +10,10 @@ import EmptyState from '../../components/EmptyState';
 import ExpenseItem from '../../components/ExpenseAll';
 import { useGlobalContext } from '../../context/GlobalProvider';
 
-//import TransactionList  from "../../components/Transaction/TransactionsList";
 import Card from '../../components/Transaction/ui/Card';
 
 const DisplayExpense = () => {
-  const { user } = useGlobalContext();
+  const { user, globalCurrency } = useGlobalContext();
   const { data: posts, refetch } = useAppwrite({ fn: () => getAllPosts(user?.$id) });
 
   const [refreshing, setRefreshing] = useState(false);
@@ -35,15 +34,22 @@ const DisplayExpense = () => {
   useEffect(() => {
     try {
       let total = 0;
-      posts.forEach(item => {
-      total += item.ItemAmount;
-    });
-    setTotalAmount(total);
+      // Filter posts to include only those with type 'Expenses'
+      const expenseItems = posts.filter(item => item.type === 'Expense');
+
+  
+      // Sum up the ItemAmount of filtered items
+      expenseItems.forEach(item => {
+        total += item.ItemAmount;
+      });
+  
+      setTotalAmount(total);
     } catch (error) {
-      //console.log("No items!");
+      // Handle the error if needed
+      console.log("Error calculating total amount:", error);
     }
-    
   }, [posts]);
+  
 
 
   const groupByCategory = (expenses) => {
@@ -63,8 +69,8 @@ const DisplayExpense = () => {
 const ExpenseCard = ({ category, expenses }) => (
   <Card style={{ marginBottom: 40}}>
       <Text className="font-pbold justify-start text-3xl mb-2">{category}</Text> 
-      {expenses.map((expense) => (
-      <ExpenseItem key={expense.$id} expenseData={expense} />
+      {expenses.map((item) => (
+      <ExpenseItem key={item.$id} expenseData={item} />
     ))}
   </Card>
 );
@@ -84,51 +90,6 @@ const groupedExpenses = groupByCategory(posts);
     const startOfMonthTimestamp = Math.floor(startOfMonth.getTime() / 1000);
     const endOfMonthTimestamp = Math.floor(endOfMonth.getTime() / 1000);
 
-    const result = [
-      { name: 'Utilities', type: 'Expense' },
-      { name: 'Electronics', type: 'Expense' },
-      { name: 'Dining Out', type: 'Expense' },
-      { name: 'Breakfast Supplies', type: 'Expense' },
-      { name: 'Household Items', type: 'Expense' },
-      { name: 'Christmas Gifts', type: 'Expense' },
-      { name: 'New Year Party Supplies', type: 'Expense' },
-      { name: 'Thanksgiving Groceries', type: 'Expense' },
-      { name: 'Bonus', type: 'Income' },
-      { name: 'Consulting Work', type: 'Income' },
-      { name: 'Part-time Job', type: 'Income' },
-      { name: 'Online Sales', type: 'Income' },
-      { name: 'Freelance Writing', type: 'Income' },
-      { name: 'End of Year Bonus', type: 'Income' },
-      { name: 'Thanksgiving Freelance', type: 'Income' }
-  ]
-    setTransactions(result);
-
-    const categoriesResult =  [
-    { category_id: 1, amount: 100.50, date: 1709814000, description: 'Weekly groceries', type: 'Expense' },
-    { category_id: 1, amount: 75.25, date: 1709900400, description: 'More groceries', type: 'Expense' },
-    { category_id: 2, amount: 1200, date: 1707740400, description: 'Monthly rent', type: 'Expense' },
-    { category_id: 1, amount: 45.99, date: 1710082800, description: 'Snacks and drinks', type: 'Expense' },
-    { category_id: 1, amount: 60.00, date: 1707154800, description: 'Breakfast supplies', type: 'Expense' },
-    { category_id: 1, amount: 110.75, date: 1707241200, description: 'Household items', type: 'Expense' },
-    { category_id: 2, amount: 50.25, date: 1707327600, description: 'Utilities bill', type: 'Expense' },
-    { category_id: 1, amount: 200.50, date: 1707414000, description: 'Electronics', type: 'Expense' },
-    { category_id: 1, amount: 15.99, date: 1707500400, description: 'Dining out', type: 'Expense' },
-    { category_id: 1, amount: 90.00, date: 1704562800, description: 'Christmas Gifts', type: 'Expense' },
-    { category_id: 1, amount: 120.75, date: 1704649200, description: 'New Year Party Supplies', type: 'Expense' },
-    { category_id: 1, amount: 85.50, date: 1701970800, description: 'Thanksgiving Groceries', type: 'Expense' },
-    { category_id: 2, amount: 900, date: 1702057200, description: 'Rent November', type: 'Expense' },
-    { category_id: 3, amount: 3000, date: 1709914800, description: 'Monthly salary', type: 'Income' },
-    { category_id: 4, amount: 500, date: 1710001200, description: 'Freelance project', type: 'Income' },
-    { category_id: 3, amount: 3200, date: 1707266800, description: 'Bonus', type: 'Income' },
-    { category_id: 4, amount: 450, date: 1707353200, description: 'Consulting work', type: 'Income' },
-    { category_id: 3, amount: 2800, date: 1707439600, description: 'Part-time job', type: 'Income' },
-    { category_id: 4, amount: 600, date: 1707526000, description: 'Online sales', type: 'Income' },
-    { category_id: 3, amount: 1500, date: 1707612400, description: 'Freelance writing', type: 'Income' },
-    { category_id: 3, amount: 3100, date: 1704675600, description: 'End of Year Bonus', type: 'Income' },
-    { category_id: 4, amount: 700, date: 1702083600, description: 'Thanksgiving Freelance', type: 'Income' },
-    ]
-    // Income Transactions
-    setCategories(categoriesResult);
 
     const transactionsByDay = {
       totalExpenses: 2375.24, 
@@ -161,7 +122,10 @@ const groupedExpenses = groupByCategory(posts);
           showsVerticalScrollIndicator={false}
           keyExtractor={(item) => item}
           renderItem={({ item: category }) => 
-            <ExpenseCard category={category} expenses={groupedExpenses[category]} />
+            <ExpenseCard 
+              category={category} 
+              expenses={groupedExpenses[category]} 
+            />
         }
           ListEmptyComponent={() => <EmptyState title="No Expense Available" subtitle="You have no purchases" />}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
@@ -177,8 +141,8 @@ const groupedExpenses = groupByCategory(posts);
       >
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
           <View>
-            <Text style={{ color: 'gray' }}>overall Expense</Text>
-            <Text style={{ fontWeight: 'bold', fontSize: 28 }}>{totalAmount.toFixed(2)}</Text>
+            <Text style={{ color: 'gray' }}>Overall Expense</Text>
+            <Text style={{ fontWeight: 'bold', fontSize: 28 }}>{globalCurrency.symbol} {totalAmount.toFixed(2)}</Text>
           </View>
           <TouchableOpacity activeOpacity={0.8} onPress={() => {}}>
             <SymbolView

@@ -25,12 +25,10 @@
       pushNotifications: false,
   })
 
-  const { user, setUser, setIsLoggedIn, location, setLocation, globalCurrency } = useGlobalContext()
+  const { user, setUser, setIsLoggedIn, city, country } = useGlobalContext()
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // const [mylocation, setMyLocation] = useState({
-  //   mylocation: "accra, ghana ",
-  // })
+ 
   const logout = async () => {
     setIsSubmitting(true)
     try {
@@ -53,6 +51,7 @@
         headerShown: false,
         headerLeft: () => <DrawerToggleButton />
       }}/>
+      
     {/* Heading */}
       <SafeAreaView style={{ flex: 1, backgroundColor: '#f8f8f8' }}>
         <View style={styles.container}>
@@ -108,7 +107,7 @@
 
               <View style={styles.rowSpacer} />
 
-              <Text style={styles.rowValue} className="pl-[160px]">{location.city}, {location.country}</Text>
+              <Text style={styles.rowValue} className="pl-[160px]">{user?.city}, {user?.country}</Text>
               <FeatherIcon
                 color="#bcbcbc"
                 name="chevron-right"
@@ -125,7 +124,7 @@
 
             <View style={styles.rowSpacer} />
 
-            <Text style={styles.rowValue}>{globalCurrency.name}</Text>
+            <Text style={styles.rowValue}>{user?.currency}</Text>
 
               <FeatherIcon
                 color="#bcbcbc"

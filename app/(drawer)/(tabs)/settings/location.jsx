@@ -1,15 +1,15 @@
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity,ActivityIndicator, ScrollView, Alert } from 'react-native'
 import React, { useState } from 'react'
 import { Card } from '../../../../components/Transaction'
 import { TextField } from '../../../../components'
 import { useNavigation } from '@react-navigation/native';
 import { useGlobalContext } from '../../../../context/GlobalProvider';
 import InputField from '../../../../components/InputField';
-
+import { alterDetails, getDocumentId } from '../../../../lib/appwrite';
 
 const Location = () => {
-    const { setLocation } = useGlobalContext();
-
+    const { setCity, setCountry } = useGlobalContext();
+    const [isLoading, setIsLoading] = useState(false)
     const navigation = useNavigation(); // Get the navigation object
 
     const [ field, setField ] = useState({
@@ -17,12 +17,24 @@ const Location = () => {
         country: ""
       })
 
-      const sendDataBack = () => {
-        setLocation({
-            city: field.city,
-            country: field.country
-        });      
-        navigation.goBack() 
+      const submit = async () => {
+        try {
+          setIsLoading(true)
+          const documentId = await getDocumentId();
+
+          setCity(field.city)
+          setCountry(field.country)
+  
+          await alterDetails.setCity(documentId, field.city)
+          await alterDetails.setCountry(documentId, field.country)
+  
+          Alert.alert("Success", "You've successfully updated your location details")
+          navigation.goBack()
+
+        } catch (error) {
+          setIsLoading(false)
+        }
+     
     };       
 
   return (
@@ -35,19 +47,29 @@ const Location = () => {
               placeholder={"Enter City"}
               onChangeText={(e) => setField({...field, city: e})}
               inputStyle=' w-40'
+              label={"Enter city"}
+              editValue={true}
             />
             <InputField 
               containerStyle="w-[300px] rounded-xl"
               placeholder={"Enter Country"}
               onChangeText={(e) => setField({...field, country: e})}
-              inputStyle=''
+              label={"Enter country"}
+              editValue={true}
+
             />
 
             <TouchableOpacity
-              onPress={sendDataBack}
+              onPress={submit}
               style={{ backgroundColor: '#007AFF', padding: 10, borderRadius: 10, width: 'auto', marginBottom: -8, marginTop: 30 }}
               >
-              <Text style={{ color: '#fff', fontSize: 18, textAlign: 'center',  }}>Confirm</Text>
+                 {isLoading == true ? (
+                      <ActivityIndicator size="small" color='#FFF' />
+                  ) : (
+                      <Text className={`text-center text-white font-mbold text-lg`}>
+                          Confirm
+                      </Text>
+                  )}   
             </TouchableOpacity>
             </View>
             </Card>
