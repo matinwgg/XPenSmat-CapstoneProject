@@ -2,10 +2,8 @@ import React, {useState, useRef } from 'react';
 import { Text, View, KeyboardAvoidingView, TouchableOpacity, StyleSheet, Image, ScrollView, Platform, Alert } from 'react-native';
 import { icons, images } from '../../constants'
 import { Link, router } from 'expo-router';
-import CustomInput from '../../components/CustomInput'
 import CustomButton from '../../components/CustomButton'
 import RBSheet from 'react-native-raw-bottom-sheet';
-import OtpScreen from './otp';
 import { recoverPwd } from '../../lib/appwrite';
 import FormField from '../../components/FormField'
 
@@ -43,26 +41,15 @@ const ForgotPwd = () => {
 
       try {
         if (isValidEmail) {
-          // const appwriteUser = await recoverPwd.verifyEmail(inputValue.trim())
-          // if (!appwriteUser) {
-          //   return Alert.alert("Email not verified", "Please verify your email first")
-          // }
-        
-          // const token = await recoverPwd.createOtp(inputValue.trim())
-          // setToken(token)
-          // openSheet();
           await recoverPwd.recovery(inputValue.trim()).then((value) => {
             if (value) {
-              Alert.alert("Recover mail Sent");
-              router.replace("/reset-pwd")
+              Alert.alert("We've recover mail Sent", "Tap on it to get verfied");
+              //router.replace("/reset-pwd")
             } else {
               Alert.alert("Email not sent")
             }
           })
         
-          //maskInputValue(inputValue)
-          
-          //return Alert.alert("OTP sent to email")
         }
       } catch (error) {
         return Alert.alert("Invalid Email", "Check your email id")

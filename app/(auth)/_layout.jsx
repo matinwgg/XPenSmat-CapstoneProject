@@ -16,16 +16,7 @@ const AuthLayout = () => {
           name="forgot-pwd"
           options={{ headerShown: false}}
           />
-          <Stack.Screen 
-          name="otp"
-          options={{ headerShown: false}}
-          />
-          <Stack.Screen 
-          name="reset-pwd"
-          options={{ headerShown: false}}
-          />
            
-         
       </Stack>
     </>
   )
