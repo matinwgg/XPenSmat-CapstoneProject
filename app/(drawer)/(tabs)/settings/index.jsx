@@ -16,34 +16,21 @@
   import { useGlobalContext } from "../../../../context/GlobalProvider";
   import { Drawer } from 'expo-router/drawer'
   import { DrawerToggleButton } from '@react-navigation/drawer'
-  import React, { useState } from 'react';
-  import { TextField } from '../../../../components';
+  import React, { useState, useEffect } from 'react';
 
   const Settings = () => {
+
     const [form, setForm] = useState({
       emailNotifications: true,
       pushNotifications: false,
   })
 
-  const { user, setUser, setIsLoggedIn } = useGlobalContext()
+  const { user, setUser, setIsLoggedIn, location, setLocation, globalCurrency } = useGlobalContext()
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false);
-  
-  const [ field, setField ] = useState({
-    city: "city",
-    country: "country"
-  })
 
-  const handleConfirm = () => {
-    setModalVisible(!modalVisible)
-  }
-
-  const openModal = () => {
-    setModalVisible(true);
-    //field.city = ""
-    //field.country = ""
-  };
-
+  // const [mylocation, setMyLocation] = useState({
+  //   mylocation: "accra, ghana ",
+  // })
   const logout = async () => {
     setIsSubmitting(true)
     try {
@@ -57,7 +44,7 @@
       setIsSubmitting(false)
     }
   };
-
+  
     return (
       <>
       <Drawer.Screen 
@@ -66,267 +53,239 @@
         headerShown: false,
         headerLeft: () => <DrawerToggleButton />
       }}/>
-    
+    {/* Heading */}
       <SafeAreaView style={{ flex: 1, backgroundColor: '#f8f8f8' }}>
         <View style={styles.container}>
-          <View style={styles.header}>
-
-          <View>
-            <Modal
-              animationType="slide"
-              transparent={true}
-              visible={modalVisible}
-              onShow={openModal}
-              onRequestClose={() => {
-                Alert.alert('Modal has been closed.');
-                setModalVisible(!modalVisible);
-              }}>
-              <View style={styles.centeredView}>
-                <View style={styles.modalView}>
-                  <Text style={styles.modalText}>Location</Text>
-                  <TextField 
-                    containerStyle="w-40 rounded-xl mb-5"
-                    value={field.city}
-                    placeholder={"Enter City"}
-                    handleTextChange={(e) => setField({...field, city: e})}
-                    otherStyles="w-[230px]"
-                    locationStyles={{ height: 40 }}
-                  />
-                  <TextField 
-                    containerStyle="w-40 rounded-xl mb-5"
-                    value={field.country}
-                    placeholder={"Enter Country"}
-                    handleTextChange={(e) => setField({...field, country: e})}
-                    otherStyles="w-[230px]"
-                    locationStyles={{ height: 40 }}
-
-                  />
-                  <TouchableOpacity
-                    onPress={handleConfirm}
-                    style={{ backgroundColor: '#007AFF', padding: 10, borderRadius: 10, width: 150, marginTop: 20, marginBottom: -8 }}
-                    >
-                    <Text style={{ color: '#fff', fontSize: 18, textAlign: 'center',  }}>Confirm</Text>
-                  </TouchableOpacity>
-                
-                </View>
-              </View>
-            </Modal>
-        </View>
-
+                <View style={styles.header}>
             <Text className="text-[#1F41BB] text-4xl font-mbold pl-5" style={styles.headerTitle}>
               Settings
             </Text>
           </View>
 
-          <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-            <View style={[styles.section, { paddingTop: 4 }]}>
-              <Text style={styles.sectionTitle}>Account</Text>
+          {/* Main */}
+    <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <View style={[styles.section, { paddingTop: 4 }]}>
+        <Text style={styles.sectionTitle}>Account</Text>
 
-              <View style={styles.sectionBody}>
-                <TouchableOpacity
-                  onPress={() => {
-                    router.push('/settings/profile')
-                  }}
-                  style={styles.profile}>
-                  <Image alt=""
-                    source={{
-                      uri: user?.avatar,
-                    }}
-                    style={styles.profileAvatar} />
+        {/* Profile */}
+        <View style={styles.sectionBody}>
+          <TouchableOpacity
+            onPress={() => {
+              router.push('/settings/profile')
+            }}
+            style={styles.profile}>
+            <Image alt=""
+              source={{
+                uri: user?.avatar,
+              }}
+              style={styles.profileAvatar} />
 
-                  <View style={styles.profileBody}>
-                    <Text style={styles.profileName}>{user?.username}</Text>
+            <View style={styles.profileBody}>
+              <Text style={styles.profileName}>{user?.username}</Text>
 
-                    <Text style={styles.profileHandle}>{user?.email}</Text>
-                  </View>
-
-                  <FeatherIcon
-                    color="#bcbcbc"
-                    name="chevron-right"
-                    size={22} />
-                </TouchableOpacity>
-              </View>
+              <Text style={styles.profileHandle}>{user?.email}</Text>
             </View>
 
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Preferences</Text>
-
-              <View style={styles.sectionBody}>
-                <View style={[styles.rowWrapper, styles.rowFirst]}>
-                  <TouchableOpacity
-                    onPress={() => {
-                      // handle onPress
-                    }}
-                    style={styles.row}>
-                    <Text style={styles.rowLabel}>Language</Text>
-
-                    <View style={styles.rowSpacer} />
-
-                    <Text style={styles.rowValue}>English</Text>
-
-                    
-                  </TouchableOpacity>
-                </View>
-
-                <View style={styles.rowWrapper}>
-                  <TouchableOpacity
-                    onPress={() => {
-                      setModalVisible(true)
-                    }}
-                    style={styles.row}>
-                    <Text style={styles.rowLabel}>Location</Text>
-
-                    <View style={styles.rowSpacer} />
-
-                    <Text style={styles.rowValue}>{field.city}, {field.country}</Text>
-
-                    <FeatherIcon
-                      color="#bcbcbc"
-                      name="chevron-right"
-                      size={19} />
-                  </TouchableOpacity>
-                </View>
-
-                <View style={styles.rowWrapper}>
-                  <View style={styles.row}>
-                    <Text style={styles.rowLabel}>Email Notifications</Text>
-
-                    <View style={styles.rowSpacer} />
-
-                    <Switch
-                      onValueChange={emailNotifications =>
-                        setForm({ ...form, emailNotifications })
-                      }
-                      style={{ transform: [{ scaleX: 0.95 }, { scaleY: 0.95 }] }}
-                      value={form.emailNotifications} />
-                  </View>
-                </View>
-
-                <View style={[styles.rowWrapper, styles.rowLast]}>
-                  <View style={styles.row}>
-                    <Text style={styles.rowLabel}>Push Notifications</Text>
-
-                    <View style={styles.rowSpacer} />
-
-                    <Switch
-                      onValueChange={pushNotifications =>
-                        setForm({ ...form, pushNotifications })
-                      }
-                      style={{ transform: [{ scaleX: 0.95 }, { scaleY: 0.95 }] }}
-                      value={form.pushNotifications} />
-                  </View>
-                </View>
-              </View>
-            </View>
-
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Resources</Text>
-
-              <View style={styles.sectionBody}>
-                <View style={[styles.rowWrapper, styles.rowFirst]}>
-                  <TouchableOpacity
-                    onPress={() => {
-                      router.push({
-                        pathname: '/settings/verify-email',
-                        params: { email: user?.email }, // Pass the email as a parameter
-                      });                    
-                    }}
-                    style={styles.row}>
-                    <Text style={styles.rowLabel}>Verify Email</Text>
-
-                    <View style={styles.rowSpacer} />
-
-                    <FeatherIcon
-                      color="#bcbcbc"
-                      name="chevron-right"
-                      size={19} />
-                  </TouchableOpacity>
-                </View>
-
-                <View style={styles.rowWrapper}>
-                  <TouchableOpacity
-                    onPress={() => {
-                      // handle onPress
-                    }}
-                    style={styles.row}>
-                    <Text style={styles.rowLabel}>Contact Us</Text>
-
-                    <View style={styles.rowSpacer} />
-
-                    <FeatherIcon
-                      color="#bcbcbc"
-                      name="chevron-right"
-                      size={19} />
-                  </TouchableOpacity>
-                </View>
-
-                <View style={styles.rowWrapper}>
-                  <TouchableOpacity
-                    onPress={() => {
-                      // handle onPress
-                    }}
-                    style={styles.row}>
-                    <Text style={styles.rowLabel}>Report Bug</Text>
-
-                    <View style={styles.rowSpacer} />
-
-                    <FeatherIcon
-                      color="#bcbcbc"
-                      name="chevron-right"
-                      size={19} />
-                  </TouchableOpacity>
-                </View>
-
-                <View style={[styles.rowWrapper, styles.rowLast]}>
-                  <TouchableOpacity
-                    onPress={() => {
-                      // handle onPress
-                    }}
-                    style={styles.row}>
-                    <Text style={styles.rowLabel}>Terms and Privacy</Text>
-
-                    <View style={styles.rowSpacer} />
-
-                    <FeatherIcon
-                      color="#bcbcbc"
-                      name="chevron-right"
-                      size={19} />
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </View>
-
-            <View style={styles.section}>
-              <View style={styles.sectionBody}>
-                <View
-                  style={[
-                    styles.rowWrapper,
-                    styles.rowFirst,
-                    styles.rowLast,
-                    { alignItems: 'center' },
-                  ]}>
-                  <TouchableOpacity
-                    onPress={logout}
-                    style={styles.row}>
-                    { isSubmitting === true ? (
-                      <View className="flex-1 self-center items-center">
-                        <ActivityIndicator size="small" color='red'/>
-                      </View>
-                    ) : (
-                  <Text style={[styles.rowLabel, styles.rowLabelLogout]}>
-                  Log Out
-                </Text>
-                )}  
-                    
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </View>
-
-            <Text style={styles.contentFooter}>App Version 2.24 #50491</Text>
-          </ScrollView>
+            <FeatherIcon
+              color="#bcbcbc"
+              name="chevron-right"
+              size={22} />
+          </TouchableOpacity>
         </View>
-      </SafeAreaView>
+      </View>
+
+        {/* Preference section */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Preferences</Text>
+
+        <View style={styles.sectionBody}>
+          {/* Location */}
+          <View style={[styles.rowWrapper, styles.rowFirst]}>
+            <TouchableOpacity
+              onPress={() => router.push('/settings/location')}
+              style={styles.row}>
+              <Text style={styles.rowLabel}>Location</Text>
+
+              <View style={styles.rowSpacer} />
+
+              <Text style={styles.rowValue} className="pl-[160px]">{location.city}, {location.country}</Text>
+              <FeatherIcon
+                color="#bcbcbc"
+                name="chevron-right"
+                size={19} />
+            </TouchableOpacity>
+          </View>
+
+          {/* Set currency */}
+          <View style={styles.rowWrapper}>
+            <TouchableOpacity
+              onPress={() => router.push("/settings/currency") }
+            style={styles.row}>
+            <Text style={styles.rowLabel}>Currency</Text>
+
+            <View style={styles.rowSpacer} />
+
+            <Text style={styles.rowValue}>{globalCurrency.name}</Text>
+
+              <FeatherIcon
+                color="#bcbcbc"
+                name="chevron-right"
+                size={19} />
+            </TouchableOpacity>
+          </View>
+          {/* Email notification */}
+          <View style={styles.rowWrapper}>
+            <View style={styles.row}>
+              <Text style={styles.rowLabel}>Email Notifications</Text>
+
+              <View style={styles.rowSpacer} />
+
+              <Switch
+                onValueChange={emailNotifications =>
+                  setForm({ ...form, emailNotifications })
+                }
+                style={{ transform: [{ scaleX: 0.95 }, { scaleY: 0.95 }] }}
+                value={form.emailNotifications} />
+            </View>
+          </View>
+          {/* Push notification */}
+          <View style={[styles.rowWrapper, styles.rowLast]}>
+            <View style={styles.row}>
+              <Text style={styles.rowLabel}>Push Notifications</Text>
+
+              <View style={styles.rowSpacer} />
+
+              <Switch
+                onValueChange={pushNotifications =>
+                  setForm({ ...form, pushNotifications })
+                }
+                style={{ transform: [{ scaleX: 0.95 }, { scaleY: 0.95 }] }}
+                value={form.pushNotifications} />
+            </View>
+          </View>
+        </View>
+      </View>
+
+      {/* Resources section */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Resources</Text>
+        <View style={styles.sectionBody}>
+          {/* Account verification */}
+          <View style={[styles.rowWrapper, styles.rowFirst]}>
+            <TouchableOpacity
+              onPress={() => {
+                router.push({
+                  pathname: '/settings/verify-email',
+                  params: { email: user?.email }, // Pass the email as a parameter
+                });                    
+              }}
+              style={styles.row}>
+
+              <Text style={styles.rowLabel}>Account Verification status</Text>
+              <View style={styles.rowSpacer} />
+              <Text style={styles.rowValue}>verified</Text>
+
+              <FeatherIcon
+                color="#bcbcbc"
+                name="chevron-right"
+                size={19} />
+            </TouchableOpacity>
+          </View>
+            {/* Contact us */}
+          <View style={styles.rowWrapper}>
+            <TouchableOpacity
+              onPress={() => {
+                router.push({
+                  pathname: '/settings/contact-report-terms',
+                  params: { type: 'contact' }, // Pass the email as a parameter
+                });                    
+              }}
+              style={styles.row}>
+              <Text style={styles.rowLabel}>Contact Us</Text>
+
+              <View style={styles.rowSpacer} />
+
+              <FeatherIcon
+                color="#bcbcbc"
+                name="chevron-right"
+                size={19} />
+            </TouchableOpacity>
+          </View>
+          {/* Report Bug */}
+          <View style={styles.rowWrapper}>
+            <TouchableOpacity
+              onPress={() => {
+                router.push({
+                  pathname: '/settings/contact-report-terms',
+                  params: { type: 'report' }, // Pass the email as a parameter
+                });                    
+              }}
+              style={styles.row}>
+              <Text style={styles.rowLabel}>Report Bug</Text>
+
+              <View style={styles.rowSpacer} />
+
+              <FeatherIcon
+                color="#bcbcbc"
+                name="chevron-right"
+                size={19} />
+            </TouchableOpacity>
+          </View>
+          {/* Terms & Privacy */}
+          <View style={[styles.rowWrapper, styles.rowLast]}>
+            <TouchableOpacity
+              onPress={() => {
+                router.push({
+                  pathname: '/settings/contact-report-terms',
+                  params: { type: 'terms' }, // Pass the email as a parameter
+                });                    
+              }}
+              style={styles.row}>
+              <Text style={styles.rowLabel}>Terms and Privacy</Text>
+
+              <View style={styles.rowSpacer} />
+
+              <FeatherIcon
+                color="#bcbcbc"
+                name="chevron-right"
+                size={19} />
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+      
+      {/* Logout */}
+      <View style={styles.section}>
+        <View style={styles.sectionBody}>
+          <View
+            style={[
+              styles.rowWrapper,
+              styles.rowFirst,
+              styles.rowLast,
+              { alignItems: 'center' },
+            ]}>
+            <TouchableOpacity
+              onPress={logout}
+              style={styles.row}>
+              { isSubmitting === true ? (
+                <View className="flex-1 self-center items-center">
+                    <ActivityIndicator size="small" color='red'/>
+                  </View>
+                ) : (
+              <Text style={[styles.rowLabel, styles.rowLabelLogout]}>
+              Log Out
+            </Text>
+            )}  
+                
+            </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+
+        <Text style={styles.contentFooter}>App Version 2.24 #50491</Text>
+      </ScrollView>
+    </View>
+  </SafeAreaView>
 
 
 

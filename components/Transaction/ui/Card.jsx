@@ -1,6 +1,6 @@
 import { View, ViewStyle } from "react-native";
 
-export default function Card({ children, style = {} }) {
+export default function Card({ children, style = {}, className, }) {
   return (
     <View
       style={{
@@ -14,6 +14,7 @@ export default function Card({ children, style = {} }) {
         shadowOpacity: 0.15,
         ...style,
       }}
+      className={className}
     >
       {children}
     </View>

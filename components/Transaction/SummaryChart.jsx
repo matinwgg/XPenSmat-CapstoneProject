@@ -3,14 +3,15 @@ import { Text, TouchableOpacity, View } from "react-native";
 import { BarChart } from "react-native-gifted-charts";
 import SegmentedControl from "@react-native-segmented-control/segmented-control";
 import { SymbolView } from "expo-symbols";
+import useAppwrite from '../../lib/useAppwrite';
+import { StatsData } from '../../lib/appwrite'
+import { useGlobalContext } from '../../context/GlobalProvider';
 
 const Period = {
   WEEK: "week",
-  MONTH: "month",
-  YEAR: "year",
 };
 
-export default function SummaryChart() {
+export  default SummaryChart = () => {
   const [chartPeriod, setChartPeriod] = useState(Period.WEEK);
   const [barData, setBarData] = useState([]);
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -18,15 +19,9 @@ export default function SummaryChart() {
   const [chartKey, setChartKey] = useState(0);
   const [transactionType, setTransactionType] = useState("Income");
 
-  useEffect(() => {
-    if (chartPeriod === Period.WEEK) {
-      const { startDate, endDate } = getWeekRange(currentDate);
-      setCurrentEndDate(new Date(startDate));
-      const data = fetchWeeklyData(transactionType);
-      setBarData(processWeeklyData(data));
-      setChartKey((prev) => prev + 1);
-    }
-  }, [chartPeriod, currentDate, transactionType]);
+  const { user } = useGlobalContext();
+
+  const { data: posts, refetch } = useAppwrite({ fn: () => StatsData(user?.$id) });
 
   const getWeekRange = (date) => {
     const startOfWeek = new Date(date.setDate(date.getDate() - date.getDay()));
@@ -34,26 +29,84 @@ export default function SummaryChart() {
     return { startDate: startOfWeek, endDate: endOfWeek };
   };
 
+
+  const getExpenseCount = () => {
+      const { startDate, endDate } = getWeekRange(currentDate);
+    
+      if (posts && posts.documents) {
+        // Ensure startDate and endDate are Date objects
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+  
+    
+        // Filter transactions based on transactionType and date range
+        const filteredPosts = posts.documents.filter((transaction) => {
+          const date = new Date(transaction.dateofpurchase.split('T')[0]);
+          return transaction.type === "Expense" && date >= start && date <= end;
+        });
+    
+        // Set counts based on filtered results
+        const expenses = filteredPosts.filter(transaction => transaction.type === 'Expense').length;
+
+       return expenses
+    }
+  }
+
+  const getIncomeCount = () => {
+    const { startDate, endDate } = getWeekRange(currentDate);
+  
+    if (posts && posts.documents) {
+      // Ensure startDate and endDate are Date objects
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+
+  
+      // Filter transactions based on transactionType and date range
+      const filteredPosts = posts.documents.filter((transaction) => {
+        const date = new Date(transaction.dateofpurchase.split('T')[0]);
+        return transaction.type === "Income" && date >= start && date <= end;
+      });
+  
+      // Set counts based on filtered results
+      const incomes = filteredPosts.filter(transaction => transaction.type === 'Income').length;
+
+     return incomes
+  }
+}
+
   const handlePreviousWeek = () => {
-    setCurrentDate(new Date(currentDate.setDate(currentDate.getDate() - 7)));
-  };
+    const newDate = new Date(currentDate);
+    newDate.setDate(currentDate.getDate() - 7);
+    setCurrentDate(newDate);
+ };
 
   const handleNextWeek = () => {
-    setCurrentDate(new Date(currentDate.setDate(currentDate.getDate() + 7)));
-  };
+    const newDate = new Date(currentDate);
+    newDate.setDate(currentDate.getDate() + 7);
+    setCurrentDate(newDate);
+};
 
-  const fetchWeeklyData = (type) => {
-    // Hard-coded example data for bar chart
-    return [
-      { dayOfWeek: 0, total: type === "Income" ? 120 : 50 },
-      { dayOfWeek: 1, total: type === "Income" ? 150 : 70 },
-      { dayOfWeek: 2, total: type === "Income" ? 180 : 90 },
-      { dayOfWeek: 3, total: type === "Income" ? 220 : 60 },
-      { dayOfWeek: 4, total: type === "Income" ? 300 : 100 },
-      { dayOfWeek: 5, total: type === "Income" ? 200 : 80 },
-      { dayOfWeek: 6, total: type === "Income" ? 250 : 110 },
-    ];
+
+  const fetchWeeklyData = (type, startDate, endDate) => {
+    if (!posts || !posts.documents) return [];
+    //console.log(posts)
+    const weekData = Array(7).fill(0); // Array to hold sums for each day of the week (Sun=0, Mon=1, ..., Sat=6)
+
+    posts.documents
+      .filter(post => post.type === type)
+      .forEach(post => {
+        const date = new Date(post.dateofpurchase.split('T')[0]);
+        if (date > startDate && date < endDate) {
+        const day = date.getDay(); // Get the day of the week (0-6)
+        weekData[day] += post.ItemAmount; // Sum the ItemAmount for that specific day
+        } 
+      });
+    return weekData.map((total, dayOfWeek) => ({
+      dayOfWeek,
+      total
+    }));
   };
+  
 
   const processWeeklyData = (data) => {
     // Process data for BarChart
@@ -63,6 +116,20 @@ export default function SummaryChart() {
       label: days[item.dayOfWeek],
     }));
   };
+
+ 
+  useEffect(() => {
+    if (posts && posts.documents) {
+      if (chartPeriod === Period.WEEK) {
+        const { startDate, endDate } = getWeekRange(currentDate);
+        setCurrentEndDate(new Date(startDate));
+        const data = fetchWeeklyData(transactionType, startDate, endDate);
+        setBarData(processWeeklyData(data));
+        setChartKey((prev) => prev + 1);
+      }
+    }
+  }, [posts, chartPeriod, currentDate, transactionType]);
+
 
   return (
     <View>
@@ -87,13 +154,13 @@ export default function SummaryChart() {
         key={chartKey}
         data={barData}
         barWidth={18}
-        height={70}
+        height={90}
         width={290}
         minHeight={3}
         barBorderRadius={3}
         showGradient
         spacing={20}
-        noOfSections={4}
+        noOfSections={5}
         yAxisThickness={0}
         xAxisThickness={0}
         xAxisLabelsVerticalShift={2}
@@ -125,7 +192,7 @@ export default function SummaryChart() {
         </TouchableOpacity>
 
         <SegmentedControl
-          values={["Income", "Expense"]}
+          values={[`Income (${getIncomeCount()})`, `Expense (${getExpenseCount()})`]}
           style={{ width: 200 }}
           selectedIndex={transactionType === "Income" ? 0 : 1}
           onChange={(event) => {

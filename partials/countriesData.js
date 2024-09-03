@@ -1,5 +1,5 @@
-{
-    "countries": [
+export const countriesData = {    
+  "countries": [
       {
         "code": "USD",
         "flag": "🇺🇸",

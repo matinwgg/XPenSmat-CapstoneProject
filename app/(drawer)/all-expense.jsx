@@ -1,22 +1,17 @@
 import { StyleSheet, Button, Text, View, SafeAreaView, RefreshControl, TouchableOpacity, ScrollView } from 'react-native';
 import { FlatList } from 'react-native'; // Correct import
 import React, { useEffect, useState } from 'react';
-import { router } from 'expo-router';
-import FeatherIcon from 'react-native-vector-icons/Feather';
 import { BlurView } from "expo-blur";
 import { SymbolView } from "expo-symbols";
 import OnToggleDrawer from '../../partials/toggle-drawer';
 import { getAllPosts } from "../../lib/appwrite";
 import useAppwrite from '../../lib/useAppwrite';
-import CustomButton from '../../components/CustomButton';
 import EmptyState from '../../components/EmptyState';
 import ExpenseItem from '../../components/ExpenseAll';
 import { useGlobalContext } from '../../context/GlobalProvider';
-import SearchInput from '../../components/SearchInput';
 
 //import TransactionList  from "../../components/Transaction/TransactionsList";
 import Card from '../../components/Transaction/ui/Card';
-import { SummaryChart } from '../../components/Transaction'
 
 const DisplayExpense = () => {
   const { user } = useGlobalContext();
@@ -25,18 +20,31 @@ const DisplayExpense = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [categories, setCategories] = React.useState([]);
   const [transactions, setTransactions] = React.useState([]);
+  const [totalAmount, setTotalAmount] = useState(0);
   const [transactionsByDay, setTransactionsByDay] = useState({
     totalExpenses: 0,
     totalIncome: 0,
   });
+  
   const onRefresh = async () => {
     setRefreshing(true);
     await refetch();
     setRefreshing(false);
   };
 
+  useEffect(() => {
+    try {
+      let total = 0;
+      posts.forEach(item => {
+      total += item.ItemAmount;
+    });
+    setTotalAmount(total);
+    } catch (error) {
+      //console.log("No items!");
+    }
+    
+  }, [posts]);
 
-  const deleteTransaction = () => {};
 
   const groupByCategory = (expenses) => {
     if (!expenses || expenses.length === 0) {
@@ -133,31 +141,20 @@ const groupedExpenses = groupByCategory(posts);
 
   return (
     <SafeAreaView style={{ flex: 1, paddingHorizontal: 10, marginHorizontal:10 }}>
-      <View style={{ flex: 1 }}>
-        <View>
+      <View style={{ flex: 1, }}>
+        <View className="flex-row">
           <OnToggleDrawer />
+          <View style={{ alignItems: '', marginBottom: 5, left: 60 }}>
+            <Text style={ styles.subtitle }>Transaction history</Text>
+          </View>
         </View>
 
         {/* <SearchInput /> */}
 
         <View className="mb-5">
-        <View style={{ alignItems: '', marginBottom: 10, marginTop: 10 }}>
-            <Text style={styles.subtitle}>Statistics</Text>
-          </View>
-          <TransactionSummary
-            totalExpenses={transactionsByDay.totalExpenses}
-            totalIncome={transactionsByDay.totalIncome}
-          />
         </View>
-        {/* <TransactionList
-          categories={categories}
-          transactions={transactions}
-          deleteTransaction={deleteTransaction}
-        /> */}
         
-          <View style={{ alignItems: '', marginBottom: 5 }}>
-            <Text style={ styles.subtitle }>Transaction history</Text>
-          </View>
+          
 
         <FlatList
           data={xcategories}
@@ -180,8 +177,8 @@ const groupedExpenses = groupByCategory(posts);
       >
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
           <View>
-            <Text style={{ color: 'gray' }}>Lifetime savings</Text>
-            <Text style={{ fontWeight: 'bold', fontSize: 28 }}>$123,823.50</Text>
+            <Text style={{ color: 'gray' }}>overall Expense</Text>
+            <Text style={{ fontWeight: 'bold', fontSize: 28 }}>{totalAmount.toFixed(2)}</Text>
           </View>
           <TouchableOpacity activeOpacity={0.8} onPress={() => {}}>
             <SymbolView
@@ -198,54 +195,6 @@ const groupedExpenses = groupByCategory(posts);
   );
 };
 
-
-function TransactionSummary({
-  totalIncome,
-  totalExpenses,
-}) {
-  const savings = totalIncome - totalExpenses;
-  const readablePeriod = new Date().toLocaleDateString("default", {
-    month: "long",
-    year: "numeric",
-  });
-
-  // Function to determine the style based on the value (positive or negative)
-  const getMoneyTextStyle = (value)=> ({
-    fontWeight: "bold",
-    color: value < 0 ? "#ff4500" : "#2e8b57", // Red for negative, custom green for positive
-  });
-
-  // Helper function to format monetary values
-  const formatMoney = (value) => {
-    const absValue = Math.abs(value).toFixed(2);
-    return `${value < 0 ? "-" : ""}$${absValue}`;
-  };
-
-  return (
-    <>
-      <Card style={styles.container}>
-        {/* <Text style={styles.periodTitle}>Summary for {readablePeriod}</Text> */}
-        <SummaryChart />
-        {/* <Text style={styles.summaryText}>
-          Income:{" "}
-          <Text style={getMoneyTextStyle(totalIncome)}>
-            {formatMoney(totalIncome)}
-          </Text>
-        </Text>
-        <Text style={styles.summaryText}>
-          Total Expenses:{" "}
-          <Text style={getMoneyTextStyle(totalExpenses)}>
-            {formatMoney(totalExpenses)}
-          </Text>
-        </Text>
-        <Text style={styles.summaryText}>
-          Savings:{" "}
-          <Text style={getMoneyTextStyle(savings)}>{formatMoney(savings)}</Text>
-        </Text> */}
-      </Card>
-    </>
-  );
-}
 
 const styles = StyleSheet.create({
   blur: {

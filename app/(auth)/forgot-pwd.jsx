@@ -7,6 +7,7 @@ import CustomButton from '../../components/CustomButton'
 import RBSheet from 'react-native-raw-bottom-sheet';
 import OtpScreen from './otp';
 import { recoverPwd } from '../../lib/appwrite';
+import FormField from '../../components/FormField'
 
 const ForgotPwd = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -105,11 +106,16 @@ const ForgotPwd = () => {
               <View className="">
                 
                 <View className="">
-                  <CustomInput 
+                   <FormField 
+                    title="Email"
                     value={inputValue}
-                    placeholder="Enter Email address"
-                    handleChangeText={(e) => setInputValue(e)}
-                  />
+                    containerStyle="w-[100%] mt-8"
+                    placeholder={'Email address'}
+                    contentType='emailAddress'
+                    onChangeText={(e) => setInputValue(e)}
+                    keyType="email-address"
+
+                />
                 </View>
               
 

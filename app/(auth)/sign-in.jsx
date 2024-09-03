@@ -12,22 +12,36 @@ import Swiper from "react-native-swiper";
 import RBSheet from 'react-native-raw-bottom-sheet';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import { onboarding } from "../../constants/onboarding";
-//import { makeRedirectUri, useAuthRequest } from "expo-auth-session";
 import * as WebBrowser from "expo-web-browser"
 import * as Google from "expo-auth-session/providers/google"
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { makeRedirectUri, useAuthRequest } from "expo-auth-session";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 WebBrowser.maybeCompleteAuthSession();
 
+// Google credentials
 const webClientID = "918488727675-20ae1phj5tc7p1gspm37b1584vhugtsb.apps.googleusercontent.com"
 const iosClientID = "918488727675-k0ufq691j9gbcosa93h6eqkthms5llr1.apps.googleusercontent.com"
 const androidClientID = "918488727675-6sln5r6tt57lmjlsa3qvakjhohhup7d7.apps.googleusercontent.com"
 
+// Github
+const CLIENT_ID = 'Ov23liBA7YoL8vHvopp6'
+const CLIENT_SECRET = '9a5c886000350cb3c7e690b13186a2a4a46e0b80'
+
+const discovery = {
+  authorizationEndpoint: "https://github.com/login/oauth/authorize",
+  tokenEndpoint: "https://github.com/login/oauth/access_token",
+  revocationEndpoint:
+    `https://github.com/settings/connections/applications/${CLIENT_ID}`,
+};
+
+
+
 
 const SignIn = () => {
-  const { setUser, setIsLoggedIn } = useGlobalContext()
+  const { user, setUser, setIsLoggedIn } = useGlobalContext()
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Sign in with Google
@@ -88,44 +102,82 @@ const SignIn = () => {
     }
   };
 
-  async function handleResponse() {
-    if (response?.type === "success") {
-      const { code } = response.params;
-      const { token_type, scope, access_token } = await createTokenWithCode(
-        code
-      );
-      console.log("getGithubTokenAsync: ", {
-        token_type,
-        scope,
-        access_token,
-      });
+// End
 
-      if (!access_token) return;
-      const credential = GithubAuthProvider.credential(access_token);
-      const data = await signInWithCredential(auth, credential);
+// Github
+  const [codeApi, setCodeApi] = React.useState("test");
+    const [gitUserInfo, setGitUserInfo] = React.useState();
+    const [rekuest, responze, promptAsyncc] = useAuthRequest(
+      {
+        clientId: CLIENT_ID,
+        scopes: ["identity"],
+        redirectUri: makeRedirectUri({
+          scheme: "com.eduardo.sign-in-with-github",
+        }),
+      },
+      discovery
+    );
 
-      fetch("https://api.github.com/user/following/betomoedano", {
-        method: "PUT",
+
+  const globalToken = "ok";
+
+const getUserToken = async (data) => {
+  if (data.code === "test") return console.log("invalid code");
+  console.log("getUserToken", data);
+  try {
+    const response = await fetch(
+      "https://github.com/login/oauth/access_token",
+      {
+        method: "POST",
         headers: {
-          Authorization: `token ${access_token}`,
+          "Content-Type": "application/json",
+          Accept: "application/json",
         },
-      })
-        .then((response) => {
-          if (response.status === 204) {
-            console.log("Successfully followed!");
-          } else {
-            console.log("Failed to follow.");
-          }
-        })
-        .catch((error) => {
-          console.error("Error following user:", error);
-        });
-
-      console.log("credential: ", credential);
-      console.log("data: ", JSON.stringify(data, null, 2));
-    }
+        body: JSON.stringify(data),
+      }
+    );
+    const responseJson = await response.json();
+    console.log("token response", responseJson);
+    globalToken = responseJson.access_token;
+    return globalToken;
+  } catch (error) {
+    console.log("User token", error);
   }
+};
 
+const getUserInformation = async () => {
+  if (globalToken === "ok") return console.log("the token is null or invalid");
+  console.log("getUserInformation global token", globalToken);
+  const response = await fetch("https://api.github.com/user", {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${globalToken}`,
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+  });
+  const responseJson = await response.json();
+  console.log("User information", responseJson)
+  return responseJson;
+};
+
+const data = {
+  client_id: CLIENT_ID,
+  client_secret: CLIENT_SECRET,
+  code: codeApi,
+  redirect_uri: makeRedirectUri({
+    scheme: "com.eduardo.sign-in-with-github",
+  }),
+};
+
+const requestToTheApi = async () => {
+  await getUserToken(data);
+  const userInfoData = await getUserInformation();
+  setUserInfo(userInfoData);
+  };
+
+
+  //End
   const swiperRef = useRef(null);
   const sheetRef = useRef();
   const [activeIndex, setActiveIndex] = useState(0);
@@ -142,17 +194,7 @@ const SignIn = () => {
     //router.replace('/sign-up')
     }
 
-    const checkLogin = async () => {
-      try {
-        const session = await account.getSession('current');
-        if (session.current) {
-          router.push('/home')
-        }
-      } catch (e) {
-        Alert.alert('Error', 'Failed to check session.');
-      }
-    };
-
+  
 const submit = async () => {
     if ( !form.email || !form.password) {
       return Alert.alert("Error", "Please fill in all the fields")
@@ -211,6 +253,19 @@ const submit = async () => {
     sheetRef.current.open()
   }, [])
 
+  // Git hub
+  React.useEffect(() => {
+    try {
+      if (response?.type === "success") {
+        const { code } = response.params;
+        setCodeApi(code);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+    requestToTheApi();
+  }, [responze, codeApi]);
+
   return (
     <SafeAreaView className="flex-1 bg-white px-5">
       <ScrollView showsVerticalScrollIndicator="false">
@@ -257,6 +312,7 @@ const submit = async () => {
                 <Text className="self-center bottom-[9px] font-mregular relative bg-white w-10 px-3">Or</Text>
             </View>
 
+      {/* Google sign in button */}
         <View style={{flex:1, backgroundColor: "fff", alignItems: 'center', justifyContent: 'center'}}>
         {!userInfo ? (
             <TouchableOpacity disabled={!request} onPress={() => {promptAsync()}}  className='border border-gray-300 rounded-full py-3 mb-5 w-full flex-row items-center justify-center'>
@@ -276,30 +332,48 @@ const submit = async () => {
           <Text style={styles.text}>{JSON.stringify(userInfo, null, 2)}</Text>
           </View>
         )}
-          {/* <Button
-            title="Remove local store"
-            onPress={async () => await AsyncStorage.removeItem("@user")}
-          /> */}
       </View>
-        <TouchableOpacity onPress={() => {
-          SignInWithGitHub();
-          checkLogin();
-          }} className='border border-gray-300 rounded-full py-2.5 mb-4 w-full flex-row items-center justify-center'>
-          <Image source={icons.github} resizeMode='contain' className='w-7 h-7 mr-2 -ml-1' />
-          <Text className='text-gray-600 font-pmedium'>Continue with GitHub</Text>
-      </TouchableOpacity>
+        {/* Git Hub Sign in */}
+      <View>
+        {!gitUserInfo ? (
+          <TouchableOpacity disabled={!rekuest} onPress={() => {
+              promptAsyncc()
+              }} 
+            className='border border-gray-300 rounded-full py-2.5 mb-4 w-full flex-row items-center justify-center'>
+            <Image source={icons.github} resizeMode='contain' className='w-7 h-7 mr-2 -ml-1' />
+            <Text className='text-gray-600 font-pmedium'>Continue with GitHub</Text>
+          </TouchableOpacity>
+        ): (
+            <View style={styles.card}>
+              {userInfo?.picture && (
+                <Image source={{ uri: userInfo?.picture }} style={styles.image} />
+              )}
+              <Text style={styles.text}>Email: {userInfo.email}</Text>
+              <Text style={styles.text}>
+                Verified: {userInfo.verified_email ? "yes" : "no"}
+              </Text>
+              <Text style={styles.text}>Name: {userInfo.name}</Text>
+              <Text style={styles.text}>{JSON.stringify(userInfo, null, 2)}</Text>
+              </View>
+        )}
+      </View>
       
-      
-            <View className="flex-row self-center mt-8">
-                <Text className="font-pmedium ">Don't have an account? </Text>
-                <TouchableOpacity
-                  onPress={() => router.push('/sign-up')}>
-                    <Text className="font-pbold text-[#0161C7]">Sign up</Text> 
-                </TouchableOpacity>
-            </View>
+      {/* Don't have an account */}
+        <>
+          <View className="flex-row self-center mt-8">
+            <Text className="font-pmedium ">Don't have an account? </Text>
+            <TouchableOpacity
+              onPress={() => router.push('/sign-up')}>
+              <Text className="font-pbold text-[#0161C7]">Sign up</Text> 
+           </TouchableOpacity>
+          </View>
+        </>
+        
            
-            </View>
       </View>
+    </View>
+
+    {/* Onboarding */}
       <RBSheet
         ref={sheetRef}
         height={360}
@@ -321,23 +395,6 @@ const submit = async () => {
                 size={24} />
             </TouchableOpacity>
           </View>
-
-           {/* <FeatherIcon
-              color="#2b64e3"
-              name="shield"
-              style={{
-                alignSelf: 'center',
-              }}
-              size={48} />
-       
-          <Text className="text-[18px] font-pbold text-[#181818] mt-4 text-center">Track Your Expenses</Text>
-
-          <Text className="text-[14px] font-pmedium text-[#555] mt-4 text-center">
-            Stay on top of your finances by effortlessly recording every expense, 
-            big or small. Whether it's your morning coffee or monthly rent, our 
-            app makes it simple to log all your transactions in one place, 
-            helping you maintain a clear and accurate record of where your money goes each day.
-          </Text> */}
           
           <Swiper
             ref={swiperRef}
@@ -370,7 +427,7 @@ const submit = async () => {
             ))}
           
           </Swiper>
-
+      
       <View className="w-80 self-center">
         <CustomButton
           title={isLastSlide ? "Get Started" : "Next"}

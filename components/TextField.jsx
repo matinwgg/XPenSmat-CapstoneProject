@@ -1,13 +1,13 @@
 import React, {useState} from 'react';
 import { Keyboard } from 'react-native';
 import { StyleSheet, Text, TextInput, View, Image, TouchableWithoutFeedback } from 'react-native';
-import countriesData from "../partials/flag.json"
+import {countriesData} from "../partials/countriesData"
 
 const TextField = ({ value, handleTextChange, containerStyle, otherStyles, placeholder, ...props }) => {
   const [inputValue, setInputValue] = useState('');
   const [isValid, setIsValid] = useState(true);
 
-  const { countries } = countriesData; 
+  const countries = countriesData.countries;
 
   const matchedCodes = countries.filter(item => item.code === props.country)
 

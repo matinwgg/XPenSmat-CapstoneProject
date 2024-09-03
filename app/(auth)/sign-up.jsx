@@ -1,13 +1,11 @@
 import { ScrollView, StyleSheet, Text, View, TouchableOpacity, Image, Alert } from 'react-native'
 import React, {useState} from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { icons } from '../../constants'
 import FormField from '../../components/FormField'
-import {Link, router} from 'expo-router'
+import { router} from 'expo-router'
 import CustomButton  from '../../components/CustomButton'
-import { createUser, verifyEmail } from '../../lib/appwrite'
+import { createUser, recoverPwd } from '../../lib/appwrite'
 import { useGlobalContext } from '../../context/GlobalProvider'
-import toast from "../../lib/toast";
 
 
 const SignUp = () => {

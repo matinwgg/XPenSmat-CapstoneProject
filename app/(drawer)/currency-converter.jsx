@@ -1,11 +1,14 @@
 import { SafeAreaView, Text, Image, View, TouchableOpacity } from 'react-native'
 import React, {useEffect, useState} from 'react'
-import { Link, useRouter } from 'expo-router'
+import { useRouter } from 'expo-router'
 import { Picker } from '@react-native-picker/picker';
 import TextField from '../../components/TextField';
-import FeatherIcon from 'react-native-vector-icons/Feather';
 import { images } from '../../constants';
 import OnToggleDrawer from '../../partials/toggle-drawer';
+import CountryFlag from "react-native-country-flag";
+import { CURRENCIES } from '../../partials/utils';
+import getSymbolFromCurrency from 'currency-symbol-map'
+
 
 const ConvertBtwnCurrencies = () => {
   const [fromCurrency, setFromCurrency] = useState('USD');
@@ -19,6 +22,14 @@ const ConvertBtwnCurrencies = () => {
     const result = (amount * exchangeRate).toFixed(2)
       return result;
   };
+
+  const getFlagByCode = (code) => {
+    return code.substring(0, 2)
+  }
+
+  function getCountryByCurrency(currencyCode) {
+    return CURRENCIES[currencyCode] || 'Currency not found';
+  }
 
 useEffect(() => {
   const fetchCurrencies = async () => {
@@ -55,25 +66,12 @@ useEffect(() => {
  fetchExchangeRates();
  }, [fromCurrency, toCurrency]);
  
- const handlePress=()=>{
-  router.push("\home")
-  console.log("mem")
- }
 
    return (
     <>
     <SafeAreaView className="flex-1">
     <View style={{ flex:1, justifyContent: "center", alignItems: 'center', marginTop: -160}}>
     <View className='self-start ml-5 -mt-5 mb-4'>
-        {/* <TouchableOpacity 
-          onPress={() => { 
-          router.navigate('\home') 
-          }}>          
-          <FeatherIcon
-            color="#000" 
-            name="arrow-left" 
-            size={24} />
-        </TouchableOpacity> */}
         <OnToggleDrawer />
       </View>
       <Image 
@@ -91,28 +89,42 @@ useEffect(() => {
 
         <View className="flex-row mx-10 mt-[50px]">
           <View>
-            <Text className="font-pbold text-xl ml-3">Amount</Text>
-            <TextField 
-              containerStyle="w-40 rounded-xl"
-              value={amount}
-              placeholder={"Enter Amount"}
-              handleTextChange={setAmount}
-              keyType='numeric'
-              currency={fromCurrency}
-              />
-              
+          <View className="flex-row ml-3">
+              <Text className="font-pbold text-xl ">Amount</Text>
+            </View>
+
+              <TextField 
+                containerStyle="w-40 rounded-xl"
+                value={amount}
+                //placeholderStyle={}
+                placeholder={"Enter Amount"}
+                handleTextChange={setAmount}
+                keyType='numeric'
+                currency={fromCurrency}
+                />
+              <Text className='left-[20px] -top-9 text-3xl font-pbold text-[#6b7474]'>{getSymbolFromCurrency(fromCurrency)}</Text>
+
+              <View className="absolute top-1 left-[140px]">
+                <CountryFlag isoCode={getFlagByCode(fromCurrency).toLowerCase().toString()} size={14} />
+              </View>
           </View>     
             <View>   
               <Text className="font-pbold text-xl ml-2">Converted amount</Text>
-              <TextField 
-                containerStyle="w-40 rounded-xl"
-                value={convertCurrency()}
-                placeholder={""}
-                editable={false}
-                //handleTextChange={setAmount}
-                keybsType='numeric'
-                currency={toCurrency}
-            />
+              <View className="flex"> 
+                <TextField 
+                  containerStyle="w-40 rounded-xl"
+                  value={convertCurrency()}
+                  placeholder={""}
+                  editable={false}
+                  //handleTextChange={setAmount}
+                  keybsType='numeric'
+                  currency={toCurrency}
+                />
+                <View className="absolute top-5 left-[135px]">
+                  {console.log(getFlagByCode(toCurrency))}
+                  <CountryFlag isoCode={getFlagByCode(toCurrency).toLowerCase().toString()} size={14} />
+                </View>
+                </View>
            </View>  
         </View>
        
@@ -121,7 +133,7 @@ useEffect(() => {
             selectedValue={fromCurrency}
             onValueChange={(itemValue) => setFromCurrency(itemValue)}>
               {currencies.map((currency, index) => (
-                <Picker.Item key={index} label={currency} value={currency} />
+                  <Picker.Item key={index} label={currency} value={currency} />
               ))}
 
           </Picker>

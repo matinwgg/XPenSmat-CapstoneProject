@@ -1,21 +1,36 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, Modal, Alert, SafeAreaView, ScrollView } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import { 
+  View, 
+  Text, 
+  StyleSheet, 
+  KeyboardAvoidingView, 
+  Platform, 
+  TouchableOpacity,
+  Image, Modal,
+  Alert, 
+  SafeAreaView, 
+  ScrollView, 
+   } from 'react-native';
 import { useGlobalContext } from "../../../../context/GlobalProvider";
 import { Drawer } from 'expo-router/drawer'
 import { DrawerToggleButton } from '@react-navigation/drawer'
 import RBSheet from 'react-native-raw-bottom-sheet';
 import { router } from 'expo-router';
 import FeatherIcon from 'react-native-vector-icons/Feather';
-import FormField from '../../../../components/FormField';
 import CustomButton from '../../../../components/CustomButton';
 import { CountryPicker } from "react-native-country-codes-picker";
-import { alterDetails } from '../../../../lib/appwrite';
+import { alterDetails, getDocumentId } from '../../../../lib/appwrite';
+import InputField from '../../../../components/InputField';
+import { icons } from "../../../../constants";
+
 
 const EditProfileScreen = () => {
-    const { user, setUser, setIsLoggedIn } = useGlobalContext()
+    const { user } = useGlobalContext()
     const sheet = React.useRef();
     const [show, setShow] = useState(false);
+
+   const [editable, setEditable] = useState(false)
+  const [editPress, setEditPress] = useState(false)
 
   const [form, setForm] = useState({
     firstName: "",
@@ -30,34 +45,55 @@ const EditProfileScreen = () => {
   const [phone, setPhone] = useState('');
   const [profileImage, setProfileImage] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false)  
-
+  const [isSubmitting, setIsSubmitting] = useState(false)
   //console.log(form.countryFlag)
 
   const submit = async () => {
-    if (form.email === "" || form.firstName === "" || form.lastName === "" || form.phone === "" || form.countryCode === "") {
+    const documentId = await getDocumentId();
+
+    if ( form.firstName === "" || form.lastName === "" || form.phoneNumber === "" || form.countryCode === "") {
+      //console.log(form.firstName, form.lastName, form.countryCode, form.phoneNumber)
       return Alert.alert("Error", "All entries must be filled")
     }
+    if (form.phoneNumber.length !== 9) {
+      if (form.phoneNumber.length === 10 && form.phoneNumber.startsWith('0')) {
+        setForm({
+          ...form,
+          phoneNumber: form.phoneNumber.substring(1),
+      });
+        //console.log(form.phoneNumber)
+    } else {
+      return Alert.alert("Invalid Phone number", "Phone number input should be exactly 10 digit long")
+    }
+    }
+    setIsSubmitting(true)
+
     try {
-      if (form.email === "") {} 
-        else { await alterDetails.updateEmail(form.email)}
       if (form.firstName === "") {}
-        else { await alterDetails.setFName(form.email)}
+        else { 
+          await alterDetails.setFName(documentId, form.firstName)
+        }
       if (form.lastName === "") {}
-        else { await alterDetails.setLName(form.email)}
+        else { 
+          await alterDetails.setLName(documentId, form.lastName)
+        }
       if (form.phoneNumber === "" || form.countryCode === "") {}
         else { 
           setForm({
             ...form,
             phone: `${form.countryCode}${form.phoneNumber}`,
         });
-        await alterDetails.setPhone(form.phone) }
+        //console.log(form.phone) 
 
-      //return await alterDetails.updateDetail(form.email, form.firstName, form.lastName, form.phone)
+        await alterDetails.setPhone(documentId, form.phone)
+      }
+        setEditPress(false)
+        Alert.alert("Success", "You've successfully altered your details")
     } catch (error) {
       console.log("Appwrite service :: update user details() :: " + error.message);    
+    } finally {
+      setIsSubmitting(false)
     }
-    return;
   }
 
   return (
@@ -70,7 +106,9 @@ const EditProfileScreen = () => {
     }}/>
 
     <SafeAreaView style={styles.container}>
-      
+    <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
       <View style={styles.header} className="gap-x-[90px]">
         <TouchableOpacity onPress={() => router.navigate('/settings')}>
               <FeatherIcon
@@ -78,74 +116,149 @@ const EditProfileScreen = () => {
                 name="arrow-left"
                 size={24} />
           </TouchableOpacity>       
-        <View className="text-center self-center justify-center items-center"><Text style={styles.headerTitle} >Edit profile</Text></View>
+        <View className="flex-row text-center self-center justify-center items-center">
+          <Text style={styles.headerTitle} className="right-3 font-mbold">Edit Profile</Text>
+          <TouchableOpacity 
+            onPress={() => { 
+              //setEditable(true); 
+              setEditPress(!editPress)
+              }} 
+              activeOpacity={0.7}
+              style={{ 
+                left: 85,
+              }}
+            >
+              <FeatherIcon 
+                color="#1F41BB" 
+                name={editPress ? "edit" : "square"} 
+                size={22} 
+                style={{ borderRadius: 40, }} 
+              />
+          </TouchableOpacity>  
+        </View>
       </View>
-      <ScrollView showsVerticalScrollIndicator={false}>
+
+      <ScrollView showsVerticalScrollIndicator={false} className="rounded-xl">
       <View style={styles.profileHeader}>
         <Image
           //source={profileImage ? { uri: "https://icons8.com/icon/98957/user" } : require('./default-avatar.png')}
           source={{ uri: user?.avatar, }}
           style={styles.avatar}
         />
-        <TouchableOpacity style={styles.editIcon} onPress={() => setModalVisible(true)}>
-          <Icon name="camera" size={20} color="#fff" />
-        </TouchableOpacity>
       </View>
 
-      <View className="mx-3" >
-        <View className="flex-row gap-1 mb-5 mr-4">
-          <FormField 
-            containerStyle="w-[50%]"
-            placeholder={'First Name'}
-            value={form.firstName}
-            onChangeText={(e) => setForm({ ...form, firstName: e })}
-            contentType='username'
-            />          
-          <FormField 
-            containerStyle="w-[50%]"
-            placeholder={'Last Name'}
-            value={form.lastName}
-            onChangeText={(e) => setForm({ ...form, lastName: e })}
-            contentType='username'
-            />        
+      {/* <Text className="pl-2 font-pbold text-3xl bg-white text-[#331]">Personal Information</Text> */}
+
+        <View className=" bg-white rounded-lg shadow-sm shadow-neutral-300 px-5 py-3">
+        <View >
+          {/* First name */}
+            <View className="flex">
+              <InputField
+                placeholder={user?.firstName || "First name"}
+                containerStyle="w-full mt-2.5"
+                inputStyle="p-3.5"
+                value={form.firstName}
+                onChangeText={(e) => setForm({ ...form, firstName: e })}
+                editable={editPress}
+              />
+                <FeatherIcon
+                  color={editPress ? "#000" : "#9da0a7"}
+                  name="edit-3"
+                  style={{position:'absolute', right: 12, bottom: 17}}
+                  size={20} 
+                  />
+            </View>
+            {/* Last name */}
+            <View className="flex">
+              <InputField
+                value={form.lastName}
+                placeholder={user?.lastName || "Last name"}
+                onChangeText={(e) => setForm({ ...form, lastName: e })}
+                containerStyle="w-full"
+                inputStyle="p-3.5"
+                editable={editPress}
+              />
+                <FeatherIcon
+                  color={editPress ? "#000" : "#9da0a7"}
+                  name="edit-3"
+                  style={{position:'absolute', right: 12, bottom: 17}}
+                  size={20} 
+                  />
+            </View>
           </View>
 
-          <FormField 
-            containerStyle="w-[100%] mb-5"
-            placeholder={'Email'}
-            value={form.email}
-            onChangeText={(e) => setForm({ ...form, email: e })}
-            contentType='emailAddress'
-            keyType='email-address'
-            />       
+           {/* Username */}
+           <View className="flex">
+              <InputField
+                icon={icons.profile}
+                value={user?.username}
+                //placeholder={"User name"}
+                containerStyle="w-full"
+                inputStyle="text-[#9da0a7]"
+                editable={editable}
+              />
+                {/* <FeatherIcon
+                  color={editPress ? "#000" : "#9da0a7"}
+                  name="edit-3"
+                  style={{position:'absolute', right: 12, bottom: 17}}
+                  size={20} 
+                  /> */}
+            </View>
 
-          <View className="flex-row">
+          {/* Email */}
+          <View className=''>
+            <InputField
+              icon={icons.email}
+              textContentType="emailAddress"
+              value={user?.email}
+              editable={false}
+              inputStyle="text-[#9da0a7]"
+            />
+          </View>
+      
+          {/* Phone Code  */}
+          <View className="flex-row mt-2 mb-20">
+          <View style={{ position: 'relative' }}>
+            <InputField
+              containerStyle="w-[110px] h-[48px] -mt-2 "
+              inputStyle="p-3.5 "
+              value={`${form.countryFlag} ${form.countryCode}`}
+              onChangeText={(e) => setForm({ ...form, countryCode: e})}
+              editable={false} 
+            />
+
             <TouchableOpacity 
               onPress={() => setShow(true)}
               style={{
-                  width: '30%',
-                  height: '40%'
-              }}>
-            <FormField 
-              containerStyle="w-[100px] mb-5"
-              placeholder={''}
-              value={`${form.countryFlag} ${form.countryCode}`}
-              onChangeText={(e) => setForm({ ...form, countryCode: e})}
-              editable={false}
-              label={true}
-              /> 
-            </TouchableOpacity>
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: 'transparent',
+                zIndex: 1, // Ensure it's above the InputField
+              }}
+            />
+          </View>
 
-            <FormField 
-              containerStyle="w-[70%] mb-5 mr-5 ml-1"
-              placeholder={'Phone'}
+            {/* Phone Number Input */}
+            <InputField
+              label="Phone"
+              placeholder={user?.phone.substring(5) || "Phone"}
+              containerStyle="w-[200px] ml-3 -mt-2"
+              inputStyle="p-3.5"
               value={form.phoneNumber}
               onChangeText={(e) => setForm({ ...form, phoneNumber: e })}
-              //contentType='emailAddress'
-              keyType='phone-pad'
-              />
+              editable={editPress}
+              keyType='number-pad'
 
-          
+            />
+            <FeatherIcon
+              color={editPress ? "#000" : "#9da0a7"}
+              name="edit-3"
+              style={{position:'absolute', right: 12, bottom: 17}}
+              size={20} 
+              />
           <CountryPicker
             show={show}
             // when picker button press you will get the country object with dial code
@@ -160,7 +273,8 @@ const EditProfileScreen = () => {
               style={{
                 modal: {
                   height: 600,
-                }
+                  width: '80%'
+                },
               }}
               
             />
@@ -168,14 +282,14 @@ const EditProfileScreen = () => {
         </View>
 
         <CustomButton 
-          title="Save changes"
+          title="Save"
           handlePress={submit}
           containerStyles="mt-5"
           isLoading={isSubmitting}
-          otherStyles="mt-20 mb-[30px]"
+          otherStyles="mt-5 -top-[50px]"
           />
-      </View>
 
+      </View>
       <View>
       <RBSheet
         customStyles={{ 
@@ -211,31 +325,8 @@ const EditProfileScreen = () => {
       </View>
     </RBSheet>
       </View>
-
-      {/* <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Upload Photo</Text>
-            <TouchableOpacity style={styles.modalButton} onPress={handleChoosePhoto}>
-              <Icon name="photo" size={20} color="#000" />
-              <Text style={styles.modalButtonText}>Upload from gallery</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.modalButton} onPress={handleTakePhoto}>
-              <Icon name="camera" size={20} color="#000" />
-              <Text style={styles.modalButtonText}>Take a photo</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.modalCloseButton} onPress={() => setModalVisible(false)}>
-              <Text style={styles.modalCloseButtonText}>Cancel</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal> */}
       </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
     </>
   );
@@ -244,7 +335,7 @@ const EditProfileScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#f5f5f5',
     marginHorizontal: 7
   },
   header: {
@@ -253,19 +344,19 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     marginLeft: 16,
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 23,
+    //fontWeight: 'bold',
   },
   profileHeader: {
     alignItems: 'center',
     paddingVertical: 20,
-    //backgroundColor: '#f5f5f5',
+    backgroundColor: '#fff',
   },
   avatar: {
-    width: 130,
-    height: 130,
+    width: 100,
+    height: 100,
     borderRadius: 70,
-    marginBottom: 30,
+  
   },
   editIcon: {
     position: 'absolute',

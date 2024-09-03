@@ -1,15 +1,15 @@
-import { useEffect, useRef, useState } from 'react';
+import {  useRef, useState } from 'react';
 import { Animated, StyleSheet, Text, TextInput, TouchableOpacity, View, Image, Dimensions } from 'react-native';
 import { icons } from '../constants'
 import Colors from '../constants/colors'
-const { height } = Dimensions.get("window");
+//const { height } = Dimensions.get("window");
 import Spacing from "../constants/spacing";
 
 
 const FormField = ({value, name, onChangeText, containerStyle, placeholder, ...props }) => {
 
   const [isFocused, setIsFocused] = useState(false);
-  const [isBlurred, setIsBlurred] = useState(false);
+  //const [isBlurred, setIsBlurred] = useState(false);
   const [ text, setText] = useState('');
   
   const [showPassword, setShowPassword] = useState(props.secureTextEntry);

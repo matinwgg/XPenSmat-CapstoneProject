@@ -33,7 +33,7 @@ const CustomCalendar = () => {
 
   return (
     <View>
-      <View className="absolute top-2.5 left-2 bg-[#cde] py-0.5 px-2 rounded-lg">
+      <View className="absolute top-5 left-2 bg-[#cde] py-0.5 px-2 rounded-lg">
         <Text 
             style={ { 
                 color: '#006aee', 

@@ -71,7 +71,7 @@ export default function CustomDrawerContent(props) {
 
                 <View className="pb-5 ml-3.5">
                     <Image className="w-[80px] h-[80px] rounded-[50px] self-start " source={images.profile_picture} /> 
-                    <Text className="self-start font-pbold text-[18px] pt-2.5">Matin Odoom</Text>
+                    <Text className="self-start font-pbold text-[18px] pt-2.5"> {user?.firstName.charAt(0).toUpperCase() + user?.firstName.slice(1).toLowerCase()} {user?.lastName.charAt(0).toUpperCase() + user?.lastName.slice(1).toLowerCase()}</Text>
                 </View>
                 <View className="bg-white pt-2.5">
                     <DrawerItemList {...props}/>

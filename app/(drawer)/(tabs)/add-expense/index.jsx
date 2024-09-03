@@ -13,27 +13,26 @@ import {
   Text,
 } from 'react-native';
 import SegmentedControl from "@react-native-segmented-control/segmented-control";
-
-import CustomAlert from '../../../../components/CustomAlert';
-
+import { useGlobalContext } from '../../../../context/GlobalProvider';
 import TextField from '../../../../components/TextField'
 import CustomButton from '../../../../components/CustomButton';
-import { useGlobalContext } from "../../../../context/GlobalProvider";
 
 const AddExpense = () => {
   const sheet = useRef();
-  const { user } = useGlobalContext();
+  const {user } = useGlobalContext()
+
+
   const [transactionType, setTransactionType] = useState("Expense");
   const [showDateBtn, setShowDateBtn] = useState(false)
   const [datePlaceholder, setDatePlaceholder] = useState("Date")
   const [pressed, setPressed] = useState(false);
-
   const [ date, setDate ] = useState(new Date())
-  const [ showPicker, setShowPicker ] = useState(false)
-
+  const [showDropdown, setShowDownDrop] = useState(false)
   const [formReady, setFormReady] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)  
 
+  const [hasTypedExpense, setHasTypedExpense] = useState(false);
+  const [hasTypedIncome, setHasTypedIncome] = useState(false);
 
   const [expenseForm, setExpenseForm] = useState({
     item: "",
@@ -54,28 +53,50 @@ const AddExpense = () => {
     paymentMode: "",
   });
 
+  const handleTextChangeExpense = (e) => {
+    setHasTypedExpense(true);
+    expenseForm.category = categoryValue
+    setExpenseForm((prevForm) => ({ ...prevForm, category: e }));
+
+    if (expenseForm.category !== 'none') {
+      expenseForm.category = ""
+    }
+  };
+
+  const handleTextChangeIncome = (e) => {
+    setHasTypedIncome(true);
+    incomeForm.category = categoryValue
+    setIncomeForm((prevForm) => ({ ...prevForm, category: e }));
+  };
+
+  const isExpenseTab = transactionType === 'Expense';
+  const categoryValue = isExpenseTab ? expenseForm.category : incomeForm.category;
+  const hasTyped = isExpenseTab ? hasTypedExpense : hasTypedIncome;
+
   const submit = async () => {
     const form = transactionType === 'Expense' ? expenseForm : incomeForm;
-
     if (transactionType === 'Expense') {
-      if (form.item === "" || !form.amount || form.category === "" || form.dateOfPurchase === "" || form.paymentMode === "" || form.description === "" || form.type === "") {
-        return Alert.alert("Error", "Please fill in all the fields")
+      form.type = transactionType
+      if (form.item === "" || form.amount === "" || form.category === "" || form.dateOfPurchase === "" || form.paymentMode === "" || form.description === "" || form.type === "") {
+        return Alert.alert("Error", "Please fill in all the fields - Expense")
       }
     } else if (transactionType === 'Income'){
-      if ( !form.amount || form.category === "" || form.dateOfPurchase === "" || form.paymentMode === "" || form.description === "" || form.type === "") {
-        return Alert.alert("Error", "Please fill in all the fields")
+      form.type = transactionType
+      form.item = form.description
+      if (form.item === "" || !form.amount || form.category === "" || form.dateOfPurchase === "" || form.paymentMode === "" || form.description === "" || form.type === "") {
+        return Alert.alert("Error", "Please fill in all the fields - Income")
       }
     }
    
     setIsSubmitting(true)
 
     try {
+
       await upLoadExpense(form.item, form.description, form.category, parseFloat(form.amount), form.type, form.dateOfPurchase, form.paymentMode, user?.$id)
 
-      {{
-        <CustomAlert msg="Success" msg2="You've successfully added to your expense"/>
-      }}
+      Alert.alert("Success", "You've successfully added to your expense")
 
+    
     } catch (error) {
       Alert.alert("Error", error.message)
     } finally {
@@ -141,12 +162,12 @@ const AddExpense = () => {
       </View>
     <ScrollView>
     <View className="">
-      <View className="mx-3 mt-8 rounded-lg">
+      <View className="mx-3 mt-[50px] rounded-lg">
       {transactionType === "Expense" && (
             <>
               <TextField
                 value={expenseForm.item}
-                placeholder='Expense Name'
+                placeholder='Money spent on'
                 placeholderTextColor="#9DA0A7"
                 handleTextChange={(e) => setExpenseForm({...expenseForm, item: e})}
                 otherStyles='mb-5 -mt-2'
@@ -162,12 +183,13 @@ const AddExpense = () => {
           {transactionType === "Income" && (
             <TextField
               value={incomeForm.description}
-              placeholder='Description'
+              placeholder='Source of income'
               placeholderTextColor="#9DA0A7"
               handleTextChange={(e) => setIncomeForm({...incomeForm, description: e})}
             />
           )}
         <View className="flex-row mt-5 mr-5">
+          {/* Amount */}
         <TextField 
               value={transactionType === 'Expense' ? expenseForm.amount : incomeForm.amount}
               placeholder='Amount'
@@ -180,12 +202,14 @@ const AddExpense = () => {
               containerStyle=" w-[50%]"
             />
           <Text className="absolute top-[14px] left-[113px] text-3xl font-pbold text-[#9da0a7] bg-white">GHS</Text>
+          
+          {/* Payment method */}
           <View className="w-[50%] -mt-2.5">
             <DropdownComponent 
               paymentMode
-              placeholder='Payment mode'
-              category={transactionType === 'Expense' ? expenseForm.paymentMode : incomeForm.paymentMode}
-              setCategory={(e) => {
+              placeholder={isExpenseTab ? "Payment mode" : "Received by"}
+              value={transactionType === 'Expense' ? expenseForm.paymentMode : incomeForm.paymentMode}
+              setValue={(e) => {
                 const updatedForm = transactionType === 'Expense' ? {...expenseForm, paymentMode: e} : {...incomeForm, paymentMode: e};
                 transactionType === 'Expense' ? setExpenseForm(updatedForm) : setIncomeForm(updatedForm);
               }}
@@ -241,21 +265,38 @@ const AddExpense = () => {
             transactionsType
             />
           </View> */}
-           {/* Category */}
-        <View className=" mt-4 w-[50%]"> 
-          <DropdownComponent 
-            placeholder='Enter Category'
-            category={transactionType === 'Expense' ? expenseForm.category : incomeForm.category}
-          setCategory={(e) => {
-            const updatedForm = transactionType === 'Expense' ? {...expenseForm, category: e} : {...incomeForm, category: e};
-            transactionType === 'Expense' ? setExpenseForm(updatedForm) : setIncomeForm(updatedForm);
-          }}            
-            Category
+
+        {/* Category */}
+        <View className={`mt-4 w-[50%]`}> 
+        {(categoryValue !== 'none' && !hasTyped) || showDropdown ? (
+          <DropdownComponent
+            Category={transactionType}
+            placeholder={isExpenseTab ? "Category" : "Category"}
+            value={categoryValue}
+            setValue={(e) => {
+              const updatedForm = isExpenseTab ? { ...expenseForm, category: e } : { ...incomeForm, category: e };
+              isExpenseTab ? setExpenseForm(updatedForm) : setIncomeForm(updatedForm);
+            }}
           />
+        ) : (
+          
+          <View>
+              <TextField
+              placeholder={isExpenseTab ? "Spent on" : "Source"}
+              value={categoryValue}
+              onChangeText={isExpenseTab ? handleTextChangeExpense : handleTextChangeIncome}
+              otherStyles='mt-3 -mr-2'
+            />
+            {/* <TouchableOpacity onPress={() => {setShowDownDrop(true)}} className={`items-center justify-center absolute ${pressed ? 'bg-[#f00]' : ''}`}>
+              <Text className=" font-mregular text-base ml-[105px] text-[#1F41BB] mt-4">set date</Text>
+            </TouchableOpacity> */}
+        </View>
+      )}
+
         </View>
          
-      {/* Date Picker IOS */}
-          <View className="flex-row w-[95%] my-6 mt-7 px-1">
+        {/* Date Picker IOS */}
+          <View className={`flex-row w-[95%] my-6 mt-7 px-1`}>
             <TextField
               value={transactionType === 'Expense' ? expenseForm.dateOfPurchase : incomeForm.dateOfPurchase}
               placeholderTextColor="#9DA0A7"

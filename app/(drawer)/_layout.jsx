@@ -1,5 +1,5 @@
 import React from 'react'
-import { ScrollView, Text, View, KeyboardAvoidingView, TouchableOpacity, Image } from 'react-native'
+import { Image } from 'react-native'
 import { icons } from '../../constants'
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Drawer } from 'expo-router/drawer'
@@ -38,10 +38,10 @@ const DrawerLayout = () => {
         }}
       />
 
-    <Drawer.Screen 
-      name="currency-converter"
+<Drawer.Screen 
+      name="all-expense"
       options={{
-        drawerLabel: "Convert currency",
+        drawerLabel: "All transactions",
         headerTitle: "",
         drawerIcon: () => (
           <Image 
@@ -53,11 +53,13 @@ const DrawerLayout = () => {
       }}
       />
 
+    
+
       <Drawer.Screen 
-      name="my-expense"
+      name="statistics"
       options={{
-        drawerLabel: "Stats & Transactions",
-        headerTitle: "Expenses",
+        drawerLabel: "Statistics",
+        headerTitle: "Stats",
         drawerIcon: () => (
             <Image 
             source={icons.wallet} 
@@ -65,6 +67,21 @@ const DrawerLayout = () => {
             className="w-6 h-6"
 
             />
+        )
+      }}
+      />
+
+<Drawer.Screen 
+      name="currency-converter"
+      options={{
+        drawerLabel: "Convert currency",
+        headerTitle: "",
+        drawerIcon: () => (
+          <Image 
+            source={icons.moneychange} 
+            resizeMode='contain'
+            className="w-7 h-7"
+          />
         )
       }}
       />
