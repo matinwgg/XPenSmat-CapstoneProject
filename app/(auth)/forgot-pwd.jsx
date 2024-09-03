@@ -3,26 +3,17 @@ import { Text, View, KeyboardAvoidingView, TouchableOpacity, StyleSheet, Image, 
 import { icons, images } from '../../constants'
 import { Link, router } from 'expo-router';
 import CustomButton from '../../components/CustomButton'
-import RBSheet from 'react-native-raw-bottom-sheet';
 import { recoverPwd } from '../../lib/appwrite';
 import FormField from '../../components/FormField'
 
 const ForgotPwd = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const sheet = useRef();
     const [token, setToken] = useState('');
     const [inputValue, setInputValue] = useState('');
     const [maskedEmailId, setMaskedEmailId] = useState('');
     const [isValidEmail, setIsValidEmail] = useState(false);
     
-    const openSheet = () => {
-      sheet.current?.open();
-    };
-  
-    const closeSheet = () => {
-      sheet.current?.close();
-    };
 
     const submit = async () => {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -57,12 +48,6 @@ const ForgotPwd = () => {
         setIsSubmitting(false)
       }
      
-  }
-
-  const maskInputValue = (inputValue) => {
-      const atIndex = inputValue.indexOf('@');
-      const newValue = inputValue.replace(/^[^@]+/, match => 'x'.repeat(atIndex));
-      setMaskedEmailId(newValue)
   }
 
   return (
@@ -120,82 +105,9 @@ const ForgotPwd = () => {
         </View>
         </ScrollView>
         </KeyboardAvoidingView>
-
-        <View style={styles.container}>
-            <RBSheet
-            height={650}
-            openDuration={180}
-            closeDuration={140}
-            ref={sheet}
-            customModalProps={{
-              animationType: 'slide',
-              statusBarTranslucent: true,
-            }}
-            customStyles={{
-              container: {
-                borderTopLeftRadius: 0,
-                borderTopRightRadius: 20,
-                backgroundColor: '#e6e6e6'
-              }}}>
-
-              <View style={styles.sheetHeader}>
-                  <TouchableOpacity
-                      onPress={closeSheet}
-                      style={[styles.sheetButton]}>
-                      <Image source={icons.close} resize='contain' style={styles.sheetButtonDone} className="h-5 w-5 self-ends" />
-                      {/* <Text style={styles.sheetButtonDone}>Done</Text> */}
-                  </TouchableOpacity>
-              </View>
-
-              <OtpScreen value={maskedEmailId} pattern={token} closeSheet={closeSheet}/>
-
-              <View>
-                <TouchableOpacity onPress={() => recoverPwd.createOtp(inputValue)}>
-                  <Text>Resend code</Text>
-                </TouchableOpacity>
-              </View>
-
-          </RBSheet>
-          </View>
       </View>
 
 );
 }
 
 export default ForgotPwd;
-
-
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    
-  },
-  sheetContent: {
-  },
-  sheetHeader: {
-    height: 40,
-    borderTopLeftRadius: 25,
-    borderTopRightRadius: 0,
-    //borderBottomWidth: 1,
-    borderColor: '#ccc',
-    flexDirection: 'row',
-    alignSelf: 'flex-end',
-    justifyContent: 'space-between',
-  },
-  sheetButton: {
-    height: '100%',
-    paddingHorizontal: 20,
-    alignItems: 'flex-end',
-    alignSelf: 'flex-end',
-    justifyContent: 'flex-end',
-  },
-  sheetButtonDone: {
-    fontSize: 18,
-    color: '#006BFF',
-    fontWeight: '500',
-    alignSelf: 'flex-end'
-  },
-})
-

@@ -45,7 +45,6 @@ const Home = () => {
   const [totalAmount, setTotalAmount] = useState(0);
 
   const [boxWidth, setBoxWidth] = useState(calculateWidth(globalCurrency.currency.length));
-  const [ rateWidth, setRateWidth ] = useState()
 
   useEffect(() => {
     // Calculate the width based on the length of globalCurrency.currency
