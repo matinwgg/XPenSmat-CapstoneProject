@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { Card } from '../../../../components/Transaction';
-import { recoverPwd,  verifyEmail } from '../../../../lib/appwrite';
+import { recoverPwd,  verifyEmail, getAccount } from '../../../../lib/appwrite';
 import { useGlobalContext } from '../../../../context/GlobalProvider';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 
@@ -10,7 +10,9 @@ const VerificationScreen = () => {
   const [subHeading, setSubHeading ] = useState("Will you like to verify your email?")
   const [buttonTitle, setButtonTitle] = useState("Contine")
   const [isLoading, setIsLoading] = useState(false);
-  const { user } = useGlobalContext()
+  const { user, setIsUserVerified } = useGlobalContext()
+  const [showStatus, setShowStatus] = useState(false);
+  const [isVerified, setIsVerified ] = useState(false)
 
   const CheckCircle = () => {
     return (
@@ -22,7 +24,46 @@ const VerificationScreen = () => {
     )
   }
 
-  const handleContinue = () => {
+  const AlertMe = () => {
+    return (
+      <FeatherIcon
+          name="alert-triangle"
+          size={24}
+          //color="#2ecc71"
+        />
+    )
+  }
+
+  const checkVerification = async () => {
+    try {
+        const account = await getAccount(); // Fetch the account details
+        const isVerified = account.emailVerification; // Check if the email is verified
+
+        if (isVerified) {
+            console.log("Email is verified");
+            return true;
+        } else {
+            console.log("Email is not verified");
+            return false;
+        }
+    } catch (error) {
+        console.error("An error occurred while checking verification:", error);
+        return false; // Assume not verified if there's an error
+    }
+};
+
+  useEffect(() => {
+    const verifyUser = async () => {
+        const verified = await checkVerification();
+        setIsVerified(verified);
+        setIsUserVerified(verified)
+    };
+  
+    verifyUser(); // Call the verification check when the component mounts
+  }, []);
+
+
+  const handleContinue = async () => {
     setIsLoading(true)
     if (recoverPwd.isUserVerified()) {
       setHeading("Verified")
@@ -33,21 +74,23 @@ const VerificationScreen = () => {
       return
     }
     try {
-      recoverPwd.SendEmail().then((value) => {
-        if (value) {
-            setHeading("Verification email sent!")
-            setSubHeading("We've sent you a verification link to your email. Tap on it to get verified.")
-            setButtonTitle("OK")
-            setIsLoading(false)
-        } else {
-            setHeading("Oops!")
-            setSubHeading("An Error Occured")
-            setButtonTitle("Try later")
-            setIsLoading(false)
-        }
-        });
+      const value = await verifyEmail(user.email); 
+      if (value) {
+        setHeading("Verification email sent!");
+        setSubHeading("We've sent you a verification link to your email. Tap on it to get verified.");
+        setButtonTitle("OK");
+      } else {
+        setHeading("Oops!");
+        setSubHeading("An error occurred.");
+        setButtonTitle("Try later");
+      }
     } catch (error) {
-    } 
+      setHeading("Oops!");
+      setSubHeading("An error occurred.");
+      setButtonTitle("Try later");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
 

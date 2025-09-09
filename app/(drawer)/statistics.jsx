@@ -115,11 +115,11 @@ const DisplayExpense = () => {
 
           <View style={{ flexDirection: 'row' }}>
             <View className="flex-col mt-6 ml-5">
-              <Text style={{ width: 80, fontSize: 14, color: 'black', marginRight: 10 }}>
-                  Net Spending
+              <Text style={{ width: 83, fontSize: 14, color: 'black', marginRight: 10 }} numberOfLines={1}>
+                  Net Spending:
                 </Text>
-                <Text style={{ width: 80, fontSize: 14, color: 'black', marginRight: 10, paddingTop: 20 }}>
-                  Net Spending
+                <Text style={{ width: 83, fontSize: 14, color: 'black', marginRight: 10, paddingTop: 20 }}>
+                  Net Income:
               </Text>
             </View>
              
@@ -140,8 +140,6 @@ const DisplayExpense = () => {
 
 
 function TransactionSummary({
-  totalIncome,
-  totalExpenses,
   expenseCount, incomeCount
 }) {
   return (
@@ -185,7 +183,7 @@ function HorizontalBarChart({ netSpending, netIncome }) {
     },
     {
       value: netIncome,
-      frontColor: 'green',
+      frontColor: '#20B54B',
       
     },
   ];

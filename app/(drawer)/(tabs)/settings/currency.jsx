@@ -9,21 +9,26 @@ import { alterDetails, getDocumentId } from '../../../../lib/appwrite';
 import { TextField } from '../../../../components';
 
 const Location = () => {
-    const { globalCurrency, setCurrency } = useGlobalContext();
+    const { user, globalCurrency, setCurrency } = useGlobalContext();
     const navigation = useNavigation(); // Get the navigation object
     
-    const [currName, setCurrName] = useState("")
+    const [currName, setCurrName] = useState("currency")
     const [isLoading, setIsLoading] = useState(false)
 
     const submit = async () => {  
       try {
         setIsLoading(true);
         const documentId = await getDocumentId()
-
+    
+        setCurrency({ 
+          ...globalCurrency, 
+          name: globalCurrency.name
+        });
+        
         await alterDetails.setCurrency(documentId, globalCurrency.name);
 
-        //console.log(currName)
-        
+
+
         navigation.goBack(); 
       } catch (error) {
         console.log("Currency", error);
@@ -50,7 +55,7 @@ const Location = () => {
               containerStyle="w-[300px] rounded-xl bg-gray-100 mt-2"
               placeholder={""}
               handleTextChange={(e) => {
-                setCurrName(globalCurrency.currency)
+                setCurrName(globalCurrency.name)
             }}
               locationStyles={{ backgroundColor: "#E5E4E2"}}
               currency={true}

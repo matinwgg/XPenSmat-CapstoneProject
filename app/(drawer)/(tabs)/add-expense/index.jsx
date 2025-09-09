@@ -17,10 +17,10 @@ import { useGlobalContext } from '../../../../context/GlobalProvider';
 import TextField from '../../../../components/TextField'
 import CustomButton from '../../../../components/CustomButton';
 
+// Default function
 const AddExpense = () => {
   const sheet = useRef();
-  const {user } = useGlobalContext()
-
+  const { user, globalCurrency } = useGlobalContext()
 
   const [transactionType, setTransactionType] = useState("Expense");
   const [showDateBtn, setShowDateBtn] = useState(false)
@@ -207,13 +207,13 @@ const AddExpense = () => {
               keyType='decimal-pad'
               containerStyle=" w-[50%]"
             />
-          <Text className="absolute top-[14px] left-[113px] text-3xl font-pbold text-[#9da0a7] bg-white">GHS</Text>
+          <Text className="absolute top-[14px] left-[113px] text-3xl font-pbold text-[#9da0a7] bg-white">{globalCurrency.currency}</Text>
           
           {/* Payment method */}
           <View className="w-[50%] -mt-2.5">
             <DropdownComponent 
               paymentMode
-              placeholder={isExpenseTab ? "Payment mode" : "Received by"}
+              placeholder={isExpenseTab ? "Payment mode" : "Received thr'"}
               value={transactionType === 'Expense' ? expenseForm.paymentMode : incomeForm.paymentMode}
               setValue={(e) => {
                 const updatedForm = transactionType === 'Expense' ? {...expenseForm, paymentMode: e} : {...incomeForm, paymentMode: e};

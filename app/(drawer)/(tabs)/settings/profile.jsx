@@ -6,7 +6,7 @@ import {
   KeyboardAvoidingView, 
   Platform, 
   TouchableOpacity,
-  Image, Modal,
+  Image,
   Alert, 
   SafeAreaView, 
   ScrollView, 
@@ -81,12 +81,10 @@ const EditProfileScreen = () => {
             ...form,
             phone: `${form.countryCode}${form.phoneNumber}`,
         });
+ 
 
-        //console.log(form.phoneNumber) 
-
-       console.log(form.phone)
-
-        await alterDetails.setPhone(documentId, form.phone)
+        await alterDetails.setPhone(documentId, form.phoneNumber)
+        console.log(form.phoneNumber)
       }
         setEditPress(false)
         Alert.alert("Success", "You've successfully altered your details")
@@ -251,7 +249,7 @@ const EditProfileScreen = () => {
             <InputField
               label={"Phone"}
               isFocus={true}
-              placeholder={user?.phone.substring(4)}
+              placeholder={user?.phone}
               containerStyle="w-[200px] ml-3 -mt-2"
               inputStyle="p-3.5"
               value={form.phoneNumber}

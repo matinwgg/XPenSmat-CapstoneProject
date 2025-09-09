@@ -34,7 +34,7 @@ const ForgotPwd = () => {
         if (isValidEmail) {
           await recoverPwd.recovery(inputValue.trim()).then((value) => {
             if (value) {
-              Alert.alert("We've recover mail Sent", "Tap on it to get verfied");
+              Alert.alert("We've sent you a recovery mail", "Tap on it to get verfied");
               //router.replace("/reset-pwd")
             } else {
               Alert.alert("Email not sent")

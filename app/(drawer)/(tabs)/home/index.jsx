@@ -9,18 +9,18 @@ import { useGlobalContext } from '../../../../context/GlobalProvider';
 import { FlatList } from 'react-native-gesture-handler'
 import Expense from '../../../../components/ExpenseItem'
 import EmptyState from '../../../../components/EmptyState'
-import { getRecentPosts, recoverPwd } from '../../../../lib/appwrite'
+import { getRecentPosts, recoverPwd, getAccount } from '../../../../lib/appwrite'
 import useAppwrite from '../../../../lib/useAppwrite'
 import CustomCalendar from '../../../../components/CustomCalendar'
 import { router } from 'expo-router'
 import NetInfo from '@react-native-community/netinfo';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 
-
-const calculateWidth = (length) => {
-  const baseWidth = 300; // Base width for a short currency name
-  const additionalWidthPerChar = 10; // Additional width per character
-  return baseWidth + (length * additionalWidthPerChar);
+const calculateBoxWidth = (amountLength) => {
+  const baseWidth = 50; // Base width for up to 6 characters
+  const additionalWidth = 10; // Additional width per character beyond 6
+  const extraChars = amountLength > 6 ? amountLength - 6 : 0; // Calculate extra characters
+  return `${baseWidth + extraChars * additionalWidth}%`;
 };
 
 const Home = () => {
@@ -29,7 +29,7 @@ const Home = () => {
   const [isConnected, setIsConnected] = useState(null);
   const [strength, setStrength] = useState('');
 
-  const { user, globalCurrency } = useGlobalContext()
+  const { user, globalCurrency, setIsUserVerified  } = useGlobalContext()
   const [transactionCount, setTransactionCount] = useState(0);
 
   const { data: recentPosts, refetch } = useAppwrite({
@@ -43,23 +43,53 @@ const Home = () => {
   
   const [exchangeRate, setExchangeRate] = useState('0');
   const [totalAmount, setTotalAmount] = useState(0);
+  const [isVerified, setIsVerified ] = useState(false)
 
-  const [boxWidth, setBoxWidth] = useState(calculateWidth(globalCurrency.currency.length));
+  const [boxWidth, setBoxWidth] = useState(calculateBoxWidth(totalAmount.toString().length));
 
   useEffect(() => {
-    // Calculate the width based on the length of globalCurrency.currency
-    const newWidth = calculateWidth(globalCurrency.currency.length);
+    // Recalculate the box width whenever totalAmount changes
+    const newWidth = calculateBoxWidth(totalAmount.toString().length);
     setBoxWidth(newWidth);
-  }, [globalCurrency.currency]);
+  }, [totalAmount]);
+
+  
+
+
+  const checkVerification = async () => {
+    try {
+        const account = await getAccount(); // Fetch the account details
+        const isVerified = account.emailVerification; // Check if the email is verified
+
+        if (isVerified) {
+            console.log("Email is verified");
+            return true;
+        } else {
+            console.log("Email is not verified");
+            return false;
+        }
+    } catch (error) {
+        console.error("An error occurred while checking verification:", error);
+        return false; // Assume not verified if there's an error
+    }
+};
+
+useEffect(() => {
+  const verifyUser = async () => {
+      const verified = await checkVerification();
+      setIsVerified(verified);
+      setIsUserVerified(verified)
+  };
+
+  verifyUser(); // Call the verification check when the component mounts
+}, []);
+
 
 
   const convertCurrency = () => {
     const result = (1 * exchangeRate).toFixed(2);
     return result;
   };
-
-  //console.log(user?.email)
-  //console.log(typeof(recoverPwd.isUserVerified()))
 
   const [showStatus, setShowStatus] = useState(false);
 
@@ -177,7 +207,7 @@ const Home = () => {
               onPress={handlePress}
             >   
               <View style={[showStatus && {marginTop: -10}]}>
-                {recoverPwd.isUserVerified ? (
+                {isVerified ? (
                   <>
                     <FeatherIcon color={"#2ecc71"} name={"user-check"} size={28} />  
                     {showStatus && (
@@ -190,7 +220,7 @@ const Home = () => {
                           paddingHorizontal: 3.5, 
                           paddingVertical: 3, 
                           borderColor: '#2ecc71' }}>
-                       Not Verified
+                       Verified
                      </Text> 
                     )}            
                               
@@ -217,7 +247,7 @@ const Home = () => {
             <View style={
                 [styles.summaryBox, 
                   styles.activeSummaryBox,
-                  { width: `${Math.min(43 + totalAmount.toString().length * 2, 100)}%`}
+                  { width:boxWidth}
                  ]} 
               className={`-ml-[3px] w-[50%]`}>
 
@@ -225,18 +255,26 @@ const Home = () => {
                 <Ionicons name="card-outline" size={26} color="#FFF" className=""/>
                 <Text className="relative font-mbold text-3xl text-white -right-6">{globalCurrency.currency}</Text>
               </View>
-              <View className="flex-row gap-4">
-                <Text style={[styles.summaryText, styles.activeSummaryText, {  }]}>Total{'\n'}Expense </Text>
-                <Text style={[styles.summaryAmount, styles.activeSummaryAmount]} 
-                  className="absolute top-4 left-[70px]" 
-                  numberOfLines={1}>{totalAmount.toFixed(2)}</Text>
-              </View>
+              <View className="flex-row justify-between">
+                <View className="flex-row w-[35%] mt-3">
+                  <Text style={[styles.summaryText, styles.activeSummaryText]} className="self-start">
+                    Total Expense
+                  </Text>
+                </View>
 
+                <Text
+                  style={[styles.summaryAmount, styles.activeSummaryAmount, { textAlign: 'right' }]}
+                  className="flex-1 text-right self-end justify-end"
+                  numberOfLines={1}
+                >
+                   {totalAmount.toFixed(2)}
+                </Text>
+              </View>
             </View>
 
             <View style={[styles.summaryBox]}>
               <Ionicons name="cash-outline" size={24} color="#000" />
-              <Text style={styles.summaryText}>Exchange Rate</Text>
+              <Text style={styles.summaryText} className="mt-3">Exchange Rate</Text>
               <Text style={styles.summaryAmount}>1 USD = GHS {convertCurrency()}</Text>
             </View>
 
@@ -312,16 +350,13 @@ activeSummaryBox: {
   backgroundColor: '#0161C7',
 },
 summaryText: {
-  marginTop: 10,
   fontSize: 16,
-  paddingTop: 7,
   color: '#000',
 },
 activeSummaryText: {
   color: '#FFF',
 },
 summaryAmount: {
-  marginTop: 5,
   fontSize: 18,
   fontWeight: 'bold',
   color: '#000',

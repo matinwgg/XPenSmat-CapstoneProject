@@ -15,7 +15,7 @@ export const ReportBugContent = () => {
         1. Provide a Brief Description: Describe the issue you’re facing in as much detail as possible. Include any error messages you see and the steps you took before the bug occurred.
       </Text>
       <Text style={styles.paragraph}>
-        2. Include Reproduction Steps: If possible, provide a clear set of steps to reproduce the issue. This helps us understand the problem and work on a fix more efficiently.
+        2. Include Reproduction Steps: If possible, provide a clear set of steps to reproduce the issue. This helps us understand the problem and work on a fix more efficiently.🛠
       </Text>
       <Text style={styles.paragraph}>
         3. Attach Screenshots or Videos: 
@@ -52,7 +52,7 @@ export const ContactContent = () => {
         Company Name:{"\n"}TechWgg Innovators Inc.
       </Text>
       <Text style={styles.paragraph}>
-        Address:{"\n"}1234 Innovation Drive, Tema Comm 5, Greater Accra, Ghana
+        Address:{"\n"}1234 Innovation Drive, Tema Comm 5, Greater Accra, Ghana🌆
       </Text>
       <Text style={styles.paragraph}>
         Email:{"\n"}support@techwgg.com📩

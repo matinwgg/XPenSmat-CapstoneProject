@@ -8,13 +8,14 @@ const GlobalProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  
+  const [isUserVerified, setIsUserVerified ] = useState(false)
+
  const [ city, setCity ] = useState("city")
  const [ country, setCountry ] = useState("country")
 
   const [ globalCurrency, setCurrency] = useState({
     name: 'currency',
-    symbol: '$',
+    symbol: '',
     currency: 'GHS'
   });
 
@@ -50,7 +51,9 @@ const GlobalProvider = ({ children }) => {
         country,
         setCountry,
         globalCurrency,
-        setCurrency
+        setCurrency,
+        isUserVerified,
+        setIsUserVerified,
       }}
     >
       {children}

@@ -12,8 +12,8 @@
   } from 'react-native';
   import FeatherIcon from 'react-native-vector-icons/Feather';
   import { router } from "expo-router";
-  import { signOut } from "../../../../lib/appwrite";
-  import { useGlobalContext } from "../../../../context/GlobalProvider";
+  import { signOut, alterDetails, getDocumentId  } from "../../../../lib/appwrite";
+  import { useGlobalContext, isUserVerified } from "../../../../context/GlobalProvider";
   import { Drawer } from 'expo-router/drawer'
   import { DrawerToggleButton } from '@react-navigation/drawer'
   import React, { useState, useEffect } from 'react';
@@ -25,10 +25,9 @@
       pushNotifications: false,
   })
 
-  const { user, setUser, setIsLoggedIn, city, country } = useGlobalContext()
+  const { user, setUser, setIsLoggedIn, city, country, globalCurrency } = useGlobalContext()
   const [isSubmitting, setIsSubmitting] = useState(false);
 
- 
   const logout = async () => {
     setIsSubmitting(true)
     try {
@@ -42,6 +41,7 @@
       setIsSubmitting(false)
     }
   };
+
   
     return (
       <>
@@ -118,13 +118,17 @@
           {/* Set currency */}
           <View style={styles.rowWrapper}>
             <TouchableOpacity
-              onPress={() => router.push("/settings/currency") }
+              onPress={ 
+                async () => {
+                router.push("/settings/currency")
+              }
+            }
             style={styles.row}>
             <Text style={styles.rowLabel}>Currency</Text>
 
             <View style={styles.rowSpacer} />
 
-            <Text style={styles.rowValue}>{user?.currency}</Text>
+            <Text style={styles.rowValue}>{globalCurrency.name}</Text>
 
               <FeatherIcon
                 color="#bcbcbc"
@@ -182,7 +186,7 @@
 
               <Text style={styles.rowLabel}>Account Verification status</Text>
               <View style={styles.rowSpacer} />
-              <Text style={styles.rowValue}>verified</Text>
+              <Text style={styles.rowValue}>{isUserVerified ? "verified": "not verified"}</Text>
 
               <FeatherIcon
                 color="#bcbcbc"

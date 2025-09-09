@@ -6,15 +6,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { signOut } from "../lib/appwrite";
 import { useGlobalContext } from "../context/GlobalProvider";
 import FeatherIcon from 'react-native-vector-icons/Feather';
-import { useRef } from 'react';
-import RBSheet from 'react-native-raw-bottom-sheet';
-import data from '../constants/list.json';
 
 export default function CustomDrawerContent(props) {
     const route = useRouter();
     const { user, setUser, setIsLoggedIn } = useGlobalContext();
     const { bottom } = useSafeAreaInsets();
-    const sheetRef = useRef();
 
     const logout = async () => {
         await signOut();
@@ -32,21 +28,29 @@ export default function CustomDrawerContent(props) {
             contentContainerStyle={{backgroundColor: ' #ACE1AF', paddingTop: 70}}
             >
 
-                <View className="pb-5 ml-3.5">
+                <View className="mb-5 ml-3.5">
                     <Image 
                         className="w-[80px] h-[80px] rounded-[50px] self-start " 
                         source={images.profile_picture} /> 
-                    <Text 
-                        className="self-start font-pbold text-[18px] pt-2.5"> {user?.firstName.charAt(0).toUpperCase() + user?.firstName.slice(1).toLowerCase()} {user?.lastName.charAt(0).toUpperCase() + user?.lastName.slice(1).toLowerCase()}</Text>
+                    <Text className="pt-5 font-psemibold">
+                    {user?.firstName 
+                        ? user.firstName.charAt(0).toUpperCase() + user.firstName.slice(1).toLowerCase()
+                        : 'First name'}
+                        {' '}
+                        {user?.lastName 
+                            ? user.lastName.charAt(0).toUpperCase() + user.lastName.slice(1).toLowerCase()
+                        : 'Last name'}
+                    </Text>
                 </View>
                 <View 
                     className="bg-white pt-2.5">
                     <DrawerItemList {...props}/>
                     <DrawerItem label={''} onPress={() => route.replace('(drawer)/(auth)/sign-in')} />
                 </View>
+                
                 <TouchableOpacity 
                     onPress={() => router.navigate('(drawer)/(tabs)/settings/profile')} 
-                    className="flex-row ml-4 -mt-8">
+                    className="flex-row ml-4 -mt-[84px] bg-white max-w-full">
                     <Image 
                         source={icons.profile_} 
                         resizeMode='contain'
@@ -79,7 +83,7 @@ export default function CustomDrawerContent(props) {
                         size={28} />                    
                     <Text className=" text-[20px] font-pregular ml-3">Share with a friend</Text>
                 </TouchableOpacity> */}
-                <TouchableOpacity onPress={() => {}} className="flex-row items-center -ml-6  ">
+                <TouchableOpacity onPress={logout} className="flex-row items-center -ml-6  ">
                     <FeatherIcon
                         color="#2b64e3"
                         name="log-out"

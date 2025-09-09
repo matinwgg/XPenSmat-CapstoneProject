@@ -37,7 +37,7 @@ const DisplayExpense = () => {
       // Filter posts to include only those with type 'Expenses'
       const expenseItems = posts.filter(item => item.type === 'Expense');
 
-  
+      
       // Sum up the ItemAmount of filtered items
       expenseItems.forEach(item => {
         total += item.ItemAmount;
@@ -50,7 +50,6 @@ const DisplayExpense = () => {
     }
   }, [posts]);
   
-
 
   const groupByCategory = (expenses) => {
     if (!expenses || expenses.length === 0) {
@@ -142,7 +141,7 @@ const groupedExpenses = groupByCategory(posts);
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
           <View>
             <Text style={{ color: 'gray' }}>Overall Expense</Text>
-            <Text style={{ fontWeight: 'bold', fontSize: 28 }}>{globalCurrency.symbol} {totalAmount.toFixed(2)}</Text>
+            <Text style={{ fontWeight: 'bold', fontSize: 28 }}>{globalCurrency.currency} {totalAmount.toFixed(2)}</Text>
           </View>
           <TouchableOpacity activeOpacity={0.8} onPress={() => {}}>
             <SymbolView

@@ -8,7 +8,7 @@ import InputField from '../../../../components/InputField';
 import { alterDetails, getDocumentId } from '../../../../lib/appwrite';
 
 const Location = () => {
-    const { setCity, setCountry } = useGlobalContext();
+    const { setCity, setCountry, setUser } = useGlobalContext();
     const [isLoading, setIsLoading] = useState(false)
     const navigation = useNavigation(); // Get the navigation object
 
@@ -24,6 +24,12 @@ const Location = () => {
 
           setCity(field.city)
           setCountry(field.country)
+
+          setUser(prevUser => ({
+            ...prevUser,
+            city: field.city,
+            country: field.country
+          }));
   
           await alterDetails.setCity(documentId, field.city)
           await alterDetails.setCountry(documentId, field.country)

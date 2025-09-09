@@ -6,7 +6,7 @@ import { currencyData } from './currencyData';
 import { useGlobalContext } from '../context/GlobalProvider';
 
 const CurrencyPicker = () => {
-  const { setCurrency } = useGlobalContext();
+  const { user, setUser, setCurrency } = useGlobalContext();
 
   const [selectedCurrency, setSelectedCurrency] = useState('');
   const [currencies, setCurrencies] = useState([]);
@@ -27,6 +27,7 @@ const CurrencyPicker = () => {
         symbol: symbol,
         currency: selectedCurrency
       });
+
     }
   }, [selectedCurrency, setCurrency]);
 

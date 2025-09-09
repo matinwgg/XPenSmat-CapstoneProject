@@ -4,14 +4,10 @@ import {
   View,
 } from 'react-native';
 import { router } from 'expo-router';
-import { useNavigation } from '@react-navigation/native';
-
 
 const Profile = () => {
-  //const navigation = useNavigation();
 
   useEffect(() => {
-    //navigation.navigate('(tabs)/settings/profile');
     router.navigate("(tabs)/settings/profile")
 
   }, [])

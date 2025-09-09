@@ -34,7 +34,7 @@ useEffect(() => {
   const fetchCurrencies = async () => {
    try {
      const response = await fetch(
-       'https://v6.exchangerate-api.com/v6/0e6303693a5b845f4814341f/latest/USD' //api
+       `https://v6.exchangerate-api.com/v6/0e6303693a5b845f4814341f/latest/USD` //api
       );
 
       const data = await response.json();
@@ -53,7 +53,7 @@ useEffect(() => {
   const fetchExchangeRates = async () => {
    try {
      const response = await fetch(
-       'https://v6.exchangerate-api.com/v6/0e6303693a5b845f4814341f/latest/${fromCurrency}'
+       `https://v6.exchangerate-api.com/v6/0e6303693a5b845f4814341f/latest/${fromCurrency}`
       );
 
       const data = await response.json();
@@ -119,7 +119,6 @@ useEffect(() => {
                   currency={toCurrency}
                 />
                 <View className="absolute top-5 left-[135px]">
-                  {console.log(getFlagByCode(toCurrency))}
                   <CountryFlag isoCode={getFlagByCode(toCurrency).toLowerCase().toString()} size={14} />
                 </View>
                 </View>
