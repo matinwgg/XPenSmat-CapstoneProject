@@ -1,0 +1,11 @@
+pandas
+numpy
+scikit-learn
+xgboost
+tensorflow-privacy
+matplotlib
+seaborn
+jupyter
+flask
+flask-restful
+pydantic<2

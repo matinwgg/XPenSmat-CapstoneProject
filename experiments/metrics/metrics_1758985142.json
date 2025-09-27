@@ -1,0 +1,7 @@
+{
+  "rmse": 44.91444639664601,
+  "mae": 17.160911560058594,
+  "r2": 0.9074053168296814,
+  "model_path": "experiments\\models\\xgb_model.joblib",
+  "dataset": "C:\\Users\\LAPTOP\\Desktop\\XPenSmat-CapstoneProject-main\\ml\\data\\raw\\student_expense_data.csv"
+}

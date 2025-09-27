@@ -1,0 +1,26 @@
+version: '3.9'
+
+services:
+  xpen_backend:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - APPWRITE_ENDPOINT=${APPWRITE_ENDPOINT}
+      - APPWRITE_API_KEY=${APPWRITE_API_KEY}
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: xpen
+      POSTGRES_PASSWORD: xpen_password
+      POSTGRES_DB: xpen_db
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:

@@ -1,0 +1,5 @@
+data/raw/*
+data/processed/*
+experiments/*
+!data/raw/sample.csv          # allow a tiny demo file
+!data/processed/sample.parquet  # allow a tiny demo file

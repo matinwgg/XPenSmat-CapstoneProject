@@ -1,0 +1,10 @@
+pandas>=1.5
+numpy>=1.24
+scikit-learn>=1.2
+xgboost>=1.7
+joblib>=1.2
+matplotlib>=3.6
+seaborn>=0.12
+# Optional / heavy - install only if you intend to run DP-NN experiments
+tensorflow>=2.11 ; python_version >= "3.8"
+tensorflow-privacy>=0.8.0 ; python_version >= "3.8"
