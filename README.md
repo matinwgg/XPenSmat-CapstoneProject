@@ -1,4 +1,4 @@
-# XPenSmat (app layer)
+# XPenSmat
 
 This package contains the runtime/application layer of XPenSmat:
 - ingestion (SMS, bank),
