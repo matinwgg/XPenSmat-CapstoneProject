@@ -6,12 +6,13 @@ build-backend = "setuptools.build_meta"
 name = "xpensmat"
 version = "0.1.0"
 description = "Smart Student Expense Predictive System"
-authors = [{ name="Your Name", email="you@example.com" }]
+authors = [{ name="Abdul-Matin Odoom" }]
+requires-python = ">=3.11"
 dependencies = [
-    "pydantic-settings",
-    # add all your runtime dependencies here, e.g.
-    # "pandas", "scikit-learn", ...
+    "pydantic-settings>=2.0",
+    "pycryptodome>=3.20",
+    "argon2-cffi>=23.1",
 ]
 
-[tool.setuptools]
-packages = ["xpensmat"]
+[tool.setuptools.packages.find]
+include = ["xpensmat*"]
