@@ -8,16 +8,70 @@ import {
     OAuthProvider, 
 } from 'react-native-appwrite';
 import { Alert } from 'react-native';
+import Constants from 'expo-constants';
+import * as Linking from 'expo-linking';
+
+const extra = Constants.expoConfig?.extra ?? {};
+
+const envValue = (name, fallback) => process.env[name] ?? fallback;
+const requiredValue = (name, value) => {
+    if (!value) {
+        throw new Error(
+            `Missing ${name}. Copy .env.example to .env and configure Appwrite.`
+        );
+    }
+    return value;
+};
 
 export const config = {
-    endpoint: 'https://cloud.appwrite.io/v1',
-    platform:'com.wgg.aora',
-    projectId: '6683dcb7003b64e8be7c',
-    databaseId: '6683deb50023c056b0da',
-    userCollectionId: '6683dfc40024b422379f',
-    expenseCollectionId: '6683e02e001c9e71821a',
-    storageId: '66847bad001853c5e8b6',
-}
+    endpoint: requiredValue(
+        'EXPO_PUBLIC_APPWRITE_ENDPOINT',
+        envValue('EXPO_PUBLIC_APPWRITE_ENDPOINT', extra.appwriteEndpoint)
+    ),
+    platform: envValue(
+        'EXPO_PUBLIC_APPWRITE_PLATFORM',
+        extra.appwritePlatform ?? 'com.xpensmat.app'
+    ),
+    projectId: requiredValue(
+        'EXPO_PUBLIC_APPWRITE_PROJECT_ID',
+        envValue('EXPO_PUBLIC_APPWRITE_PROJECT_ID', extra.appwriteProjectId)
+    ),
+    databaseId: requiredValue(
+        'EXPO_PUBLIC_APPWRITE_DATABASE_ID',
+        envValue('EXPO_PUBLIC_APPWRITE_DATABASE_ID', extra.appwriteDatabaseId)
+    ),
+    userCollectionId: requiredValue(
+        'EXPO_PUBLIC_APPWRITE_USER_COLLECTION_ID',
+        envValue(
+            'EXPO_PUBLIC_APPWRITE_USER_COLLECTION_ID',
+            extra.appwriteUserCollectionId
+        )
+    ),
+    expenseCollectionId: requiredValue(
+        'EXPO_PUBLIC_APPWRITE_EXPENSE_COLLECTION_ID',
+        envValue(
+            'EXPO_PUBLIC_APPWRITE_EXPENSE_COLLECTION_ID',
+            extra.appwriteExpenseCollectionId
+        )
+    ),
+    storageId: envValue(
+        'EXPO_PUBLIC_APPWRITE_STORAGE_ID',
+        extra.appwriteStorageId
+    ),
+};
+
+const oauthRedirect = envValue(
+    'EXPO_PUBLIC_OAUTH_REDIRECT',
+    Linking.createURL('auth/callback')
+);
+const verifyUrl = envValue(
+    'EXPO_PUBLIC_VERIFY_URL',
+    Linking.createURL('verify')
+);
+const recoveryUrl = envValue(
+    'EXPO_PUBLIC_RECOVERY_URL',
+    Linking.createURL('recovery')
+);
 
 const {
     endpoint,
@@ -75,10 +129,10 @@ client
  }
 
   // Verify new user
-  export const verifyEmail = async (email) => {
+  export const verifyEmail = async () => {
     try{
-       await account.createVerification(email);
-        Alert.alert( "Verification email sent!", "We've sent you a verification link to your email. Tap on it to get verfied.")
+       await account.createVerification(verifyUrl);
+        Alert.alert( "Verification email sent!", "We've sent you a verification link to your email. Tap on it to get verified.")
     }
     catch(error){
         console.log("Error sending verification email: ", error); // Failure
@@ -169,14 +223,13 @@ export async function signOut() {
  export const getPostsStats = async (creatorId) => {
     try {
         const allExpenses = await databases.listDocuments(
-            databaseId,
+            config.databaseId,
             config.expenseCollectionId,
-            [Query.equal('creator', [creatorId])],
-            {
-                orderField: 'date',
-                orderType: 'DESC',
-                limit: 30,
-            }
+            [
+                Query.equal('creator', [creatorId]),
+                Query.orderDesc('date'),
+                Query.limit(30),
+            ]
         )
         return allExpenses.documents;
     } catch (error) {
@@ -188,19 +241,28 @@ export async function signOut() {
  // Get posts expense stats
  export const getExpStats = async (creatorId) => {
     try {
+        const now = new Date();
+        const startOfMonthTimestamp = new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            1
+        ).toISOString();
+        const endOfMonthTimestamp = new Date(
+            now.getFullYear(),
+            now.getMonth() + 1,
+            0,
+            23,
+            59,
+            59
+        ).toISOString();
         const allExpenses = await databases.listDocuments(
-            databaseId,
+            config.databaseId,
             config.expenseCollectionId,
-            [Query.equal('creator', [creatorId]), ],
             [
-                {
-                  key: 'date',
-                  range: {
-                    start: startOfMonthTimestamp,
-                    end: endOfMonthTimestamp,
-                  },
-                },
-              ]
+                Query.equal('creator', [creatorId]),
+                Query.greaterThanEqual('date', startOfMonthTimestamp),
+                Query.lessThanEqual('date', endOfMonthTimestamp),
+            ]
         )
         return allExpenses.documents;
     } catch (error) {
@@ -235,9 +297,13 @@ export async function signOut() {
  export const getRecentPosts = async (creatorId) => {
     try {
         const recentExpenses = await databases.listDocuments(
-            databaseId,
+            config.databaseId,
             config.expenseCollectionId,
-            [Query.equal('creator', [creatorId]), Query.orderDesc('$createdAt', Query.limit(7))]
+            [
+                Query.equal('creator', [creatorId]),
+                Query.orderDesc('$createdAt'),
+                Query.limit(7),
+            ]
         )
         return recentExpenses.documents;
     } catch (error) {
@@ -369,7 +435,7 @@ export async function searchPosts(query) {
       const posts = await databases.listDocuments(
         config.databaseId,
         config.expenseCollectionId,
-        [Query.search("category", [query])]
+        [Query.search("category", query)]
       );
   
       if (!posts) throw new Error("Something went wrong");
@@ -419,7 +485,7 @@ export const recoverPwd = {
     },
     SendEmail: async () => {
         try {
-            await account.createVerification("http://node-server-production-4be3.up.railway.app/verify")
+            await account.createVerification(verifyUrl)
             return true;
         } catch (error) {
             return false 
@@ -428,7 +494,7 @@ export const recoverPwd = {
     },
     recovery: async (email) => {
         try {
-            await account.createRecovery(email, 'http://node-server-production-4be3.up.railway.app/recovery');
+            await account.createRecovery(email, recoveryUrl);
             return true;
         } catch (error) {
             return false
@@ -445,7 +511,8 @@ export const recoverPwd = {
     try {
         const result = account.createOAuth2Session(
             OAuthProvider.Google,
-            'http://node-server-production-4be3.up.railway.app/sign-in-with-google',
+            oauthRedirect,
+            oauthRedirect,
             ["profile", "email"]
         )
         console.log(result)
@@ -459,13 +526,16 @@ export const recoverPwd = {
 export const SignInWithGitHub = async () => {
     try {
         const result = account.createOAuth2Session(
-            OAuthProvider.Github, 
-            'https://node-server-production-4be3.up.railway.app/sign-in-with-github',
+            OAuthProvider.Github,
+            oauthRedirect,
+            oauthRedirect,
             ["repo", 'user']
         )
         console.log(result)
+        return true;
     } catch (error) {
-        throw new Error(error)
+        console.log(error)
+        return false;
     }
 }
 

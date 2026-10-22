@@ -86,7 +86,7 @@ export const TermsPrivacyContent = () => {
           <View style={styles.container}>
       <Text style={styles.paragraph}>Effective Date: November 1, 2024</Text>
       <Text style={styles.paragraph}>
-        1. Acceptance of Terms: {"\n"}By using Aora, you agree to these Terms of Service. If you do not agree, please do not use our app.
+        1. Acceptance of Terms: {"\n"}By using XPenSmat, you agree to these Terms of Service. If you do not agree, please do not use our app.
       </Text>
       <Text style={styles.paragraph}>
         2. Changes to Terms: {"\n"}We may update these Terms from time to time. We will notify you of any changes by posting the new Terms on our website. Your continued use of the app constitutes acceptance of the updated Terms.

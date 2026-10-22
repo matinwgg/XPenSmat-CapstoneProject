@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "Aora",
-    "scheme": "aora",
-    "slug": "aora",
+    "name": "XPenSmat",
+    "scheme": "xpensmat",
+    "slug": "xpensmat",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -14,7 +14,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.wgg.aora",
+      "bundleIdentifier": "com.xpensmat.app",
       "runtimeVersion": {
         "policy": "appVersion"
       }
@@ -24,7 +24,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.wgg.aora",
+      "package": "com.xpensmat.app",
       "runtimeVersion": "1.0.0"
     },
     "web": {
@@ -38,13 +38,7 @@
     "extra": {
       "router": {
         "origin": false
-      },
-      "eas": {
-        "projectId": "2665e62c-651a-47a1-9c8b-ce29ec4769ce"
       }
-    },
-    "updates": {
-      "url": "https://u.expo.dev/2665e62c-651a-47a1-9c8b-ce29ec4769ce"
     }
   }
 }
