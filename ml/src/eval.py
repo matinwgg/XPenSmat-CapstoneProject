@@ -1,12 +1,15 @@
-"""
-Evaluation utilities for trained models.
-"""
+"""Evaluation utilities for trained models."""
 
-from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+from __future__ import annotations
+
 import numpy as np
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
-def regression_metrics(y_true, y_pred):
-    rmse = mean_squared_error(y_true, y_pred, squared=False)
-    mae = mean_absolute_error(y_true, y_pred)
-    r2 = r2_score(y_true, y_pred)
-    return {"rmse": float(rmse), "mae": float(mae), "r2": float(r2)}
+
+def regression_metrics(y_true, y_pred) -> dict[str, float]:
+    mse = mean_squared_error(y_true, y_pred)
+    return {
+        "rmse": float(np.sqrt(mse)),
+        "mae": float(mean_absolute_error(y_true, y_pred)),
+        "r2": float(r2_score(y_true, y_pred)),
+    }

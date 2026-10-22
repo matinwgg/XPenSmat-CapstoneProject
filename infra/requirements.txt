@@ -1,11 +1,6 @@
-pandas
-numpy
-scikit-learn
-xgboost
-tensorflow-privacy
-matplotlib
-seaborn
-jupyter
-flask
-flask-restful
-pydantic<2
+# Deprecated: dependencies are declared in ../pyproject.toml.
+#
+# From the repository root:
+#   pip install -e ".[api,export]"
+#
+# The ML research environment is described in ../ml/requirements.txt.

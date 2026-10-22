@@ -1,32 +1,110 @@
-# xpensmat/core/security.py
-"""
-Simple crypto helpers and key management.
+"""Cryptographic helpers for protecting local XPenSmat data.
 
-Notes:
-- This file uses Python's built-in libraries for simple symmetric encryption examples.
-- For production use, use libs like cryptography + secure key storage (OS keystore/hardware).
+This module provides authenticated encryption with AES-256-GCM. Password
+processing uses a memory-hard KDF; callers must persist the generated salt
+alongside ciphertext metadata and must never reuse a static salt.
 """
-import os
-from hashlib import sha256
-from base64 import b64encode, b64decode
-from Crypto.Cipher import AES
-from Crypto.Random import get_random_bytes
+
+from __future__ import annotations
+
+import base64
+
+# PyCryptodome exposes the maintained ``Crypto`` namespace; Bandit's B413
+# check targets the unmaintained pyCrypto package.
+from Crypto.Cipher import AES  # nosec B413
+from Crypto.Protocol.KDF import scrypt  # nosec B413
+from Crypto.Random import get_random_bytes  # nosec B413
+
+SALT_SIZE = 16
+NONCE_SIZE = 12
+KEY_SIZE = 32
+TAG_SIZE = 16
+MIN_BLOB_SIZE = NONCE_SIZE + TAG_SIZE
+MAX_PLAINTEXT_SIZE = 16 * 1024 * 1024
+
+
+class CryptoError(ValueError):
+    """Raised when cryptographic input is malformed or authentication fails."""
+
 
 def derive_key_from_passphrase(passphrase: str, salt: bytes | None = None) -> bytes:
+    """Derive an AES-256 key using scrypt.
+
+    A fresh random salt is generated when one is not supplied. The salt is
+    not secret and must be stored with the encrypted record by the caller.
+    """
+    if not isinstance(passphrase, str) or not passphrase:
+        raise CryptoError("passphrase must be a non-empty string")
+    if len(passphrase) < 12:
+        raise CryptoError("passphrase must contain at least 12 characters")
     if salt is None:
-        salt = b"xpensmat_salt"
-    h = sha256(passphrase.encode() + salt).digest()
-    return h  # 32 bytes AES-256 key
+        salt = get_random_bytes(SALT_SIZE)
+    if not isinstance(salt, bytes) or len(salt) != SALT_SIZE:
+        raise CryptoError(f"salt must be exactly {SALT_SIZE} bytes")
 
-def encrypt_bytes(key: bytes, plaintext: bytes) -> bytes:
-    iv = get_random_bytes(12)
-    cipher = AES.new(key, AES.MODE_GCM, nonce=iv)
-    ct, tag = cipher.encrypt_and_digest(plaintext)
-    return iv + tag + ct
+    return scrypt(
+        passphrase.encode("utf-8"), salt, key_len=KEY_SIZE, N=2**15, r=8, p=1
+    )
 
-def decrypt_bytes(key: bytes, blob: bytes) -> bytes:
-    iv = blob[:12]
-    tag = blob[12:28]
-    ct = blob[28:]
-    cipher = AES.new(key, AES.MODE_GCM, nonce=iv)
-    return cipher.decrypt_and_verify(ct, tag)
+
+def encrypt_bytes(key: bytes, plaintext: bytes, aad: bytes | None = None) -> bytes:
+    """Encrypt bytes using AES-256-GCM and return nonce || tag || ciphertext."""
+    if not isinstance(key, bytes) or len(key) != KEY_SIZE:
+        raise CryptoError("key must be exactly 32 bytes")
+    if not isinstance(plaintext, bytes):
+        raise CryptoError("plaintext must be bytes")
+    if len(plaintext) > MAX_PLAINTEXT_SIZE:
+        raise CryptoError("plaintext exceeds maximum supported size")
+    if aad is not None and not isinstance(aad, bytes):
+        raise CryptoError("AAD must be bytes or None")
+
+    nonce = get_random_bytes(NONCE_SIZE)
+    cipher = AES.new(key, AES.MODE_GCM, nonce=nonce)
+    if aad is not None:
+        cipher.update(aad)
+    ciphertext, tag = cipher.encrypt_and_digest(plaintext)
+    return nonce + tag + ciphertext
+
+
+def decrypt_bytes(key: bytes, blob: bytes, aad: bytes | None = None) -> bytes:
+    """Decrypt and authenticate an AES-256-GCM blob."""
+    if not isinstance(key, bytes) or len(key) != KEY_SIZE:
+        raise CryptoError("key must be exactly 32 bytes")
+    if not isinstance(blob, bytes) or len(blob) < MIN_BLOB_SIZE:
+        raise CryptoError("encrypted blob is malformed")
+    if len(blob) > MAX_PLAINTEXT_SIZE + MIN_BLOB_SIZE:
+        raise CryptoError("encrypted blob exceeds maximum supported size")
+    if aad is not None and not isinstance(aad, bytes):
+        raise CryptoError("AAD must be bytes or None")
+
+    nonce, tag, ciphertext = (
+        blob[:NONCE_SIZE],
+        blob[NONCE_SIZE:MIN_BLOB_SIZE],
+        blob[MIN_BLOB_SIZE:],
+    )
+    cipher = AES.new(key, AES.MODE_GCM, nonce=nonce)
+    if aad is not None:
+        cipher.update(aad)
+    try:
+        plaintext = cipher.decrypt(ciphertext)
+        cipher.verify(tag)
+        return plaintext
+    except ValueError as exc:
+        raise CryptoError("ciphertext authentication failed") from exc
+
+
+def encode_blob(blob: bytes) -> str:
+    """Encode an encrypted blob for text-based storage or transport."""
+    if not isinstance(blob, bytes):
+        raise CryptoError("blob must be bytes")
+    return base64.b64encode(blob).decode("ascii")
+
+
+def decode_blob(value: str) -> bytes:
+    """Strictly decode a Base64 encrypted blob."""
+    if not isinstance(value, str):
+        raise CryptoError("value must be a string")
+    try:
+        return base64.b64decode(value.encode("ascii"), validate=True)
+    except (ValueError, UnicodeEncodeError) as exc:
+        raise CryptoError("invalid Base64 encoding") from exc

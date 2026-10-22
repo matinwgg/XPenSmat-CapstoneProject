@@ -15,9 +15,11 @@ This folder contains the modelling and experiment code for XPenSmat:
     .venv/bin/activate # or .venv\Scripts\activate on Windows
     pip install -r requirements.txt
 
+   On macOS, XGBoost also needs OpenMP: `brew install libomp`.
+
 2. Put raw CSV(s) in `ml/data/raw/` and run preprocessing:
 ```bash
-    python -m ml.src.preprocessing --input ml/data/raw/expenses.csv --out ml/data/processed/transactions.parquet
+    python -m ml.src.preprocessing --input ml/data/raw/expenses.csv --out ml/data/processed/transactions.parquet --target amount
 ```
 3. Train the model:
 ```bash

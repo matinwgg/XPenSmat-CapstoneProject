@@ -20,9 +20,9 @@ android {
     ndkVersion rootProject.ext.ndkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
-    namespace 'com.wgg.aora'
+    namespace 'com.xpensmat.app'
     defaultConfig {
-        applicationId 'com.wgg.aora'
+        applicationId 'com.xpensmat.app'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

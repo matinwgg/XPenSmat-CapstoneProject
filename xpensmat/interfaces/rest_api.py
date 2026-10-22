@@ -25,13 +25,7 @@ def health():
 
 @app.post("/predict")
 def predict(req: PredictRequest):
-    rows = db.list_transactions(limit=1000)
-    # find txn by id
-    txn = None
-    for r in rows:
-        if r[0] == req.txn_id:
-            txn = r
-            break
+    txn = db.get_transaction(req.txn_id)
     if not txn:
         raise HTTPException(status_code=404, detail="txn not found")
     pred = predict_for_txn(txn)

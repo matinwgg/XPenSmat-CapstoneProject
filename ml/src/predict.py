@@ -1,42 +1,58 @@
-"""
-Simple prediction CLI.
+"""Simple prediction CLI.
 
 Usage:
-python -m ml.src.predict --model experiments/xgb_model.joblib --input new.csv --out preds.csv
+python -m ml.src.predict --model experiments/models/xgb_model.joblib \
+    --input new.csv --out preds.csv
 """
+
+from __future__ import annotations
 
 import argparse
 from pathlib import Path
-import pandas as pd
+
 import joblib
 import numpy as np
+import pandas as pd
 
-def predict_from_csv(model_path: str, input_csv: str, out_csv: str = None):
+
+def _select_features(model, frame: pd.DataFrame) -> pd.DataFrame:
+    feature_names = getattr(model, "feature_names_in_", None)
+    if feature_names is None:
+        return frame
+    missing = [name for name in feature_names if name not in frame.columns]
+    if missing:
+        raise ValueError(
+            "input is missing model features: " + ", ".join(map(str, missing))
+        )
+    return frame[list(feature_names)]
+
+
+def predict_from_csv(
+    model_path: str, input_csv: str, out_csv: str | None = None
+) -> list[float]:
     model = joblib.load(model_path)
-    df = pd.read_csv(input_csv)
-    # Basic assumption: model expects same features as in processed training,
-    # so user should run preprocessing.feature_pipeline first on new rows.
-    # If df contains a single column 'amount' and model is trivial, adapt accordingly.
-    # If model is an XGBoost trained via xgb.train, joblib load might return Booster; handle both.
-    try:
-        # If it is an sklearn-style estimator
-        preds = model.predict(df)
-    except Exception:
-        # Try XGBoost Booster predict path
-        try:
-            import xgboost as xgb
-            d = xgb.DMatrix(df)
-            preds = model.predict(d)
-        except Exception:
-            raise RuntimeError("Model type not supported for automatic prediction. Preprocess input to match training features.")
+    frame = pd.read_csv(input_csv)
+    data = _select_features(model, frame)
 
-    preds = list(preds)
+    try:
+        predictions = model.predict(data)
+    except Exception:
+        # XGBoost Booster objects need a DMatrix rather than a DataFrame.
+        if type(model).__module__.startswith("xgboost"):
+            import xgboost as xgb
+
+            predictions = model.predict(xgb.DMatrix(data))
+        else:
+            raise
+    values = np.asarray(predictions, dtype=float).reshape(-1).tolist()
+
     if out_csv:
-        out = Path(out_csv)
-        out.parent.mkdir(parents=True, exist_ok=True)
-        pd.DataFrame({"prediction": preds}).to_csv(out, index=False)
-        print("Wrote predictions to", out)
-    return preds
+        destination = Path(out_csv)
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        pd.DataFrame({"prediction": values}).to_csv(destination, index=False)
+        print("Wrote predictions to", destination)
+    return values
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -44,5 +60,5 @@ if __name__ == "__main__":
     parser.add_argument("--input", required=True)
     parser.add_argument("--out", required=False)
     args = parser.parse_args()
-    res = predict_from_csv(args.model, args.input, args.out)
-    print("Predictions:", res[:10])
+    result = predict_from_csv(args.model, args.input, args.out)
+    print("Predictions:", result[:10])

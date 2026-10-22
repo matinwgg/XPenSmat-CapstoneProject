@@ -1,0 +1,13 @@
+.git
+.venv
+__pycache__
+*.py[cod]
+*.egg-info
+.pytest_cache
+.env
+data
+reports
+cloud_mirror
+existing_app_files
+ml/data
+ml/notebooks

@@ -1,14 +1,34 @@
-"""
-XGBoost training and evaluation helpers.
+"""XGBoost training and evaluation helpers.
+
+XGBoost is imported lazily so importing this module does not require the
+optional ML extras (or a working OpenMP runtime) until training is requested.
 """
 
-import xgboost as xgb
-from sklearn.metrics import mean_squared_error, mean_absolute_error
-import joblib
+from __future__ import annotations
+
 from pathlib import Path
-import numpy as np
 
-def train_xgb(X_train, y_train, X_val=None, y_val=None, params=None, num_boost_round=200, early_stopping_rounds=20):
+import joblib
+import numpy as np
+from sklearn.metrics import mean_absolute_error, mean_squared_error
+
+
+def _xgb():
+    import xgboost
+
+    return xgboost
+
+
+def train_xgb(
+    X_train,
+    y_train,
+    X_val=None,
+    y_val=None,
+    params: dict | None = None,
+    num_boost_round: int = 200,
+    early_stopping_rounds: int = 20,
+):
+    xgb = _xgb()
     params = params or {
         "objective": "reg:squarederror",
         "eta": 0.05,
@@ -16,30 +36,41 @@ def train_xgb(X_train, y_train, X_val=None, y_val=None, params=None, num_boost_r
         "subsample": 0.8,
         "colsample_bytree": 0.8,
         "seed": 42,
-        "verbosity": 1
+        "verbosity": 1,
     }
     dtrain = xgb.DMatrix(X_train, label=y_train)
     evals = [(dtrain, "train")]
-    watchlist = []
+    kwargs: dict = {}
     if X_val is not None and y_val is not None:
-        dval = xgb.DMatrix(X_val, label=y_val)
-        evals.append((dval, "val"))
-    model = xgb.train(params, dtrain, num_boost_round=num_boost_round, evals=evals, early_stopping_rounds=early_stopping_rounds, verbose_eval=20)
-    return model
+        evals.append((xgb.DMatrix(X_val, label=y_val), "val"))
+        kwargs["early_stopping_rounds"] = early_stopping_rounds
+    return xgb.train(
+        params,
+        dtrain,
+        num_boost_round=num_boost_round,
+        evals=evals,
+        verbose_eval=20,
+        **kwargs,
+    )
+
 
 def predict_xgb(model, X):
-    d = xgb.DMatrix(X)
-    return model.predict(d)
+    return model.predict(_xgb().DMatrix(X))
 
-def eval_xgb(model, X_test, y_test):
-    preds = predict_xgb(model, X_test)
-    rmse = mean_squared_error(y_test, preds, squared=False)
-    mae = mean_absolute_error(y_test, preds)
-    return {"rmse": rmse, "mae": mae}
 
-def save_xgb(model, path: str):
-    Path(path).parent.mkdir(parents=True, exist_ok=True)
-    joblib.dump(model, path)
+def eval_xgb(model, X_test, y_test) -> dict[str, float]:
+    predictions = predict_xgb(model, X_test)
+    return {
+        "rmse": float(np.sqrt(mean_squared_error(y_test, predictions))),
+        "mae": float(mean_absolute_error(y_test, predictions)),
+    }
 
-def load_xgb(path: str):
+
+def save_xgb(model, path: str | Path) -> None:
+    destination = Path(path)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    joblib.dump(model, destination)
+
+
+def load_xgb(path: str | Path):
     return joblib.load(path)
