@@ -1,107 +1,122 @@
-# XPenSmat — Intelligent Expense Management for Ghanaian FinTech
+# XPenSmat
 
-## About
+XPenSmat is a personal finance capstone project with an Expo mobile client and
+a Python service for transaction ingestion, local persistence, prediction,
+reporting, and natural language helpers. Financial records are sensitive, so
+the project is designed around local data ownership and explicit Appwrite
+document permissions.
 
-XPenSmat is a capstone project exploring intelligent personal-finance management in a Ghanaian/FinTech context. It combines financial-data ingestion, local storage, expense categorisation and prediction, natural-language interaction, export, synchronisation, and a mobile application layer.
-
-### Why it exists
-
-Personal-finance software must combine useful intelligence with strong protection of highly sensitive financial data. XPenSmat explores how mobile engineering, machine learning, data modelling, and secure financial-data handling can work together.
-
-## Features
-
-- SMS and bank-transaction ingestion
-- Expense categorisation and prediction
-- Local financial-data storage
-- ML/NLP-assisted interaction
-- Data export
-- Appwrite synchronisation
-- Android/mobile application layer
-- Separate `ml/` research and training components
-
-## Tech Stack
-
-- React Native / Expo mobile tooling
-- JavaScript/TypeScript components present in the application
-- Appwrite services
-- Machine-learning components under `ml/`
-- Android/Gradle build tooling
-
-## Architecture
-
-```text
-Financial inputs
-      ↓
-Ingestion + normalization
-      ↓
-Local financial state
-      ├── Expense analytics / ML
-      ├── NLP interaction
-      └── Export
-      ↓
-Authenticated synchronization
-      ↓
-Appwrite-backed services
-```
-
-## Project Structure
+## Repository layout
 
 ```text
 .
-├── existing_app_files/  # Mobile application source and Android project
-├── ml/                  # ML/training/research components
-├── android/             # Android build configuration where applicable
-└── README.md
+├── xpensmat/                 # Installable Python application package
+│   ├── appwrite_backend/     # Appwrite adapter boundary
+│   ├── core/                 # Configuration, security, orchestration
+│   ├── data/                  # SQLite, schemas, ingestion, sync
+│   ├── export/                # PDF and DOCX report generation
+│   ├── interfaces/            # CLI, REST API, mobile bridge
+│   ├── nlp_engine/            # Intent parsing and chat helpers
+│   └── predictor/             # Model training, serving, evaluation
+├── apps/mobile/                # Expo Router app and Android project
+├── ml/                        # Separate ML research and experiment package
+├── core/                      # Compatibility import for older crypto callers
+├── infra/                     # Docker image, Compose and deployment notes
+├── experiments/               # Local model artifacts and experiment outputs
+├── reports/                    # Generated reports (local runtime output)
+└── pyproject.toml              # Python packaging and tool configuration
 ```
 
-## Prerequisites
+## Development setup
 
-- Node.js compatible with the project's Expo/React Native version
-- npm/yarn
-- Android Studio for Android development
-- Android SDK / emulator or physical device
-- Appwrite project for synchronisation features
+Use Python 3.11 or newer and Node.js compatible with Expo SDK 51.
 
-## Getting Started
+### Python service
 
-```bash
-git clone https://github.com/matinwgg/XPenSmat-CapstoneProject.git
-cd XPenSmat-CapstoneProject
+```sh
+python -m venv .venv
+# Windows PowerShell: .venv\Scripts\Activate.ps1
+# macOS/Linux:        source .venv/bin/activate
+python -m pip install -e ".[api,reports]"
 ```
 
-Install the dependencies using the package manager associated with the application package manifest, configure Appwrite/environment values through local configuration, and run the Expo/React Native development workflow defined by the project.
+Copy `xpensmat/.env.example` to `.env` in the repository root or export the
+variables in your shell. The local data store defaults to `./data/xpensmat.db` relative to
+the current working directory. Run the service from the repository root:
 
-## Usage
+```sh
+uvicorn xpensmat.interfaces.rest_api:app --reload
+```
 
-A typical workflow is:
+The API listens on `http://127.0.0.1:8000` and exposes `/health`, `/predict`,
+and `/chat`.
 
-1. Configure the application and synchronisation backend.
-2. Run the mobile application on a development device/emulator.
-3. Ingest or enter financial transactions.
-4. Review categorisation, predictions, and analytics.
-5. Export or synchronise data as required.
+### Mobile application
 
-## Security Considerations
+```sh
+cd apps/mobile
+npm ci
+npm --prefix testing ci
+npm start
+```
 
-Financial data is sensitive. The project therefore emphasises least-privilege permissions, protected local state, secure authentication, safe synchronisation, release signing, backup policy, and careful export handling. Production use would require a full mobile threat model, cryptographic storage review, privacy assessment, compliance review, and penetration testing.
+Use the Expo development client or the Android/iOS scripts in the mobile
+package manifest. Appwrite project IDs and the public endpoint are configured
+in `lib/appwrite.js`; private API keys must never be added to the mobile app.
 
-## Testing
+### Appwrite schema
 
-Run the platform-specific tests and Android build checks supplied by the project. Security testing should include authentication/session handling, local storage, backup behaviour, exported files, deep links, network traffic, and authorisation boundaries.
+The Appwrite CLI manifest is in the repository root and mirrored beside the
+mobile app. See [infra/README.md](infra/README.md) for the schema, ownership
+rules, and deployment commands.
 
-## Limitations & Future Work
+## Python commands
 
-- Strengthen encrypted local persistence
-- Reduce unnecessary Android permissions
-- Formalise ML evaluation and uncertainty
-- Add privacy-preserving analytics
-- Expand end-to-end tests
-- Add production observability and crash/security monitoring
+The package installs the `xpensmat` command. For example:
 
-## Contributing
+```sh
+xpensmat --train
+xpensmat --predict transactions.csv --out predictions.csv
+python -m xpensmat.interfaces.cli --ingest-sms
+```
 
-Keep financial-data assumptions explicit, add regression tests for sensitive workflows, and never commit personal financial data or credentials.
+Research experiments use a separate optional dependency set:
 
-## Author
+```sh
+python -m pip install -e ".[research]"
+python -m ml.src.train --help
+```
 
-**A. Matin Odoom**
+## Quality checks
+
+```sh
+# Python test and lint dependencies
+python -m pip install -e ".[test,dev]"
+python -m pytest
+ruff check .
+ruff format --check .
+
+# Mobile checks
+cd apps/mobile
+npm test
+```
+
+## Runtime boundaries
+
+- The Python database is SQLite. Appwrite authentication, functions, and
+  synchronization adapters under `xpensmat/appwrite_backend/` are currently
+  placeholders; configuring the endpoint does not make those adapters live.
+- The mobile client uses Appwrite directly. Its profile and expense documents
+  receive owner-only read, update, and delete permissions.
+- ML research dependencies, raw datasets, trained models, and generated
+  reports are kept separate from the mobile bundle and are not required to
+  start the API.
+- `core.security` remains as a compatibility import. New code should import
+  security helpers from `xpensmat.core.security`.
+
+## Security and data handling
+
+Do not commit `.env` files, API keys, private financial records, exported
+reports, or production model artifacts. Keep backups and exports access
+controlled. See [ASSESSMENT.md](ASSESSMENT.md) for the recorded project
+assessment and known limitations.

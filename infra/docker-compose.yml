@@ -1,26 +1,23 @@
-version: '3.9'
-
 services:
-  xpen_backend:
-    build: .
+  api:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
     environment:
-      - APPWRITE_ENDPOINT=${APPWRITE_ENDPOINT}
-      - APPWRITE_API_KEY=${APPWRITE_API_KEY}
+      APPWRITE_ENDPOINT: ${APPWRITE_ENDPOINT:-}
+      APPWRITE_PROJECT: ${APPWRITE_PROJECT:-}
+      XPENSMAT_DB: /app/data/xpensmat.db
+      XPENSMAT_MODEL_DIR: /app/experiments/models
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
     volumes:
-      - .:/app
-    depends_on:
-      - db
-
-  db:
-    image: postgres:15
-    environment:
-      POSTGRES_USER: xpen
-      POSTGRES_PASSWORD: xpen_password
-      POSTGRES_DB: xpen_db
-    volumes:
-      - pgdata:/var/lib/postgresql/data
+      - xpensmat_data:/app/data
+      - xpensmat_reports:/app/reports
+      - xpensmat_models:/app/experiments/models
+    restart: unless-stopped
 
 volumes:
-  pgdata:
+  xpensmat_data:
+  xpensmat_reports:
+  xpensmat_models:
