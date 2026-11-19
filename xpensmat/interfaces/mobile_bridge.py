@@ -1,17 +1,26 @@
-# xpensmat/interfaces/mobile_bridge.py
-"""
-Simple adapter functions used by the mobile app to push messages/transactions.
-Mobile apps should call REST endpoints; this file shows helper functions used on server side.
-"""
-from xpensmat.data.db import db
-from xpensmat.core.logger import logger
-import json
+"""Adapters for transaction payloads submitted by mobile clients."""
 
-def push_mobile_transaction(payload: dict):
-    # payload should contain at least timestamp, source, and amount fields
+from __future__ import annotations
+
+import json
+from collections.abc import Mapping
+from typing import Any
+
+from xpensmat.core.logger import logger
+from xpensmat.data.db import db
+
+
+def push_mobile_transaction(payload: Mapping[str, Any]) -> dict[str, Any]:
+    """Store a mobile transaction payload in the local transaction database."""
+
     try:
-        db.insert_transaction(timestamp=payload.get("timestamp"), source="mobile", raw_json=json.dumps(payload), amount=payload.get("amount"))
+        db.insert_transaction(
+            timestamp=payload.get("timestamp"),
+            source="mobile",
+            raw_json=json.dumps(dict(payload)),
+            amount=payload.get("amount"),
+        )
         return {"ok": True}
-    except Exception as e:
-        logger.exception("push_mobile_transaction failed: %s", e)
-        return {"ok": False, "error": str(e)}
+    except Exception as exc:
+        logger.exception("Failed to store mobile transaction")
+        return {"ok": False, "error": str(exc)}

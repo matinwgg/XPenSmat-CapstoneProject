@@ -9,7 +9,6 @@ import argparse
 from pathlib import Path
 import pandas as pd
 import joblib
-import numpy as np
 
 def predict_from_csv(model_path: str, input_csv: str, out_csv: str = None):
     model = joblib.load(model_path)

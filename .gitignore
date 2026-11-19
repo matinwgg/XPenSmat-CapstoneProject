@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.venv/
+venv/
+**/.env
+**/.env.*
+!**/.env.example
+
+# Test/build artefacts
+reports/
+cloud_mirror/
+apps/mobile/testing/node_modules/
+
+# JavaScript / Expo
+node_modules/
+.expo/
+web-build/
+dist/
+*.log
+
+# Editors / OS
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
